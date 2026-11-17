@@ -1184,7 +1184,7 @@ function cadViewerHTML(s){
 }
 
 function cardHTML(s){
-  const on = inRadar(s.id), p = physOf(s);
+  const on = inRadar(s.id), inC = typeof cmpList !== "undefined" && cmpList.includes(s.id), p = physOf(s);
   return `<article class="card">
     <p class="meta"><span>${esc(FAM[s.f])}</span><span class="price" title="${esc(priceTitle(s))}">${esc(priceLabel(s))}</span></p>
     <div class="card-3d" data-open="${s.id}" title="Ver figura 3D y cotas de ${esc(s.pn)}">
@@ -1195,7 +1195,7 @@ function cardHTML(s){
     <h3><button type="button" class="pn" data-open="${s.id}">${esc(s.pn)}</button></h3>
     <p class="what">${esc(s.n)}</p>
     <p class="chips">${busHTML(s)}${flagsHTML(s)}</p>
-    <div class="acts"><button type="button" class="link" data-open="${s.id}">Ver ficha 3D</button><button type="button" class="radar-btn" data-radar="${s.id}" aria-pressed="${on}">${on ? "En tu radar" : "+ Radar"}</button></div>
+    <div class="acts"><button type="button" class="link" data-open="${s.id}">Laboratorio</button><div style="display:flex;gap:5px;align-items:center"><button type="button" class="pill" data-cmp="${s.id}" aria-pressed="${inC}" title="Comparar lado a lado">${inC ? "Comparando" : "Comparar"}</button><button type="button" class="radar-btn" data-radar="${s.id}" aria-pressed="${on}">${on ? "En tu radar" : "+ Radar"}</button></div></div>
   </article>`;
 }
 function renderGrid(){
@@ -1391,23 +1391,31 @@ function radarText(){
   return "Mi radar de sensores (" + new Date().toLocaleDateString("es") + ")\n" + lines.join("\n");
 }
 function esphomeYAML(){
-  const catSensors = state.radar.map(r => byId.get(r.id)).filter(Boolean);
+  const bd = typeof benchData === "function" ? benchData() : null;
+  const catSensors = bd ? bd.items : state.radar.map(r => byId.get(r.id)).filter(Boolean);
+  const wireMap = bd ? new Map(bd.wires.map(x => [x.s.id, x.w])) : new Map();
   const lines = ["# Base ESPHome generada por Radar de sensores", "esphome:", "  name: nodo-sensores", "", "esp32:", "  board: esp32dev", ""];
   if (catSensors.some(s => s.b.includes("I2C"))) {
     lines.push("i2c:", "  sda: GPIO21", "  scl: GPIO22", "  scan: true", "");
   }
-  const uarts = catSensors.filter(s => s.b.includes("UART") && !s.b.includes("I2C"));
-  uarts.slice(0, 2).forEach((s, i) => {
-    const pins = i === 0 ? ["GPIO16", "GPIO17"] : ["GPIO25", "GPIO26"];
-    lines.push(`uart:${i ? " # 2do bus" : ""}`, `  - id: uart_${s.id}`, `    rx_pin: ${pins[0]}`, `    tx_pin: ${pins[1]}`, "    baud_rate: 9600", "");
-  });
+  const uartDevs = catSensors.filter(s => { const w = wireMap.get(s.id); return w && w.rows.some(r => r.kind === "uart-rx" && r.g != null); });
+  if (uartDevs.length) {
+    lines.push("uart:");
+    uartDevs.forEach(s => {
+      const w = wireMap.get(s.id);
+      const rx = w.rows.find(r => r.fn === "RX" && r.g != null), tx = w.rows.find(r => r.fn === "TX" && r.g != null);
+      lines.push(`  - id: uart_${s.id}`, `    rx_pin: GPIO${rx ? rx.g : 16}`, `    tx_pin: GPIO${tx ? tx.g : 17}`, "    baud_rate: 9600", "");
+    });
+  }
   lines.push("sensor:");
   for (const s of catSensors) {
+    const w = wireMap.get(s.id);
+    const adcRow = w && w.rows.find(r => r.kind === "adc" && r.g != null);
     lines.push(`  # ${s.pn} — ${s.n}${s.esphome || has(s, "esphome") ? " (soportado en ESPHome)" : " (requiere componente externo o ADC/custom)"}`);
     if (s.b.includes("I2C")) {
       lines.push(`  - platform: ${s.id} # verifica el nombre exacto en esphome.io`, `    address: ${s.a || "0x00"}`, `    update_interval: 15s`);
-    } else if (s.b.includes("Analógico")) {
-      lines.push(`  - platform: adc`, `    pin: GPIO34 # usar ADC1 (GPIO32-39)`, `    name: "${s.pn}"`, `    attenuation: 12db`);
+    } else if (adcRow || s.b.includes("Analógico")) {
+      lines.push(`  - platform: adc`, `    pin: GPIO${adcRow ? adcRow.g : 34}`, `    name: "${s.pn}"`, `    attenuation: 12db`);
     } else if (s.b.includes("1-Wire")) {
       lines.push(`  - platform: dallas_temp`, `    name: "${s.pn}"`);
     } else {
@@ -1417,25 +1425,8 @@ function esphomeYAML(){
   return lines.join("\n");
 }
 function pinoutText(){
-  const catSensors = state.radar.map(r => byId.get(r.id)).filter(Boolean);
-  const adcPins = ["GPIO34 (ADC1_6)", "GPIO35 (ADC1_7)", "GPIO32 (ADC1_4)", "GPIO33 (ADC1_5)"];
-  const digPins = ["GPIO4", "GPIO13", "GPIO14", "GPIO27"];
-  const uarts = [["GPIO16 (RX2)", "GPIO17 (TX2)"], ["GPIO25 (RX1)", "GPIO26 (TX1)"]];
-  let ai = 0, di = 0, ui = 0;
-  const rows = ["Guía de conexión sugerida (ESP32-WROOM-32)", "=========================================="];
-  for (const s of catSensors) {
-    let conn = "Revisar datasheet";
-    if (s.b.includes("I2C")) conn = `SDA -> GPIO21 · SCL -> GPIO22 (I2C ${s.a || "s/d"})`;
-    else if (s.b.includes("UART")) { const p = uarts[ui++ % uarts.length]; conn = `TX sensor -> ${p[0]} · RX sensor -> ${p[1]}`; }
-    else if (s.b.includes("SPI")) conn = `SCK -> GPIO18 · MISO -> GPIO19 · MOSI -> GPIO23 · CS -> ${digPins[di++ % digPins.length]}`;
-    else if (s.b.includes("1-Wire")) conn = `DATA -> GPIO4 (con resistencia pull-up de 4.7 kΩ a 3.3V)`;
-    else if (s.b.includes("I2S")) conn = `SCK -> GPIO14 · WS -> GPIO15 · SD -> GPIO32`;
-    else if (s.b.includes("Analógico")) conn = `OUT -> ${adcPins[ai++ % adcPins.length]}`;
-    else if (s.b.includes("Digital") || s.b.includes("Trigger/Echo")) conn = `IO -> ${digPins[di++ % digPins.length]}`;
-    else if (s.b.includes("Interno")) conn = `Integrado en el ESP32`;
-    rows.push(`• ${s.pn}: ${conn}${s.w ? ` [⚠️ ${s.w}]` : ""}`);
-  }
-  return rows.join("\n");
+  if (typeof benchData === "function" && typeof benchPinText === "function") return benchPinText(benchData());
+  return radarText();
 }
 function renderRadar(){
   $("#radar-n").textContent = String(state.radar.length);
@@ -1462,7 +1453,7 @@ function renderRadar(){
     (state.radar.length ? `<ul class="rlist">${items}</ul>` : `<p class="hint">Marca con «+ Radar» los sensores y novedades que quieras seguir o armar en un nodo. Aquí verás colisiones I2C, notas eléctricas y podrás generar el YAML de ESPHome o la guía de pines.</p>`) +
     confHTML +
     nodeAudit() +
-    (state.radar.length ? `<div class="row-btns"><button type="button" class="btn small" data-act="copy">Copiar lista</button>${hasCat ? `<button type="button" class="btn small" data-act="gen-yaml">ESPHome YAML</button><button type="button" class="btn small" data-act="gen-pins">Pines ESP32</button>` : ""}<button type="button" class="btn small" data-act="radar-clear">Vaciar</button></div>` : "") +
+    (state.radar.length ? `<div class="row-btns">${hasCat ? `<button type="button" class="btn small primary" data-view="banco">Abrir en Banco de proyecto</button>` : ""}<button type="button" class="btn small" data-act="copy">Copiar lista</button>${hasCat ? `<button type="button" class="btn small" data-act="gen-yaml">ESPHome YAML</button><button type="button" class="btn small" data-act="gen-pins">Pines ESP32</button>` : ""}<button type="button" class="btn small" data-act="radar-clear">Vaciar</button></div>` : "") +
     (copyText ? `<textarea id="copy-out" readonly aria-label="Salida generada">${esc(copyText)}</textarea>` : "") +
     `<p class="sync">${BRIDGE ? "Guardado en tu Mac." : "Guardado en este navegador."}</p>`;
 }
@@ -2273,7 +2264,10 @@ const PIN_OV = {
   ina226:{"IN+":["meas"],"IN-":["meas"],VBUS:["meas"]},
   max30102:{IRD:["nc"],RD:["nc"]},
   pzem:{L:["mains"],N:["mains"]},
-  sct013:{"Punta Jack (K / S1)":["meas"],"Anillo/Base Jack (L / S2)":["meas"]},
+  sct013:{"Punta Jack (K / S1)":["adc"],"Anillo/Base Jack (L / S2)":["cfg"]},
+  bme680:{SCK:["scl"],SDI:["sda"],SDO:["cfg"],CS:["alt"]},
+  rs485:{"Amarillo (RS485-A)":["tx"],"Azul (RS485-B)":["rx"]},
+  ak5816:{IRQ:["int",{opt:0}]},
   stretch:{EXT1:["pwr",{v:"3V3"}],EXT2:["adc"],"R_DIV (10kΩ)":["cfg"]},
   lsm6dsv16x:{QVAR1:["meas"],QVAR2:["meas"]},
   mhz19:{HD:["cfg"]},
@@ -2296,7 +2290,7 @@ function pwrVolt(s, p){
   if (/^\s*5\s*V/i.test(t)) return "5V";
   return "3V3";
 }
-function classifyPin(raw, s, prim){
+function classifyPin(raw, s, prim, allPins){
   let n = String(raw).trim();
   const ov = PIN_OV[s.id] && PIN_OV[s.id][n];
   if (ov) return Object.assign({k: ov[0]}, ov[1] || {});
@@ -2309,9 +2303,11 @@ function classifyPin(raw, s, prim){
         hasW1 = B.includes("1-Wire"), hasTE = B.includes("Trigger/Echo"), hasANA = B.includes("Analógico"), hasDIG = B.includes("Digital");
   const altIf = (bus, k, extra) => (B.includes(bus) && prim !== bus) ? {k: "alt"} : Object.assign({k}, extra || {});
   if (/GND|^-$/.test(U)) return {k: "gnd"};
+  if (/PULSO|PULSE/.test(U)) return {k: "pulse"};
   if (/^PO\b/.test(U)) return {k: "adc"};
   if (/^3VO\b/.test(U)) return {k: "out33"};
   if (/^(VIN\+|VIN-|IN\+|IN-|IP\+|IP-|CT\+|CT-|[EA][+-]|JST|VIN_Z|VOUT_Z|REF|RFB|EXT\d)/.test(U)) return {k: "meas"};
+  if (/^(3V3|3\.3V)$/.test(U) && Array.isArray(allPins) && allPins.some(p => /^(VIN|VCC|VDD|5V|\+5V|\+VS|V\+)\b/i.test(String(p).trim()))) return {k: "out33"};
   if (/^(VIN|VCC|VDD|\+VS|3V3|3\.3V|5V|\+5V|VL)\b/.test(U) || /^V\+/.test(U) || /^\d+\s*[-–]\s*\d+\s*V$/.test(U)) {
     if (/4-28V|12\s*-\s*24|24V|12V/.test(U)) return {k: "pwr", v: "EXT"};
     if (/3\.3\s*V|3V3/.test(U)) return {k: "pwr", v: "3V3"};
@@ -2320,10 +2316,12 @@ function classifyPin(raw, s, prim){
   }
   if (/^SPI\/I2C$/.test(U)) return {k: "cfg"};
   if (/^(ADC|ADC \+)/.test(U)) return {k: "adc"};
-  if (/PULSO|PULSE/.test(U)) return {k: "pulse"};
   if (/^S \(SE/.test(U)) return {k: hasANA ? "adc" : "din"};
   if (/^RS485-[AB]$/.test(U)) return {k: "bus"};
   if (/^USB_/.test(U)) return {k: "nc"};
+  if (/SDA/.test(U) && /(RX|TX)/.test(U)) return prim === "UART" ? {k: /RX/.test(U) ? "rx" : "tx"} : {k: "sda"};
+  if (/SCL/.test(U) && /(RX|TX)/.test(U)) return prim === "UART" ? {k: /RX/.test(U) ? "rx" : "tx"} : {k: "scl"};
+  if (/SDA/.test(U) && /\(CS\)/.test(U)) return prim === "SPI" ? {k: "cs"} : {k: "sda"};
   if (/SDA/.test(U) && hasI2C) return altIf("I2C", "sda");
   if (/SCL/.test(U) && hasI2C) return altIf("I2C", "scl");
   if (/^(XDA|XCL|NC)$/.test(U)) return {k: "nc"};
@@ -2376,7 +2374,7 @@ function wiringFor(s, ctx, opts){
   const volt = pwrVolt(s, p);
   const rows = [];
   for (const raw of p.pins) {
-    const c = classifyPin(raw, s, prim);
+    const c = classifyPin(raw, s, prim, p.pins);
     const row = {pin: raw, cls: c.k, opt: !!c.opt, kind: c.k, gpio: "—", fn: "", warn: ""};
     const give = (g, label, kind, fn, shared) => { row.g = g; row.gpio = label; row.kind = kind; row.fn = fn; row.shared = !!shared; ctxUse(ctx, label, s, fn); };
     if (c.k === "alt") { row.kind = "alt"; row.fn = "Otro modo"; rows.push(row); continue; }
@@ -2707,7 +2705,7 @@ function toggleCmp(id){
   if (!byId.has(id)) return;
   if (cmpList.includes(id)) cmpList = cmpList.filter(x => x !== id);
   else { cmpList.push(id); if (cmpList.length > 4) cmpList.shift(); }
-  saveCmp(); v2Refresh();
+  saveCmp(); v2Refresh(); renderGrid();
 }
 function setView(v){
   view = v; document.body.dataset.view = v;
@@ -2723,9 +2721,14 @@ function v2Refresh(){
 }
 function goExplore(o){
   if (openId) closeFicha();
+  state.q = ""; const qi = $("#q"); if (qi) qi.value = "";
+  state.sector = ""; state.fam = ""; state.bus.clear(); state.price.clear(); state.flags.clear();
+  state.recipe = ""; const ans = $("#answer"); if (ans) ans.hidden = true; renderRecipesBar();
+  const f = $("#fam"); if (f) f.value = "";
   if (o.sector != null) { state.sector = o.sector; try { location.hash = o.sector || "todos"; } catch (e) {} }
-  if (o.fam != null) { state.fam = o.fam; const f = $("#fam"); if (f) f.value = o.fam; }
-  if (o.bus) { state.bus.clear(); state.bus.add(o.bus); }
+  else { try { location.hash = "todos"; } catch (e) {} }
+  if (o.fam != null) { state.fam = o.fam; if (f) f.value = o.fam; }
+  if (o.bus) { state.bus.add(o.bus); }
   renderSectors(); renderFilters(); renderGrid();
   setView("explorar");
   const t = $("#resultados"); if (t) t.scrollIntoView({block: "start"});
