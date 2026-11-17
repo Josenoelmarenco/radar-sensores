@@ -3,13 +3,16 @@
 Native macOS app (Apple Silicon) for discovering sensors for ESP32 projects in health, home automation,
 robotics, hydroponics, air quality, energy, wearables and security.
 
+- **Dashboard-style views** (top bar): **Explorar**, **Panel** (KPIs, sectors, I²C address map, price × difficulty heatmap), **Comparar** (side-by-side with I²C clash detection) and **Banco de proyecto** (pin allocator, block diagram, audit)
+- **Sensor laboratory** on every sheet: clickable board anatomy, ESP32 wiring diagram with clickable wires, industries that use it, how it works, 3D/CAD and projects
+- New sector **Defensa y campo** (dual-use sensing for robotics, perimeter and field work; defensive and civil-protection framing) and a **Comunicación** family (LoRa, CAN, GNSS…); 139 sensors in total
 - Curated catalog of sensors with filters by sector, interface (`I2C`, `SPI`, `UART`, `Analógico`, `Trigger/Echo`, `RS485`, etc.), price, ownership (`Lo que ya tengo` / `Solo lo que no tengo`) and "what it measures"
 - Direct search recommendations and **Project Recipes** (`Hidroponía DWC`, `Estación ambiental`, `Nodo biomédico`, `Sueño y caídas 60 GHz`) matched against owned hardware
 - **ESP32 Node Architect** inside "Mi radar":
   - Direct and inventory-aware I2C address conflict detection
   - Electrical and bus audit (`UART` count, `ADC1` vs. Wi-Fi `ADC2` / `ADS1115` suggestion, 5 V and galvanic isolation warnings)
   - One-click **ESPHome YAML** and **ESP32-WROOM-32 pinout** generator
-- **3D Isometric Figures & CAD Blueprints** for all 124 sensors:
+- **3D Isometric Figures & CAD Blueprints** for all sensors:
   - Vectorized 3D isometric model on every catalog card with real millimeter dimensions (`L × W × H mm`)
   - Interactive Ficha 3D viewer with 3 modes: **Figura 3D** (with `Isométrica`, `Inclinada` and `Lateral 3D` perspectives), **Plano y cotas (mm)** (top & side views with Fusion 360 mounting specs), and **Comparar tamaño (1:1 scale)** against a `1 € coin (Ø 23.25 mm)`, `XIAO ESP32`, and `ESP32 DevKit`
   - Visual color-coded **module pinout bar** (`VIN`, `GND`, `SCL`, `SDA`, `TX`, `RX`, etc.), power consumption, and output signal details

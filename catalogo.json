@@ -1,9 +1,13 @@
 {
  "esquema": 1,
- "version": 1,
+ "version": 2,
  "actualizado": "2026-11-17",
  "nota": "Catálogo curado del Radar de sensores. Lo actualiza la tarea mensual de Claude. Esquema en LEEME.md.",
  "cambios": [
+  {
+   "fecha": "2026-11-17",
+   "texto": "Sector Defensa y campo, familia Comunicación, 15 sensores nuevos (GNSS RTK, IMU, térmico, LoRa, CAN, radar 3D, geófono…) y campos opcionales ind/eq con industrias y equivalente industrial."
+  },
   {
    "fecha": "2026-11-17",
    "texto": "Catálogo inicial: 124 sensores, inventario leído de Notion."
@@ -404,7 +408,8 @@
    "s": [
     "domotica",
     "seguridad",
-    "salud"
+    "salud",
+    "defensa"
    ],
    "b": [
     "UART",
@@ -438,7 +443,8 @@
    "s": [
     "domotica",
     "seguridad",
-    "robotica"
+    "robotica",
+    "defensa"
    ],
    "b": [
     "UART"
@@ -460,7 +466,22 @@
    ],
    "w": "Alimenta a 5 V.",
    "q": "LD2450",
-   "k": "personas posicion zonas trayectoria mmwave seguimiento contar"
+   "k": "personas posicion zonas trayectoria mmwave seguimiento contar",
+   "ind": [
+    [
+     "Edificios inteligentes",
+     "Mapas de ocupación sin cámaras"
+    ],
+    [
+     "Seguridad perimetral",
+     "Seguimiento de personas con poca luz"
+    ],
+    [
+     "Cuidado de personas mayores",
+     "Detección de caídas y rutinas"
+    ]
+   ],
+   "eq": "Radares de interior 60 GHz certificados (como los de Infineon) para aplicaciones de presencia"
   },
   {
    "id": "mr60bha2",
@@ -501,7 +522,8 @@
    "s": [
     "salud",
     "seguridad",
-    "domotica"
+    "domotica",
+    "defensa"
    ],
    "b": [
     "UART"
@@ -643,7 +665,8 @@
    "f": "radar",
    "s": [
     "domotica",
-    "seguridad"
+    "seguridad",
+    "defensa"
    ],
    "b": [
     "Interno"
@@ -674,7 +697,8 @@
    "s": [
     "robotica",
     "wearables",
-    "salud"
+    "salud",
+    "defensa"
    ],
    "b": [
     "I2C"
@@ -696,7 +720,22 @@
     "qmc5883l"
    ],
    "q": "MPU6050",
-   "k": "inclinacion vibracion pasos caida caidas caer cayo giroscopio"
+   "k": "inclinacion vibracion pasos caida caidas caer cayo giroscopio",
+   "ind": [
+    [
+     "Drones de consumo",
+     "Estabilización básica"
+    ],
+    [
+     "Smartphones",
+     "Rotación de pantalla"
+    ],
+    [
+     "Robótica educativa",
+     "Equilibrio de robots de dos ruedas"
+    ]
+   ],
+   "eq": "IMU industriales con calibración térmica (Analog Devices ADIS, Bosch BMI)"
   },
   {
    "id": "bno085",
@@ -705,7 +744,8 @@
    "f": "imu",
    "s": [
     "robotica",
-    "wearables"
+    "wearables",
+    "defensa"
    ],
    "b": [
     "I2C",
@@ -729,7 +769,22 @@
     "bmp581"
    ],
    "q": "BNO085",
-   "k": "orientacion cuaternion postura vr rumbo"
+   "k": "orientacion cuaternion postura vr rumbo",
+   "ind": [
+    [
+     "Realidad virtual",
+     "Seguimiento de cabeza"
+    ],
+    [
+     "Robótica móvil",
+     "Rumbo sin deriva"
+    ],
+    [
+     "Calzado inteligente",
+     "Análisis del paso"
+    ]
+   ],
+   "eq": "AHRS industriales y tácticos (Xsens, VectorNav)"
   },
   {
    "id": "bno055",
@@ -738,7 +793,8 @@
    "f": "imu",
    "s": [
     "robotica",
-    "wearables"
+    "wearables",
+    "defensa"
    ],
    "b": [
     "I2C"
@@ -758,7 +814,18 @@
     "bmp581",
     "gps"
    ],
-   "k": "orientacion euler brujula gimbal"
+   "k": "orientacion euler brujula gimbal",
+   "ind": [
+    [
+     "Robótica",
+     "Orientación con fusión por hardware"
+    ],
+    [
+     "Deporte",
+     "Análisis de movimiento"
+    ]
+   ],
+   "eq": "AHRS industriales con certificación EMC"
   },
   {
    "id": "lsm6dsox",
@@ -798,7 +865,8 @@
    "f": "imu",
    "s": [
     "wearables",
-    "robotica"
+    "robotica",
+    "defensa"
    ],
    "b": [
     "I2C",
@@ -859,7 +927,8 @@
    "f": "imu",
    "s": [
     "wearables",
-    "robotica"
+    "robotica",
+    "defensa"
    ],
    "b": [
     "I2C",
@@ -921,7 +990,8 @@
    "n": "Brújula digital (magnetómetro)",
    "f": "imu",
    "s": [
-    "robotica"
+    "robotica",
+    "defensa"
    ],
    "b": [
     "I2C"
@@ -950,7 +1020,8 @@
    "f": "imu",
    "s": [
     "domotica",
-    "seguridad"
+    "seguridad",
+    "defensa"
    ],
    "b": [
     "Digital"
@@ -1092,7 +1163,8 @@
    "s": [
     "robotica",
     "domotica",
-    "seguridad"
+    "seguridad",
+    "defensa"
    ],
    "b": [
     "I2C"
@@ -1113,7 +1185,22 @@
     "ld2450",
     "bno085"
    ],
-   "k": "profundidad gestos 3d contar personas matriz"
+   "k": "profundidad gestos 3d contar personas matriz",
+   "ind": [
+    [
+     "Robótica",
+     "Mapa de profundidad 8×8 para evitar obstáculos"
+    ],
+    [
+     "Electrodomésticos",
+     "Detección de gestos y presencia"
+    ],
+    [
+     "Automoción",
+     "Detección de ocupantes"
+    ]
+   ],
+   "eq": "LiDAR de seguridad 2D/3D clasificados IEC 61496"
   },
   {
    "id": "tmf8806",
@@ -1122,7 +1209,8 @@
    "f": "dist",
    "s": [
     "robotica",
-    "domotica"
+    "domotica",
+    "defensa"
    ],
    "b": [
     "I2C"
@@ -1152,7 +1240,8 @@
    "n": "LiDAR de un punto hasta 8 m",
    "f": "dist",
    "s": [
-    "robotica"
+    "robotica",
+    "defensa"
    ],
    "b": [
     "UART",
@@ -1171,7 +1260,22 @@
     "as5600"
    ],
    "w": "Alimenta a 5 V.",
-   "k": "lidar largo alcance escaner"
+   "k": "lidar largo alcance escaner",
+   "ind": [
+    [
+     "Drones",
+     "Altímetro de precisión"
+    ],
+    [
+     "Robótica",
+     "Evitar obstáculos a 8 m"
+    ],
+    [
+     "Industria",
+     "Detección de nivel sin contacto"
+    ]
+   ],
+   "eq": "Sensores LiDAR de seguridad IP67 (SICK, Leuze)"
   },
   {
    "id": "ld19",
@@ -1179,7 +1283,8 @@
    "n": "LiDAR 2D de 360°",
    "f": "dist",
    "s": [
-    "robotica"
+    "robotica",
+    "defensa"
    ],
    "b": [
     "UART"
@@ -1197,7 +1302,18 @@
     "pmw3901"
    ],
    "q": "LD19 lidar",
-   "k": "slam mapa 360 navegacion"
+   "k": "slam mapa 360 navegacion",
+   "ind": [
+    [
+     "Robots aspiradores",
+     "Mapeo SLAM 2D"
+    ],
+    [
+     "AGV",
+     "Navegación en almacenes"
+    ]
+   ],
+   "eq": "Escáneres láser de seguridad certificados (SICK, Hokuyo)"
   },
   {
    "id": "jsnsr04t",
@@ -1265,7 +1381,8 @@
     "seguridad",
     "domotica",
     "robotica",
-    "agro"
+    "agro",
+    "defensa"
    ],
    "b": [
     "Placa propia"
@@ -1286,7 +1403,22 @@
     "gvision"
    ],
    "q": "ESP32-CAM",
-   "k": "camara video foto timelapse"
+   "k": "camara video foto timelapse",
+   "ind": [
+    [
+     "Agricultura",
+     "Monitoreo visual del cultivo"
+    ],
+    [
+     "Seguridad doméstica",
+     "Detección de movimiento y captura"
+    ],
+    [
+     "Robótica",
+     "Visión de bajo costo"
+    ]
+   ],
+   "eq": "Cámaras industriales con óptica intercambiable (Basler, FLIR Blackfly)"
   },
   {
    "id": "mlx90640",
@@ -1297,7 +1429,8 @@
     "salud",
     "domotica",
     "seguridad",
-    "energia"
+    "energia",
+    "defensa"
    ],
    "b": [
     "I2C"
@@ -1317,7 +1450,22 @@
     "mlx90614",
     "vl53l5cx"
    ],
-   "k": "termica calor termografia fiebre"
+   "k": "termica calor termografia fiebre",
+   "ind": [
+    [
+     "Mantenimiento industrial",
+     "Termografía de cuadros eléctricos"
+    ],
+    [
+     "Edificación",
+     "Fugas térmicas"
+    ],
+    [
+     "Seguridad",
+     "Detección de presencia sin luz"
+    ]
+   ],
+   "eq": "Cámaras térmicas radiométricas de 320×240 o más (FLIR, Teledyne)"
   },
   {
    "id": "amg8833",
@@ -1327,7 +1475,8 @@
    "s": [
     "domotica",
     "seguridad",
-    "salud"
+    "salud",
+    "defensa"
    ],
    "b": [
     "I2C"
@@ -1358,7 +1507,8 @@
     "seguridad",
     "robotica",
     "agro",
-    "domotica"
+    "domotica",
+    "defensa"
    ],
    "b": [
     "I2C",
@@ -1409,8 +1559,8 @@
     "ld2410",
     "bh1750"
    ],
-   "q": "Useful Sensors Person Sensor",
    "w": "Comparte la dirección 0x62 con los SCD4x.",
+   "q": "Useful Sensors Person Sensor",
    "k": "cara rostro mirar privacidad"
   },
   {
@@ -1453,7 +1603,8 @@
     "ambiente",
     "domotica",
     "salud",
-    "agro"
+    "agro",
+    "defensa"
    ],
    "b": [
     "I2C"
@@ -1476,7 +1627,22 @@
     "ld2410"
    ],
    "q": "SCD41",
-   "k": "dioxido carbono ventilacion aire concentracion co2"
+   "k": "dioxido carbono ventilacion aire concentracion co2",
+   "ind": [
+    [
+     "Edificios",
+     "Ventilación según CO₂"
+    ],
+    [
+     "Agricultura",
+     "CO₂ en invernaderos"
+    ],
+    [
+     "Educación",
+     "Aulas más saludables"
+    ]
+   ],
+   "eq": "Sensores NDIR de CO₂ certificados con calibración trazable"
   },
   {
    "id": "scd43",
@@ -1640,7 +1806,8 @@
    "s": [
     "ambiente",
     "domotica",
-    "salud"
+    "salud",
+    "defensa"
    ],
    "b": [
     "UART"
@@ -1660,7 +1827,22 @@
     "scd41"
    ],
    "w": "Alimenta a 5 V; los datos salen a 3.3 V.",
-   "k": "pm2.5 polvo humo contaminacion"
+   "k": "pm2.5 polvo humo contaminacion",
+   "ind": [
+    [
+     "Ciudades inteligentes",
+     "Calidad del aire urbana"
+    ],
+    [
+     "HVAC",
+     "Control de filtros"
+    ],
+    [
+     "Industria",
+     "Seguimiento de partículas"
+    ]
+   ],
+   "eq": "Monitores de partículas con certificación de referencia (Palas, TSI)"
   },
   {
    "id": "bmv080",
@@ -1703,7 +1885,8 @@
    "s": [
     "ambiente",
     "domotica",
-    "agro"
+    "agro",
+    "defensa"
    ],
    "b": [
     "I2C",
@@ -1861,7 +2044,8 @@
    "f": "aire",
    "s": [
     "seguridad",
-    "domotica"
+    "domotica",
+    "defensa"
    ],
    "b": [
     "Analógico"
@@ -1880,7 +2064,18 @@
    ],
    "w": "El calefactor va a 5 V, consume unos 150 mA y necesita varios minutos de precalentamiento.",
    "q": "MQ-2",
-   "k": "gas humo fuga butano monoxido"
+   "k": "gas humo fuga butano monoxido",
+   "ind": [
+    [
+     "Seguridad doméstica",
+     "Alarmas de fugas de gas"
+    ],
+    [
+     "Educación",
+     "Sensor de gas introductorio"
+    ]
+   ],
+   "eq": "Detectores de gas fijos certificados ATEX / IECEx"
   },
   {
    "id": "geiger",
@@ -1889,7 +2084,8 @@
    "f": "aire",
    "s": [
     "ambiente",
-    "seguridad"
+    "seguridad",
+    "defensa"
    ],
    "b": [
     "Digital"
@@ -1910,7 +2106,18 @@
    ],
    "w": "El módulo genera unos 400 V para el tubo: no toques la placa encendida.",
    "q": "Geiger counter kit J305",
-   "k": "radiacion nuclear radioactividad pulsos"
+   "k": "radiacion nuclear radioactividad pulsos",
+   "ind": [
+    [
+     "Protección civil",
+     "Monitoreo de radiación de fondo"
+    ],
+    [
+     "Educación",
+     "Radiactividad natural"
+    ]
+   ],
+   "eq": "Dosímetros y detectores calibrados con trazabilidad metrológica"
   },
   {
    "id": "as3935",
@@ -1919,7 +2126,8 @@
    "f": "clima",
    "s": [
     "ambiente",
-    "seguridad"
+    "seguridad",
+    "defensa"
    ],
    "b": [
     "I2C",
@@ -2082,7 +2290,8 @@
     "wearables",
     "robotica",
     "salud",
-    "domotica"
+    "domotica",
+    "defensa"
    ],
    "b": [
     "I2C",
@@ -2106,7 +2315,22 @@
     "bmi270",
     "gps"
    ],
-   "k": "altitud altura pisos caida caidas caer cayo barometro puerta"
+   "k": "altitud altura pisos caida caidas caer cayo barometro puerta",
+   "ind": [
+    [
+     "Drones",
+     "Altitud de respaldo"
+    ],
+    [
+     "Wearables",
+     "Pisos subidos y detección de caídas"
+    ],
+    [
+     "Meteorología",
+     "Presión atmosférica"
+    ]
+   ],
+   "eq": "Barómetros de alta precisión con certificado de calibración"
   },
   {
    "id": "ds18b20",
@@ -2116,7 +2340,8 @@
    "s": [
     "agro",
     "domotica",
-    "ambiente"
+    "ambiente",
+    "defensa"
    ],
    "b": [
     "1-Wire"
@@ -2138,7 +2363,22 @@
    ],
    "w": "Necesita una resistencia de 4.7 kΩ entre la línea de datos y 3.3 V.",
    "q": "DS18B20 waterproof",
-   "k": "agua liquido acuario temperatura sonda"
+   "k": "agua liquido acuario temperatura sonda",
+   "ind": [
+    [
+     "Cadena de frío",
+     "Registro de temperatura"
+    ],
+    [
+     "Agricultura",
+     "Temperatura de sustrato y agua"
+    ],
+    [
+     "HVAC",
+     "Temperaturas de tubería"
+    ]
+   ],
+   "eq": "Sondas PT100 clase A con transmisor 4–20 mA"
   },
   {
    "id": "max31855",
@@ -2147,7 +2387,8 @@
    "f": "clima",
    "s": [
     "domotica",
-    "energia"
+    "energia",
+    "defensa"
    ],
    "b": [
     "SPI"
@@ -2477,7 +2718,8 @@
     "domotica",
     "agro",
     "salud",
-    "robotica"
+    "robotica",
+    "defensa"
    ],
    "b": [
     "Digital"
@@ -2497,7 +2739,22 @@
     "ds18b20"
    ],
    "q": "HX711 load cell",
-   "k": "peso bascula balanza gramos"
+   "k": "peso bascula balanza gramos",
+   "ind": [
+    [
+     "Logística",
+     "Básculas y pesaje"
+    ],
+    [
+     "Agricultura",
+     "Pesaje de ganado y cosecha"
+    ],
+    [
+     "Salud",
+     "Básculas de cama"
+    ]
+   ],
+   "eq": "Amplificadores y celdas de carga certificadas OIML"
   },
   {
    "id": "nau7802",
@@ -2624,7 +2881,8 @@
    "f": "fuerza",
    "s": [
     "domotica",
-    "seguridad"
+    "seguridad",
+    "defensa"
    ],
    "b": [
     "Analógico"
@@ -2653,7 +2911,8 @@
    "s": [
     "salud",
     "robotica",
-    "agro"
+    "agro",
+    "defensa"
    ],
    "b": [
     "I2C"
@@ -2910,7 +3169,8 @@
    "f": "agua",
    "s": [
     "robotica",
-    "ambiente"
+    "ambiente",
+    "defensa"
    ],
    "b": [
     "I2C"
@@ -2965,7 +3225,8 @@
    "s": [
     "domotica",
     "seguridad",
-    "ambiente"
+    "ambiente",
+    "defensa"
    ],
    "b": [
     "I2S"
@@ -2984,7 +3245,22 @@
     "ld2410",
     "bh1750"
    ],
-   "k": "voz audio microfono asistente ruido tinyml"
+   "k": "voz audio microfono asistente ruido tinyml",
+   "ind": [
+    [
+     "Dispositivos de voz",
+     "Reconocimiento de comandos"
+    ],
+    [
+     "Mantenimiento predictivo",
+     "Escuchar rodamientos"
+    ],
+    [
+     "Ciudades inteligentes",
+     "Medición de ruido"
+    ]
+   ],
+   "eq": "Matrices de micrófonos y sensores acústicos calibrados IEC 61672"
   },
   {
    "id": "mic",
@@ -3019,7 +3295,8 @@
    "f": "energia",
    "s": [
     "energia",
-    "robotica"
+    "robotica",
+    "defensa"
    ],
    "b": [
     "I2C"
@@ -3048,7 +3325,8 @@
    "n": "Corriente y potencia de alta precisión",
    "f": "energia",
    "s": [
-    "energia"
+    "energia",
+    "defensa"
    ],
    "b": [
     "I2C"
@@ -3069,7 +3347,22 @@
     "max31855"
    ],
    "q": "INA226",
-   "k": "potencia bateria shunt ebike"
+   "k": "potencia bateria shunt ebike",
+   "ind": [
+    [
+     "Vehículos eléctricos",
+     "Telemetría de batería"
+    ],
+    [
+     "Energía solar",
+     "Producción y consumo"
+    ],
+    [
+     "Robótica",
+     "Perfil de consumo de motores"
+    ]
+   ],
+   "eq": "Monitores de batería con shunt calibrado y aislamiento (BMS industriales)"
   },
   {
    "id": "acs712",
@@ -3451,7 +3744,8 @@
    "n": "Ángulo magnético sin contacto (12 bits)",
    "f": "pos",
    "s": [
-    "robotica"
+    "robotica",
+    "defensa"
    ],
    "b": [
     "I2C",
@@ -3473,7 +3767,18 @@
     "bno085",
     "ina219"
    ],
-   "k": "encoder angulo motor eje giro perilla"
+   "k": "encoder angulo motor eje giro perilla",
+   "ind": [
+    [
+     "Robótica",
+     "Posición de articulaciones"
+    ],
+    [
+     "Industria",
+     "Encoders magnéticos sin contacto"
+    ]
+   ],
+   "eq": "Encoders absolutos industriales de 17 bits o más"
   },
   {
    "id": "pmw3901",
@@ -3481,7 +3786,8 @@
    "n": "Flujo óptico (desplazamiento sobre el piso)",
    "f": "pos",
    "s": [
-    "robotica"
+    "robotica",
+    "defensa"
    ],
    "b": [
     "SPI"
@@ -3508,7 +3814,8 @@
    "s": [
     "robotica",
     "wearables",
-    "agro"
+    "agro",
+    "defensa"
    ],
    "b": [
     "UART",
@@ -3530,7 +3837,22 @@
     "bno085"
    ],
    "q": "MAX-M10S",
-   "k": "ubicacion satelite ruta coordenadas hora"
+   "k": "ubicacion satelite ruta coordenadas hora",
+   "ind": [
+    [
+     "Agricultura",
+     "Registro de maquinaria y rutas"
+    ],
+    [
+     "Logística",
+     "Rastreo de flotas"
+    ],
+    [
+     "Drones",
+     "Navegación y retorno a casa"
+    ]
+   ],
+   "eq": "Módulos GNSS multibanda con antispoofing (u-blox F9, Septentrio)"
   },
   {
    "id": "dw3000",
@@ -3540,7 +3862,8 @@
    "s": [
     "robotica",
     "domotica",
-    "seguridad"
+    "seguridad",
+    "defensa"
    ],
    "b": [
     "SPI"
@@ -3560,7 +3883,22 @@
     "ble"
    ],
    "q": "DW3000 UWB ESP32",
-   "k": "interior localizacion ubicacion precisa etiqueta posicion"
+   "k": "interior localizacion ubicacion precisa etiqueta posicion",
+   "ind": [
+    [
+     "Logística",
+     "Localización de activos en almacenes"
+    ],
+    [
+     "Automoción",
+     "Llaves digitales seguras"
+    ],
+    [
+     "Robótica",
+     "Posicionamiento en interiores a ~10 cm"
+    ]
+   ],
+   "eq": "Sistemas de localización UWB industriales (Qorvo, Pozyx)"
   },
   {
    "id": "ble",
@@ -3570,7 +3908,8 @@
    "s": [
     "domotica",
     "seguridad",
-    "wearables"
+    "wearables",
+    "defensa"
    ],
    "b": [
     "Interno"
@@ -3601,7 +3940,8 @@
    "s": [
     "domotica",
     "seguridad",
-    "robotica"
+    "robotica",
+    "defensa"
    ],
    "b": [
     "Digital"
@@ -3619,7 +3959,18 @@
     "qmc5883l"
    ],
    "q": "A3144 hall sensor",
-   "k": "iman puerta velocidad rpm"
+   "k": "iman puerta velocidad rpm",
+   "ind": [
+    [
+     "Automoción",
+     "Posición de pedales y velocidad de ruedas"
+    ],
+    [
+     "Industria",
+     "Conteo y fin de carrera sin contacto"
+    ]
+   ],
+   "eq": "Sensores Hall con calificación AEC-Q100"
   },
   {
    "id": "rc522",
@@ -3656,7 +4007,8 @@
    "f": "ident",
    "s": [
     "seguridad",
-    "domotica"
+    "domotica",
+    "defensa"
    ],
    "b": [
     "I2C",
@@ -3678,7 +4030,18 @@
     "rc522",
     "r503"
    ],
-   "k": "nfc celular etiqueta acceso"
+   "k": "nfc celular etiqueta acceso",
+   "ind": [
+    [
+     "Control de acceso",
+     "Tarjetas y teléfonos NFC"
+    ],
+    [
+     "Pagos",
+     "Terminales sin contacto"
+    ]
+   ],
+   "eq": "Lectores NFC certificados EMVCo"
   },
   {
    "id": "r503",
@@ -3686,7 +4049,8 @@
    "n": "Lector de huella capacitivo",
    "f": "ident",
    "s": [
-    "seguridad"
+    "seguridad",
+    "defensa"
    ],
    "b": [
     "UART"
@@ -3735,6 +4099,702 @@
    ],
    "q": "GM65 barcode scanner module",
    "k": "qr codigo barras inventario despensa"
+  },
+  {
+   "id": "zedf9p",
+   "pn": "u-blox ZED-F9P",
+   "n": "GNSS multibanda con RTK de centímetros",
+   "f": "pos",
+   "s": [
+    "defensa",
+    "robotica",
+    "agro"
+   ],
+   "b": [
+    "UART",
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x42",
+   "p": 4,
+   "l": 3,
+   "t": [
+    "qwiic"
+   ],
+   "d": "Receptor de dos bandas (L1 y L2) que, con correcciones RTK, baja el error de metros a 1–2 cm. Es el estándar de la agricultura de precisión y de los drones de mapeo.",
+   "i": [
+    "Rover que repite una ruta con precisión de centímetros",
+    "Estación base propia que envía correcciones RTK por LoRa"
+   ],
+   "c": [
+    "bno085",
+    "icm20948",
+    "sx1262"
+   ],
+   "w": "Necesita antena multibanda con plano de tierra y correcciones RTK (NTRIP o estación base). Los receptores GNSS de alta precisión pueden estar sujetos a controles de exportación.",
+   "q": "ZED-F9P",
+   "k": "gnss rtk centimetros precision satelite rover navegacion",
+   "ind": [
+    [
+     "Agricultura de precisión",
+     "Guiado automático de tractores"
+    ],
+    [
+     "Topografía",
+     "Levantamientos con precisión de centímetros"
+    ],
+    [
+     "Drones y UAS",
+     "Mapeo y aterrizaje de precisión"
+    ],
+    [
+     "Defensa y protección civil",
+     "Navegación con respaldo inercial frente a interferencias"
+    ]
+   ],
+   "eq": "Receptores GNSS multibanda con antispoofing y certificación aeronáutica"
+  },
+  {
+   "id": "icm42688",
+   "pn": "ICM-42688-P",
+   "n": "IMU de bajo ruido para estabilización",
+   "f": "imu",
+   "s": [
+    "defensa",
+    "robotica"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x68",
+   "p": 2,
+   "l": 2,
+   "t": [
+    "qwiic"
+   ],
+   "d": "Acelerómetro y giroscopio de 6 ejes con muy poco ruido y hasta 32 kHz de muestreo. Es el chip que reemplazó al MPU-6000 en muchos drones.",
+   "i": [
+    "Controlador de vuelo o de gimbal con ruido mínimo",
+    "Análisis de vibraciones de un motor a alta frecuencia"
+   ],
+   "c": [
+    "mmc5983",
+    "ms5611",
+    "zedf9p"
+   ],
+   "w": "Comparte la dirección 0x68 con el MPU6050 y el BMI270: no los conectes juntos en el mismo bus.",
+   "k": "imu giroscopio acelerometro drone vibracion",
+   "ind": [
+    [
+     "Drones",
+     "Controladores de vuelo"
+    ],
+    [
+     "Gimbals de cámara",
+     "Estabilización de imagen"
+    ],
+    [
+     "Mantenimiento predictivo",
+     "Vibraciones de alta frecuencia"
+    ]
+   ],
+   "eq": "IMU MEMS de grado táctico o industrial"
+  },
+  {
+   "id": "icm20948",
+   "pn": "ICM-20948",
+   "n": "IMU de 9 ejes con magnetómetro y DMP",
+   "f": "imu",
+   "s": [
+    "defensa",
+    "robotica",
+    "wearables"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x69",
+   "p": 2,
+   "l": 2,
+   "t": [
+    "qwiic"
+   ],
+   "d": "Acelerómetro, giroscopio y magnetómetro en un solo chip, con procesador de movimiento (DMP) que calcula cuaterniones por hardware.",
+   "i": [
+    "Brújula con compensación de inclinación",
+    "Seguimiento de actitud de un robot con bajo consumo"
+   ],
+   "c": [
+    "bmp581",
+    "zedf9p",
+    "mmc5983"
+   ],
+   "k": "imu 9 ejes magnetometro brujula cuaternion dmp",
+   "ind": [
+    [
+     "Wearables",
+     "Actitud y gestos"
+    ],
+    [
+     "Robótica",
+     "Brújula con inclinación"
+    ],
+    [
+     "Realidad aumentada",
+     "Seguimiento de movimientos"
+    ]
+   ],
+   "eq": "AHRS industriales"
+  },
+  {
+   "id": "mmc5983",
+   "pn": "MMC5983MA",
+   "n": "Magnetómetro de alta precisión de 3 ejes",
+   "f": "imu",
+   "s": [
+    "defensa",
+    "robotica"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x30",
+   "p": 2,
+   "l": 2,
+   "t": [
+    "qwiic"
+   ],
+   "d": "Mide el campo magnético con 18 bits y trae una función de SET/RESET que elimina el desvío del sensor. Sirve de brújula o para detectar masas de hierro cercanas.",
+   "i": [
+    "Brújula de referencia para navegación sin GPS",
+    "Detector de vehículos o masas metálicas cercanas"
+   ],
+   "c": [
+    "icm42688",
+    "bno085"
+   ],
+   "w": "Aléjalo de motores, cables con corriente e imanes: distorsionan la lectura.",
+   "k": "magnetometro brujula campo magnetico rumbo hierro",
+   "ind": [
+    [
+     "Navegación",
+     "Rumbo de referencia"
+    ],
+    [
+     "Detección de vehículos",
+     "Perturbaciones magnéticas"
+    ],
+    [
+     "Drones",
+     "Brújula externa"
+    ]
+   ],
+   "eq": "Magnetómetros fluxgate para navegación"
+  },
+  {
+   "id": "lepton",
+   "pn": "FLIR Lepton 3.5",
+   "n": "Cámara térmica radiométrica de 160×120",
+   "f": "vision",
+   "s": [
+    "defensa",
+    "seguridad",
+    "robotica"
+   ],
+   "b": [
+    "SPI",
+    "I2C"
+   ],
+   "a": "0x2A",
+   "p": 4,
+   "l": 3,
+   "t": [],
+   "d": "Matriz térmica de microbolómetro con 19 200 píxeles de temperatura calibrada. Ve calor a través de humo y oscuridad total; el video sale por SPI y se configura por I2C.",
+   "i": [
+    "Detectar personas y fuentes de calor en un robot de rescate",
+    "Termografía de un tablero eléctrico con ubicación del punto caliente"
+   ],
+   "c": [
+    "mlx90640",
+    "vl53l5cx"
+   ],
+   "w": "Sujeto a controles de exportación en varias jurisdicciones: verifica la normativa antes de vender o enviar fuera de tu país. Solicita un breakout con regulador de 3.3 V.",
+   "q": "FLIR Lepton 3.5 breakout",
+   "k": "termica infrarrojo calor humo noche radiometrica",
+   "ind": [
+    [
+     "Bomberos y rescate",
+     "Ver a través del humo"
+    ],
+    [
+     "Mantenimiento industrial",
+     "Inspección térmica"
+    ],
+    [
+     "Seguridad y defensa",
+     "Vigilancia nocturna"
+    ],
+    [
+     "Edificación",
+     "Auditoría energética"
+    ]
+   ],
+   "eq": "Cámaras térmicas radiométricas de mayor resolución (FLIR, Teledyne)"
+  },
+  {
+   "id": "remoteid",
+   "pn": "ESP32 Open Drone ID",
+   "n": "Receptor de la identificación de drones (Remote ID)",
+   "f": "com",
+   "s": [
+    "defensa",
+    "seguridad"
+   ],
+   "b": [
+    "Interno"
+   ],
+   "p": 0,
+   "l": 2,
+   "t": [
+    "interno",
+    "nuevo"
+   ],
+   "y": "2026",
+   "d": "El ESP32 recibe por Bluetooth y Wi-Fi la difusión obligatoria de identidad y posición que emiten los drones civiles (ASTM F3411 / ASD-STAN). Es conciencia del espacio aéreo local, sin radar.",
+   "i": [
+    "Panel que lista los drones cercanos con su identificador y posición",
+    "Alerta de un dron identificado dentro de un perímetro autorizado"
+   ],
+   "c": [
+    "gps",
+    "sx1262"
+   ],
+   "w": "Solo recibe lo que cada dron transmite de forma abierta; no detecta drones sin Remote ID. Respeta la privacidad y la ley local al registrar datos.",
+   "q": "ESP32 Open Drone ID receiver",
+   "k": "dron drones remote id espacio aereo identificacion astm",
+   "ind": [
+    [
+     "Aviación civil",
+     "Identificación obligatoria de drones"
+    ],
+    [
+     "Seguridad de infraestructuras",
+     "Conciencia del espacio aéreo"
+    ],
+    [
+     "Eventos y estadios",
+     "Control de zonas restringidas"
+    ]
+   ],
+   "eq": "Receptores y sistemas de detección homologados por la autoridad aeronáutica"
+  },
+  {
+   "id": "sx1262",
+   "pn": "Semtech SX1262 (LoRa)",
+   "n": "Radio LoRa de largo alcance y bajo consumo",
+   "f": "com",
+   "s": [
+    "defensa",
+    "agro",
+    "ambiente",
+    "robotica"
+   ],
+   "b": [
+    "SPI"
+   ],
+   "p": 2,
+   "l": 2,
+   "t": [],
+   "d": "Transceptor de 150–960 MHz hasta +22 dBm. Llega a kilómetros con paquetes muy pequeños, sin Wi-Fi ni red celular; es la base de las redes de sensores de campo.",
+   "i": [
+    "Red de sensores del huerto o del campo sin conexión a Internet",
+    "Telemetría de un rover con alcance de varios kilómetros"
+   ],
+   "c": [
+    "zedf9p",
+    "gps",
+    "atecc608"
+   ],
+   "w": "Usa la banda legal de tu región (868 MHz en la UE) y respeta el ciclo de trabajo (1 % en la mayoría de subbandas). Nunca transmitas sin antena.",
+   "q": "SX1262 LoRa module",
+   "k": "lora radio telemetria largo alcance malla mesh",
+   "ind": [
+    [
+     "Agricultura",
+     "Redes de sensores sin infraestructura"
+    ],
+    [
+     "Ciudades inteligentes",
+     "Medidores y alumbrado"
+    ],
+    [
+     "Emergencias",
+     "Comunicación sin red celular"
+    ],
+    [
+     "Defensa",
+     "Enlaces de telemetría de baja probabilidad de detección"
+    ]
+   ],
+   "eq": "Radios y gateways LoRaWAN homologados"
+  },
+  {
+   "id": "atecc608",
+   "pn": "ATECC608B",
+   "n": "Chip criptográfico para autenticar el dispositivo",
+   "f": "ident",
+   "s": [
+    "defensa",
+    "seguridad",
+    "wearables"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x60",
+   "p": 1,
+   "l": 3,
+   "t": [
+    "qwiic"
+   ],
+   "d": "Guarda claves privadas que nunca salen del chip y firma mensajes con curva elíptica P-256. Permite que un nodo demuestre quién es y que un mensaje no fue alterado.",
+   "i": [
+    "Firmar cada lectura de un sensor de campo",
+    "Autenticar un nodo antes de aceptar sus datos"
+   ],
+   "c": [
+    "sx1262",
+    "rc522"
+   ],
+   "w": "Una vez bloqueada la configuración del chip no se puede cambiar: practica primero con uno de repuesto.",
+   "k": "seguridad criptografia clave firma autenticacion ecc",
+   "ind": [
+    [
+     "Internet de las cosas",
+     "Identidad de dispositivos"
+    ],
+    [
+     "Pagos y transporte",
+     "Almacenamiento seguro de claves"
+    ],
+    [
+     "Infraestructura crítica",
+     "Autenticación de nodos"
+    ]
+   ],
+   "eq": "Elementos seguros con certificación Common Criteria EAL5+"
+  },
+  {
+   "id": "can",
+   "pn": "Transceptor CAN (SN65HVD230 / TJA1051)",
+   "n": "Bus CAN para máquinas y vehículos",
+   "f": "com",
+   "s": [
+    "defensa",
+    "robotica",
+    "energia"
+   ],
+   "b": [
+    "CAN"
+   ],
+   "p": 1,
+   "l": 2,
+   "t": [],
+   "d": "El ESP32 trae el controlador CAN (TWAI) y solo necesita el transceptor. Conecta controladores de motor, baterías, ESC y sensores de vehículos con un par de cables robustos.",
+   "i": [
+    "Leer la telemetría de un controlador de motor o de una batería",
+    "Unir varios nodos de sensores de un robot en un solo bus"
+   ],
+   "c": [
+    "ina226",
+    "as5600"
+   ],
+   "w": "Termina el bus con 120 Ω en cada extremo. Usa un transceptor de 3.3 V (SN65HVD230) o uno de 5 V con nivel adaptado.",
+   "q": "SN65HVD230 CAN module",
+   "k": "can bus twai vehiculo motor bateria automocion",
+   "ind": [
+    [
+     "Automoción",
+     "Redes de control del vehículo"
+    ],
+    [
+     "Maquinaria agrícola y pesada",
+     "Buses ISOBUS / J1939"
+    ],
+    [
+     "Robótica",
+     "Controladores de motor distribuidos"
+    ]
+   ],
+   "eq": "Transceptores CAN FD aislados con certificación automotriz"
+  },
+  {
+   "id": "geofono",
+   "pn": "SM-24 + amplificador",
+   "n": "Geófono: vibración del suelo y pasos",
+   "f": "sonido",
+   "s": [
+    "defensa",
+    "seguridad",
+    "ambiente"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 3,
+   "l": 3,
+   "t": [
+    "joya"
+   ],
+   "d": "Bobina y masa suspendida que generan un voltaje cuando el suelo vibra (10 Hz de frecuencia natural). Detecta pasos y vehículos enterrándolo, sin cámaras ni emisiones.",
+   "i": [
+    "Alarma perimetral enterrada que distingue pasos y vehículos",
+    "Monitor de vibración de un puente pequeño o de maquinaria"
+   ],
+   "c": [
+    "ads1115",
+    "inmp441"
+   ],
+   "w": "Su señal es de milivoltios: necesita un amplificador de bajo ruido y un ADC de 16 bits (por ejemplo, el ADS1115).",
+   "k": "geofono sismico vibracion suelo pasos perimetro",
+   "ind": [
+    [
+     "Petróleo y geofísica",
+     "Prospección sísmica"
+    ],
+    [
+     "Infraestructura",
+     "Monitoreo de puentes y presas"
+    ],
+    [
+     "Seguridad perimetral",
+     "Detección de pasos y vehículos"
+    ]
+   ],
+   "eq": "Sismómetros y geófonos digitales calibrados"
+  },
+  {
+   "id": "ze03",
+   "pn": "Winsen ZE03 (electroquímico)",
+   "n": "Gases tóxicos: CO, H₂S, NH₃ y otros",
+   "f": "aire",
+   "s": [
+    "defensa",
+    "ambiente",
+    "seguridad"
+   ],
+   "b": [
+    "UART"
+   ],
+   "p": 3,
+   "l": 2,
+   "t": [],
+   "d": "Módulo con celda electroquímica y salida UART en ppm; existen versiones para CO, H₂S, NH₃, Cl₂ y más. Es más selectivo y estable que un MQ.",
+   "i": [
+    "Monitor de CO de un taller o garaje",
+    "Estación móvil que mide gases en una zona de trabajo"
+   ],
+   "c": [
+    "scd41",
+    "pms5003",
+    "bme680"
+   ],
+   "w": "No es un detector certificado: no lo uses como única protección de la vida. Las celdas caducan en 1–2 años.",
+   "k": "gas toxico monoxido carbono sulfuro amoniaco electroquimico ppm",
+   "ind": [
+    [
+     "Seguridad industrial",
+     "Monitoreo de CO y H₂S"
+    ],
+    [
+     "Agricultura",
+     "Amoníaco en granjas"
+    ],
+    [
+     "Protección civil",
+     "Calidad del aire en emergencias"
+    ]
+   ],
+   "eq": "Detectores portátiles y fijos certificados ATEX con calibración periódica"
+  },
+  {
+   "id": "iwr6843",
+   "pn": "TI IWR6843 mmWave",
+   "n": "Radar 60 GHz con nube de puntos 3D",
+   "f": "radar",
+   "s": [
+    "defensa",
+    "robotica",
+    "seguridad"
+   ],
+   "b": [
+    "UART",
+    "SPI"
+   ],
+   "p": 4,
+   "l": 3,
+   "t": [],
+   "d": "Radar de ondas milimétricas con 3 transmisores y 4 receptores: entrega una nube de puntos con distancia, velocidad y ángulo. Ve a través de polvo, humo y lluvia.",
+   "i": [
+    "Robot que detecta personas y obstáculos con polvo o humo",
+    "Conteo y trayectoria de personas en un pasillo sin cámara"
+   ],
+   "c": [
+    "ld2450",
+    "vl53l5cx",
+    "icm42688"
+   ],
+   "w": "Consume cerca de 2 A a 5 V: usa una fuente aparte. El firmware se carga con UniFlash y los datos salen por UART a 921600 baudios. Radares de este tipo pueden tener controles de exportación.",
+   "q": "IWR6843ISK",
+   "k": "radar mmwave nube puntos 60ghz lidar alternativa polvo humo",
+   "ind": [
+    [
+     "Automoción",
+     "Radares de asistencia a la conducción"
+    ],
+    [
+     "Robótica industrial",
+     "Seguridad de personas junto a robots"
+    ],
+    [
+     "Edificios",
+     "Conteo de personas"
+    ],
+    [
+     "Defensa",
+     "Percepción con polvo, humo y lluvia"
+    ]
+   ],
+   "eq": "Radares automotrices y de seguridad industrial certificados"
+  },
+  {
+   "id": "paa5100",
+   "pn": "PixArt PAA5100JE",
+   "n": "Flujo óptico para suelo cercano (15–35 mm)",
+   "f": "pos",
+   "s": [
+    "defensa",
+    "robotica"
+   ],
+   "b": [
+    "SPI"
+   ],
+   "p": 3,
+   "l": 3,
+   "t": [],
+   "d": "Cámara minúscula que mira el suelo y mide cuánto se desplaza la textura. Da odometría visual a un robot que patina o a un vehículo sin ruedas codificadas.",
+   "i": [
+    "Odometría visual de un rover sobre suelo irregular",
+    "Mantener la posición de un robot pequeño sin GPS"
+   ],
+   "c": [
+    "pmw3901",
+    "tmf8806",
+    "icm42688"
+   ],
+   "w": "Funciona entre 15 y 35 mm de altura y necesita textura y luz en el suelo.",
+   "k": "flujo optico odometria suelo sin gps posicion",
+   "ind": [
+    [
+     "Robótica",
+     "Odometría visual"
+    ],
+    [
+     "Drones",
+     "Posición sin GPS a baja altura"
+    ]
+   ],
+   "eq": "Sistemas de odometría visual-inercial industriales"
+  },
+  {
+   "id": "ms5611",
+   "pn": "MS5611",
+   "n": "Barómetro de 10 cm de resolución",
+   "f": "clima",
+   "s": [
+    "defensa",
+    "robotica"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x77",
+   "p": 2,
+   "l": 2,
+   "t": [],
+   "d": "Mide la presión con una resolución de unos 10 cm de altura. Es el barómetro clásico de los controladores de vuelo para mantener la altitud.",
+   "i": [
+    "Variómetro: velocidad de ascenso de un dron o planeador",
+    "Altitud de respaldo cuando el GPS falla"
+   ],
+   "c": [
+    "icm42688",
+    "zedf9p"
+   ],
+   "w": "Comparte la dirección 0x77 con el BME680: usa la alternativa 0x76 o un bus aparte.",
+   "k": "barometro altitud presion variometro dron",
+   "ind": [
+    [
+     "Drones y aviación",
+     "Altitud barométrica"
+    ],
+    [
+     "Meteorología",
+     "Presión atmosférica"
+    ],
+    [
+     "Deporte",
+     "Variómetros de parapente"
+    ]
+   ],
+   "eq": "Barómetros de aviación certificados"
+  },
+  {
+   "id": "ms4525do",
+   "pn": "MS4525DO",
+   "n": "Presión diferencial para velocidad del aire",
+   "f": "fuerza",
+   "s": [
+    "defensa",
+    "robotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x28",
+   "p": 3,
+   "l": 2,
+   "t": [],
+   "d": "Sensor de presión diferencial que, conectado a un tubo de Pitot, calcula la velocidad del aire de un avión o planeador.",
+   "i": [
+    "Velocidad del aire de un avión pequeño con tubo de Pitot",
+    "Medidor de caudal de aire en un conducto"
+   ],
+   "c": [
+    "ms5611",
+    "icm42688"
+   ],
+   "w": "Comparte la dirección 0x28 con el BNO055. Usa el rango de presión correcto para tu velocidad.",
+   "k": "pitot velocidad aire presion diferencial avion",
+   "ind": [
+    [
+     "Aviación ligera",
+     "Velocidad del aire"
+    ],
+    [
+     "HVAC",
+     "Caudal en conductos"
+    ],
+    [
+     "Meteorología",
+     "Anemometría"
+    ]
+   ],
+   "eq": "Transductores de presión diferencial calibrados"
   }
  ]
 }

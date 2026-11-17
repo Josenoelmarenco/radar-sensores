@@ -33,9 +33,9 @@ No edites `radar.json`, `novedades.json` ni `meta.json` con la app abierta: la a
 | `id` | sí | minúsculas, letras y números, único y estable |
 | `pn` | sí | número de parte o nombre del módulo (`"SCD40 / SCD41"`) |
 | `n` | sí | qué mide, en español, una línea |
-| `f` | sí | familia: `bio radar imu dist vision aire clima luz fuerza agua sonido energia hmi pos ident` |
-| `s` | sí | sectores: `salud domotica robotica agro ambiente energia wearables seguridad` |
-| `b` | sí | interfaces: `I2C SPI UART Analógico Digital I2S 1-Wire Interno PWM Trigger/Echo RS485 "Placa propia"`; `[]` si no se sabe |
+| `f` | sí | familia: `bio radar imu dist vision aire clima luz fuerza agua sonido energia hmi pos ident com` |
+| `s` | sí | sectores: `salud domotica robotica agro ambiente energia wearables seguridad defensa` |
+| `b` | sí | interfaces: `I2C SPI UART Analógico Digital I2S 1-Wire Interno PWM Trigger/Echo RS485 CAN "Placa propia"`; `[]` si no se sabe |
 | `a` | no | dirección I2C por defecto, formato `0x5A` |
 | `p` | sí | precio de la placa común: `0` gratis, `1` <5 €, `2` 5–15 €, `3` 15–40 €, `4` >40 €, `null` desconocido |
 | `l` | sí | dificultad `1` fácil, `2` medio, `3` avanzado |
@@ -47,5 +47,12 @@ No edites `radar.json`, `novedades.json` ni `meta.json` con la app abierta: la a
 | `w` | no | advertencia antes de conectar (voltaje, direcciones repetidas, red eléctrica) |
 | `q` | no | término de búsqueda para tiendas si `pn` no sirve |
 | `k` | no | palabras clave extra para el buscador, sin tildes |
+| `ind` | no | industrias donde se usa esta tecnología: lista de pares `["Industria", "Para qué se usa"]` (2–4 pares) |
+| `eq` | no | equivalente de grado industrial, una frase (qué se usa en un producto certificado) |
+| `how` | no | principio físico específico de este sensor, 1–2 frases (si falta, la app usa el de su familia) |
 
 Quita la etiqueta `nuevo` a los sensores que lleven más de 18 meses en el mercado.
+
+### Sector `defensa`
+
+Agrupa sensores de uso dual (navegación, conciencia situacional, robótica de campo, comunicaciones y autenticación) con enfoque defensivo y de protección civil. No agregues nada diseñado para armas, ni para interferir o suplantar comunicaciones. Si el sensor puede tener controles de exportación (cámaras térmicas, GNSS o IMU de alto rendimiento, radares), dilo en `w`.

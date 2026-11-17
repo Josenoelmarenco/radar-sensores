@@ -47,6 +47,13 @@ Swift → JS:
 - Menu ⌘T calls `window.radarTema()` (cycles `Auto` → `Oscuro` → `Claro` and persists in `meta.json`)
 - Menu ⌘F focuses `#q` search input; Menu ⌘D opens `~/Applications/RadarSensores-datos/` in Finder
 
+### Views and the lab (v2, `index.html`)
+
+`<body data-view>` switches four views through the top `#vnav`: **Explorar** (original catalog), **Panel** (dashboard: KPIs, sector cards, family/bus bars, I²C address map, price × difficulty heatmap, recipes), **Comparar** (up to N sensors side by side, persisted in `localStorage` key `radar-sensores-cmp`) and **Banco de proyecto** (pin allocator, block diagram, audit, copyable snippets for the shortlist).
+The sensor dialog (`#ficha`) is a *laboratory* with six tabs: **Anatomía** (clickable parts on a board SVG, archetype templates `ANAT` + per-sensor overrides `ANAT_ID`), **Conexión al ESP32** (wiring engine, clickable wires), **Industrias**, **Cómo funciona** (principle / Feynman), **Modelo 3D y CAD**, **Ficha y proyectos**.
+Wiring engine: `wiringFor(s, ctx, opts)` picks the primary bus (`primBus`), classifies each pin (`classifyPin` + per-sensor `PIN_OV`), and allocates ESP32 GPIOs from pools (`POOLS`: ADC1, digital, chip-select) while shared buses use fixed pins (I²C 21/22, SPI 18/19/23, UART2 16/17). Optional pins (INT, RST…) are not allocated unless "mostrar opcionales" is on. The map is indicative (classic ESP32 DevKit numbering); keep that disclaimer in the UI.
+Click handling for the new views uses its own `data-*` names (`data-view, data-tab, data-part, data-wire, data-cmp, data-bench-*, data-lab*`) so it never collides with the original delegated handler (`data-open`, `data-radar`, `data-sector`, …). Keep it that way.
+
 Relevance filtering, cross-language (ES ↔ EN) feed matching, bidirectional combination indexing (`_combos`), project recipes (`RECIPES`), 3D isometric models and CAD/scale diagrams (`PHYS`, `isoSVG`, `cadBlueprintSVG`, `scaleCompareSVG`), Fusion 360 enclosure hints (`enclosureHint`), ESP32 electrical/bus auditing (`conflicts`, `nodeAudit`), and `ESPHome YAML` / `ESP32 pinout` generation (`esphomeYAML`, `pinoutText`) happen in JS in `index.html`.
 
 If you add a bridge command, implement **both** sides and add it to this table.
@@ -65,6 +72,7 @@ python3 validar.py catalogo.json       # must print OK
 
 ## Rules
 
+0. Catalog schema additions in v2 (all optional, `esquema` stays 1): `ind` (`[[industria, uso], …]`), `eq` (industrial equivalent), `how` (physical principle); sector `defensa` ("Defensa y campo": dual-use, defensive / civil-protection framing, keeps its note on responsible use and export controls), family `com` (communication), bus `CAN`. Update `LEEME.md` and `validar.py` together with any further change and tell José Noel so the monthly task prompt can be updated.
 1. **Do not break the catalog schema** in `LEEME.md`. A monthly Claude scheduled task edits `~/Applications/RadarSensores-datos/catalogo.json` following that schema and `validar.py`. If a feature needs a schema change, update `LEEME.md`, `validar.py` and the bundled `catalogo.json` together, bump `esquema` only if old files become invalid, and tell José Noel so the monthly task prompt can be updated.
 2. Never write secrets, tokens or personal data into the repo. The data folder stays out of git.
 3. UI text is Latin American Spanish. Keep the existing design tokens in the `:root` block (light and dark themes).

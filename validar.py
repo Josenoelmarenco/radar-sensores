@@ -8,10 +8,10 @@ import re
 import sys
 from pathlib import Path
 
-FAM = {"bio", "radar", "imu", "dist", "vision", "aire", "clima", "luz", "fuerza", "agua", "sonido", "energia", "hmi", "pos", "ident"}
-SECTORES = {"salud", "domotica", "robotica", "agro", "ambiente", "energia", "wearables", "seguridad"}
+FAM = {"bio", "radar", "imu", "dist", "vision", "aire", "clima", "luz", "fuerza", "agua", "sonido", "energia", "hmi", "pos", "ident", "com"}
+SECTORES = {"salud", "domotica", "robotica", "agro", "ambiente", "energia", "wearables", "seguridad", "defensa"}
 ETIQUETAS = {"esphome", "qwiic", "grove", "nuevo", "joya", "interno"}
-BUSES = {"I2C", "SPI", "UART", "Analógico", "Digital", "I2S", "1-Wire", "Interno", "PWM", "Trigger/Echo", "RS485", "Placa propia"}
+BUSES = {"I2C", "SPI", "UART", "Analógico", "Digital", "I2S", "1-Wire", "Interno", "PWM", "Trigger/Echo", "RS485", "Placa propia", "CAN"}
 TEMAS = {"productos", "sensores", "general"}
 
 
@@ -79,6 +79,13 @@ def main(arg):
         if s.get("a") is not None and not re.fullmatch(r"0x[0-9A-F]{2}", str(s.get("a"))):
             errors.append(f"{sid}: dirección I2C inválida {s.get('a')} (formato 0x5A)")
     for s in sensores:
+        sid = s.get("id", "?")
+        ind = s.get("ind")
+        if ind is not None and (not isinstance(ind, list) or not all(isinstance(x, list) and len(x) == 2 and all(isinstance(y, str) and y.strip() for y in x) for x in ind)):
+            errors.append(f"{sid}: ind debe ser una lista de pares [industria, uso]")
+        for key in ("eq", "how"):
+            if key in s and (not isinstance(s[key], str) or not s[key].strip()):
+                errors.append(f"{sid}: {key} debe ser texto")
         for c in s.get("c", []):
             if c not in ids:
                 errors.append(f"{s.get('id')}: combina con un id que no existe: {c}")

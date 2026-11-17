@@ -255,10 +255,132 @@ dialog::backdrop{background:rgba(6,14,11,.6)}
   .scope .sweep,.scope .blip,.upd-btn .spin{animation:none!important}
   .scope .blip{opacity:.9}
 }
+/* ---------- v2: views, panel, laboratory ---------- */
+.vnav{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.vnav-in{max-width:1240px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:4px;overflow-x:auto}
+.vnav-brand{font:700 .95rem var(--f-display);letter-spacing:.14em;text-transform:uppercase;color:var(--mask);margin-right:14px;white-space:nowrap}
+.vnav button{border:0;background:none;padding:13px 14px 11px;border-bottom:3px solid transparent;font:600 .84rem var(--f-display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.vnav button:hover{color:var(--ink)}
+.vnav button[aria-current="true"]{color:var(--mask);border-bottom-color:var(--mask)}
+.vnav i{font:500 .72rem var(--f-mono);font-style:normal;background:var(--mask-soft);color:var(--mask);border-radius:9px;padding:1px 7px;margin-left:5px}
+.v-panel,.v-comparar,.v-banco{display:none}
+body[data-view="panel"] .v-panel,body[data-view="comparar"] .v-comparar,body[data-view="banco"] .v-banco{display:grid}
+body:not([data-view="explorar"]) .v-explorar{display:none}
+.empty{color:var(--muted);padding:18px;border:1px dashed var(--line);border-radius:var(--r)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:grid;gap:2px}
+.kpi b{font:700 1.9rem/1 var(--f-display);color:var(--mask)}
+.kpi span{font-size:.84rem;color:var(--muted)}
+.sec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px}
+.sec-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:8px}
+.sec-card header{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.sec-card h3{font:700 1.05rem var(--f-display)}
+.sec-card header b{font:700 1.4rem var(--f-display);color:var(--mask)}
+.sec-card p{font-size:.88rem;color:var(--muted)}
+.sec-card .top{font:500 .72rem/1.4 var(--f-mono);color:var(--ink)}
+.sec-card .resp{font-size:.8rem;border-left:3px solid var(--pad);padding-left:9px;color:var(--ink)}
+.sec-card .btn{margin-top:auto;align-self:flex-start}
+.sec-card.hot{border-color:var(--pad);background:linear-gradient(180deg,var(--pad-soft),var(--surface) 70%)}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px}
+.bars{display:grid;gap:3px;margin-top:10px}
+.bars button{width:100%;display:grid;grid-template-columns:130px minmax(0,1fr) 34px;align-items:center;gap:10px;border:0;background:none;padding:4px 6px;border-radius:6px;text-align:left}
+.bars button:hover{background:var(--sunk)}
+.bl{font-size:.88rem}.bt{height:10px;background:var(--sunk);border-radius:5px;overflow:hidden}.bt i{display:block;height:100%;border-radius:5px}
+.bars b{font:600 .8rem var(--f-mono);text-align:right}
+.amap{display:grid;grid-template-columns:30px repeat(16,minmax(0,1fr));gap:2px;margin-top:10px}
+.ah{font:500 .66rem/1 var(--f-mono);color:var(--muted);align-self:center}
+.ac{aspect-ratio:1;border:1px solid var(--line);background:var(--sunk);border-radius:4px;padding:0;font:600 .7rem var(--f-mono);color:var(--on-mask)}
+.ac[disabled]{opacity:.25;cursor:default}
+.ac.use{background:var(--mask);border-color:var(--mask)}
+.ac.dup{background:var(--pad);border-color:var(--pad);color:#1b1305}
+.ac.sel{outline:2px solid var(--ink);outline-offset:1px}
+.amap-sel{margin-top:10px;font-size:.9rem;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.heat{border-collapse:separate;border-spacing:3px;width:100%;margin-top:10px}
+.heat th{font:500 .72rem var(--f-mono);color:var(--muted);text-align:center;padding:4px}
+.heat td{height:34px;text-align:center;font:600 .85rem var(--f-mono);border-radius:5px;border:1px solid var(--line)}
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.rec-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:9px}
+.rec-card h3{font:700 1rem var(--f-display)}.rec-card p{font-size:.88rem;color:var(--muted)}.rec-card .btn{margin-top:auto;align-self:flex-start}
+.cmp-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.cmp-bar input{flex:1 1 240px;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 11px}
+.cmp-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);margin-top:10px}
+.cmp{border-collapse:collapse;width:100%;min-width:640px;background:var(--surface)}
+.cmp th,.cmp td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-size:.88rem}
+.cmp tbody th{font:500 .7rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);width:130px}
+.cmp td.diff{background:var(--pad-soft)}
+.cmp thead th .pn{font:700 1rem var(--f-display);background:none;border:0;padding:0;text-align:left;color:var(--mask);text-decoration:underline;text-underline-offset:3px}
+.cmp .rm{display:block;margin-top:4px;font-size:.74rem;background:none;border:0;padding:0;color:var(--muted);text-decoration:underline}
+.cmp-chips .pill button{border:0;background:none;padding:0 0 0 4px;font-weight:700}
+.scale-box{background:var(--sunk);border:1px solid var(--line);border-radius:var(--r);padding:10px;background-image:radial-gradient(circle,var(--line) 1px,transparent 1px);background-size:14px 14px;overflow-x:auto}
+.scale-box svg{width:100%;height:auto;display:block;min-width:420px}
+.bench-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:22px;margin-top:10px}
+.legend{display:flex;gap:4px 14px;flex-wrap:wrap;font:500 .72rem var(--f-mono);color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.audit{display:grid;gap:6px;margin-top:10px}
+.audit li{display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px;padding:8px 11px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--line);border-radius:8px;font-size:.88rem}
+.audit li b{font:600 .7rem var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.audit li.warn{border-left-color:var(--pad)}.audit li.bad{border-left-color:var(--warn);background:var(--warn-soft)}
+.wtab{border-collapse:collapse;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;margin-top:10px;font-size:.88rem}
+.wtab th{font:500 .7rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);background:var(--sunk)}
+.wtab td{padding:7px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+.wtab td i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.wtab tr[data-wire]{cursor:pointer}
+.wtab tr[aria-selected="true"]{background:var(--pad-soft)}
+#bench-ta{width:100%;min-height:150px;margin-top:10px;font:500 .82rem/1.45 var(--f-mono);background:var(--sunk);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
+/* laboratory */
+#ficha{width:min(1100px,calc(100% - 24px))}
+.lab-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lab-tabs{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin:0 -24px;padding:0 24px;position:sticky;top:0;background:var(--surface);z-index:2}
+.lab-tabs button{border:0;background:none;padding:10px 12px 8px;border-bottom:3px solid transparent;font:600 .8rem var(--f-display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lab-tabs button:hover{color:var(--ink)}
+.lab-tabs button[aria-selected="true"]{color:var(--mask);border-bottom-color:var(--mask)}
+.lab-body{display:grid;gap:14px;min-width:0}
+.anat{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+.board-box{border:1px solid var(--line);border-radius:10px;background:var(--sunk);background-image:radial-gradient(circle,var(--line) 1px,transparent 1px);background-size:14px 14px;padding:10px}
+.board-box svg{width:100%;height:auto;display:block}
+.part{cursor:pointer;outline:none}.part .hit{fill:transparent}
+.part:hover .hl,.part:focus-visible .hl,.part[aria-pressed="true"] .hl{stroke:#F0B24A;stroke-width:2.6;fill:rgba(240,178,74,.14)}
+.note{font-size:.82rem;color:var(--muted);margin-top:8px}
+.anat-side{display:grid;gap:10px;min-width:0}
+.partlist{display:grid;gap:5px}
+.partlist button{width:100%;text-align:left;display:flex;gap:9px;align-items:center;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:.88rem}
+.partlist button[aria-pressed="true"]{border-color:var(--pad);background:var(--pad-soft)}
+.num{flex:none;width:22px;height:22px;border-radius:50%;background:var(--mask);color:var(--on-mask);font:600 .75rem/22px var(--f-mono);text-align:center}
+.detail{border:1px solid var(--line);border-left:3px solid var(--pad);border-radius:10px;padding:12px 14px;background:var(--surface);display:grid;gap:7px;min-width:0}
+.detail h3{font:700 1rem var(--f-display);letter-spacing:0;text-transform:none;color:var(--ink);margin:0}
+.sd{display:grid;gap:7px}.sd dt{font:500 .68rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.sd dd{font-size:.9rem}
+.pinfo{display:grid;gap:6px;max-height:300px;overflow:auto}
+.pinfo li{border-top:1px solid var(--line);padding-top:6px;font-size:.84rem}
+.pinfo li b{font:600 .85rem var(--f-mono);margin-right:8px;color:var(--mask)}.pinfo li p{color:var(--muted)}.pinfo em{font-style:normal;color:var(--ink)}
+.wiring{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+.wire-box{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:6px;overflow-x:auto}
+.wire-box svg{width:100%;height:auto;display:block;min-width:460px}
+.wire-side{display:grid;gap:10px;min-width:0}
+.wire{cursor:pointer;outline:none}.wire:focus-visible path:first-child{stroke-width:5}
+.chk{font-size:.86rem;display:flex;gap:7px;align-items:center}
+.code-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.code-head h3{margin:0 auto 0 0}
+.code{background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:12px;font:500 .8rem/1.5 var(--f-mono);overflow:auto;white-space:pre;margin:0}
+.ind-grid,.fis{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;align-items:start}
+.fis .feyn{background:var(--mask-soft);border-radius:10px;padding:12px 14px}
+.fis section,.ind-grid section{display:grid;gap:7px;align-content:start}
+.ind-list{display:grid;gap:6px}
+.ind-list li{display:grid;gap:1px;padding:8px 11px;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+.ind-list b{font:700 .92rem var(--f-display)}.ind-list span{font-size:.86rem;color:var(--muted)}
+.plain{display:grid;gap:5px;padding-left:18px;list-style:disc;font-size:.88rem}.plain.num{list-style:decimal}
+.alert.resp{margin-top:8px}
+@media (max-width:820px){.anat,.wiring,.two,.bench-grid{grid-template-columns:minmax(0,1fr)}.bars button{grid-template-columns:100px minmax(0,1fr) 30px}.lab-tabs{margin:0 -16px;padding:0 16px}}
+#panel-body,#cmp-body,#bench-body{display:grid;gap:34px;min-width:0}
 </style>
 </head>
-<body>
-<header class="hero">
+<body data-view="explorar">
+<nav class="vnav" id="vnav" aria-label="Vistas de la aplicación"><div class="vnav-in">
+  <span class="vnav-brand">Radar</span>
+  <button type="button" data-view="explorar" aria-current="true">Explorar</button>
+  <button type="button" data-view="panel" aria-current="false">Panel</button>
+  <button type="button" data-view="comparar" aria-current="false">Comparar<i id="cmp-n">0</i></button>
+  <button type="button" data-view="banco" aria-current="false">Banco de proyecto<i id="bench-n">0</i></button>
+</div></nav>
+<header class="hero v-explorar">
   <div class="hero-in">
     <div>
       <p class="eyebrow" id="eyebrow">ESP32</p>
@@ -283,7 +405,7 @@ dialog::backdrop{background:rgba(6,14,11,.6)}
   <section id="answer" class="answer" hidden aria-live="polite"></section>
 </header>
 
-<main class="wrap">
+<main class="wrap v-explorar">
   <section id="nov-sec" aria-labelledby="nov-h">
     <div class="sec-head"><h2 id="nov-h" class="sec-h">Novedades del mercado <span id="nov-n" class="badge" hidden></span></h2><span class="hint">Productos y noticias de sensores detectados en las fuentes al presionar Actualizar.</span></div>
     <div id="novedades"></div>
@@ -348,6 +470,10 @@ dialog::backdrop{background:rgba(6,14,11,.6)}
 
   <p class="foot" id="foot"></p>
 </main>
+
+<main class="wrap v-panel" id="view-panel"><div id="panel-body"></div></main>
+<main class="wrap v-comparar" id="view-comparar"><div id="cmp-body"></div></main>
+<main class="wrap v-banco" id="view-banco"><div id="bench-body"></div></main>
 
 <dialog id="ficha" aria-labelledby="ficha-t"><div id="ficha-body"></div></dialog>
 
@@ -1158,46 +1284,14 @@ function enclosureHint(s){
   if (s.f === "sonido") return "Añade un canal acústico corto con junta de espuma entre el puerto del micrófono y la tapa impresa.";
   return "Usa insertos roscados M2/M2.5 o pilares snap-fit en Fusion 360 y deja holgura para el conector JST/Dupont.";
 }
-function fichaHTML(s){
-  const on = inRadar(s.id), internal = has(s,"interno"), q = termOf(s), p = physOf(s);
-  const plug = [has(s,"qwiic") ? "Qwiic / STEMMA QT" : "", has(s,"grove") ? "Grove" : ""].filter(Boolean).join(", ");
-  const combos = (s._combos || s.c).map(id => byId.get(id)).filter(Boolean);
-  const specs = [
-    ["Formato físico y medidas", `${esc(p.pkg)} · <code>${esc(dimStr(p))}</code>`],
-    ["Alimentación y consumo", esc(p.pwr)],
-    ["Qué señal / dato entrega", esc(p.sig)],
-    ["Interfaz", s.b.length ? esc(s.b.join(", ")) : "Ver hoja de datos"],
-    s.a ? ["Dirección I2C por defecto", `<code>${esc(s.a)}</code>`] : null,
-    ["Precio orientativo", `${esc(priceLabel(s))} · ${esc(priceTitle(s))}`],
-    ["Dificultad", esc(LEVEL_T[s.l])],
-    plug ? ["Conexión sin soldar", esc(plug)] : null,
-    has(s,"esphome") ? ["ESPHome", "Tiene componente: funciona sin escribir el driver"] : null,
-    ["Sectores", esc(s.s.map(x => SECLABEL[x]).join(", "))],
-    ["Carcasa (Fusion 360 / 3D)", esc(enclosureHint(s))]
-  ].filter(Boolean);
-  return `<div class="ficha">
-    <div class="ficha-top">
-      <p class="meta"><span>${esc(FAM[s.f])}</span>${flagsHTML(s)}</p>
-      <button type="button" class="x" data-act="close">Cerrar</button>
-      <h2 id="ficha-t">${esc(s.pn)}</h2>
-      <p class="what">${esc(s.n)}</p>
-    </div>
-    ${cadViewerHTML(s)}
-    <p>${esc(s.d)}</p>
-    ${s.w ? `<p class="alert"><strong>Antes de conectar:</strong> ${esc(s.w)}</p>` : ""}
-    <dl class="specs">${specs.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
-    <div><h3>Ideas de proyecto</h3><ul class="ideas">${s.i.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
-    ${combos.length ? `<div><h3>Combínalo con</h3><p class="combo">${combos.map(o => `<button type="button" class="pill" data-open="${o.id}">${esc(o.pn)}${o.own === "si" ? " · lo tienes" : o.own === "kit" ? " · en tu kit" : ""}</button>`).join("")}</p></div>` : ""}
-    <div><h3>${internal ? "Dónde aprender a usarlo" : "Buscar «" + esc(q) + "» en"}</h3><div class="buy">${storeGroupsHTML(q, internal ? ["lista"] : null)}</div></div>
-    <p><button type="button" class="radar-btn" data-radar="${s.id}" aria-pressed="${on}">${on ? "En tu radar" : "+ Agregar a mi radar"}</button></p>
-  </div>`;
-}
 let openId = "";
 function openFicha(id){
   const s = byId.get(id); if (!s) return;
   openId = id;
   cadMode = "3d";
   cadTilt = "iso";
+  labSel = ""; labWire = -1;
+  if (!$("#ficha").open) labTab = "anat";
   const dlg = $("#ficha");
   $("#ficha-body").innerHTML = fichaHTML(s);
   if (!dlg.open) { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } }
@@ -1232,7 +1326,7 @@ function saveLocal(){
   else try { localStorage.setItem(LS, JSON.stringify({items: state.radar})); } catch (e) {}
 }
 function radarChanged(){
-  saveLocal(); renderRadar(); renderGrid();
+  saveLocal(); renderRadar(); renderGrid(); v2Refresh();
   if (openId && byId.has(openId)) $("#ficha-body").innerHTML = fichaHTML(byId.get(openId));
   if (!$("#answer").hidden && state.recipe) showRecipe(state.recipe);
   else if (!$("#answer").hidden && state.q.trim()) showAnswerForQuery(state.q);
@@ -1646,7 +1740,7 @@ window.radarRecibir = function(p){
   showInforme(r, catMsg);
 };
 function renderAll(){
-  renderMeta(); renderRecipesBar(); renderSectors(); renderFilters(); renderDiscover(); renderRadar(); renderGrid();
+  renderMeta(); renderRecipesBar(); renderSectors(); renderFilters(); renderDiscover(); renderRadar(); renderGrid(); v2Refresh();
   if (openId && byId.has(openId)) $("#ficha-body").innerHTML = fichaHTML(byId.get(openId)); else if (openId) closeFicha();
 }
 
@@ -1709,6 +1803,1150 @@ $("#q").addEventListener("input", e => { clearTimeout(qTimer); const v = e.targe
 $("#fam").addEventListener("change", e => { state.fam = e.target.value; renderGrid(); });
 $("#sort").addEventListener("change", e => { state.sort = e.target.value; renderGrid(); });
 window.addEventListener("hashchange", () => { const h = readHash(); if (h !== state.sector) setSector(h); });
+
+/* ============================================================================
+   v2 knowledge layer: sector notes, family knowledge (physics, industries),
+   pin semantics and the anatomy templates used by the interactive lab.
+   Everything here is static teaching content; the sensor facts live in catalogo.json.
+   ========================================================================== */
+
+const SECINFO = {
+  salud:{d:"Señales fisiológicas y bienestar: pulso, ECG, temperatura, respiración. Todo aquí es prototipo de aprendizaje, no un dispositivo médico."},
+  domotica:{d:"Presencia, confort y automatización del hogar con ESPHome y Home Assistant."},
+  robotica:{d:"Percepción y navegación para robots: distancia, orientación, posición y corriente de motores."},
+  agro:{d:"Hidroponía y agricultura: agua, nutrientes, suelo, luz y clima del cultivo."},
+  ambiente:{d:"Estaciones ambientales: aire interior y exterior, partículas, gases y meteorología."},
+  energia:{d:"Medición de consumo, baterías y paneles solares."},
+  wearables:{d:"Sensores pequeños y de bajo consumo para llevar puestos."},
+  seguridad:{d:"Intrusión, acceso, humo y alarmas para casas y talleres."},
+  defensa:{
+    d:"Navegación, conciencia situacional y robótica de campo con enfoque defensivo y de protección civil: GNSS e inercia, radar y térmico, vibración del suelo, gases, comunicaciones y autenticación. Es el terreno de la tecnología de uso dual: la misma pieza sirve a rescate, agricultura y defensa.",
+    nota:"Responsabilidad: este sector reúne sensores de uso dual. Algunos (cámaras térmicas, IMU y GNSS de altas prestaciones) pueden tener controles de exportación en la UE y en otros países; verifica la normativa antes de vender o exportar. El radar, la detección de drones y la vigilancia deben respetar la privacidad y las leyes de cada lugar. El catálogo no incluye nada para armas ni para interferir comunicaciones."
+  }
+};
+
+const FAMINFO = {
+  bio:{
+    how:"Los biopotenciales (ECG, EMG) son voltajes de microvoltios a milivoltios en la piel: un amplificador de instrumentación los eleva y rechaza el ruido común. Los sensores ópticos (PPG) iluminan el tejido y miden cuánta luz absorbe la sangre con cada latido.",
+    simple:"Escuchas la electricidad del cuerpo, o miras cómo cambia el color de la piel con cada latido.",
+    limit:"Artefactos de movimiento, contacto del electrodo, ruido de red de 50 Hz y la piel de cada persona.",
+    ind:[["Salud digital","Relojes y anillos con PPG, parches de ECG"],["Investigación clínica","Adquisición de señales fisiológicas en estudios"],["Deporte y rendimiento","Frecuencia cardíaca y recuperación"],["Rehabilitación y prótesis","EMG para controlar prótesis y exoesqueletos"]],
+    eq:"Frontales analógicos clínicos de varios canales (como el ADS1298) en equipos certificados IEC 60601.",
+    check:["¿Por qué el ECG necesita un amplificador diferencial?","¿Qué es un artefacto de movimiento en una señal PPG?"]
+  },
+  radar:{
+    how:"Un radar de onda milimétrica emite una señal de radio y mide el eco: el retardo da la distancia, el cambio de frecuencia (Doppler) da la velocidad y los movimientos mínimos del pecho se ven como variaciones de fase. Detecta personas quietas porque respirar mueve el cuerpo unos milímetros.",
+    simple:"Lanza ondas de radio y escucha el eco: si algo se mueve, aunque sea respirando, el eco cambia.",
+    limit:"Reflexiones en paredes y muebles, mascotas, ventiladores y la orientación de la antena.",
+    ind:[["Edificios inteligentes","Presencia y ocupación sin cámaras"],["Automoción","Detección de ocupantes y radares de asistencia"],["Cuidado de personas mayores","Detección de caídas y signos vitales"],["Seguridad y defensa","Detección de movimiento con lluvia, humo y oscuridad"]],
+    eq:"Radares automotrices de 77 GHz y radares de vigilancia con certificación de emisión.",
+    check:["¿Qué mide el efecto Doppler en un radar?","¿Por qué un radar detecta a alguien sentado e inmóvil y un PIR no?"]
+  },
+  imu:{
+    how:"Un MEMS tiene masas de silicio microscópicas suspendidas: la aceleración las desplaza y cambia una capacitancia (acelerómetro); la rotación genera la fuerza de Coriolis sobre una masa en vibración (giroscopio). El magnetómetro mide el campo terrestre para dar el rumbo. Un filtro de fusión (Madgwick, Kalman) los combina en orientación.",
+    simple:"Son pesitas microscópicas que se mueven cuando aceleras o giras; el chip mide cuánto.",
+    limit:"Deriva del giroscopio, ruido de vibraciones e imanes cerca del magnetómetro.",
+    ind:[["Drones y robótica","Control de actitud y estabilización"],["Smartphones y wearables","Pasos, rotación de pantalla, detección de caídas"],["Automoción","Detección de vuelco y navegación de respaldo"],["Mantenimiento predictivo","Análisis de vibraciones de maquinaria"],["Defensa y aeroespacial","Navegación inercial cuando falla el GNSS"]],
+    eq:"IMU y AHRS de grado industrial o táctico con calibración térmica completa.",
+    check:["¿Por qué un giroscopio acumula deriva con el tiempo?","¿Qué corrige un filtro de fusión que un sensor solo no puede?"]
+  },
+  dist:{
+    how:"Ultrasonido y láser miden tiempo de vuelo: emiten un pulso, esperan el eco y dividen por la velocidad (sonido ≈ 343 m/s, luz ≈ 3×10⁸ m/s). Los ToF (VL53) cuentan fotones con detectores SPAD; los LiDAR giratorios repiten la medición en muchos ángulos para armar un mapa 2D.",
+    simple:"Mandas un pulso y cronometras cuánto tarda en volver: distancia = velocidad × tiempo ÷ 2.",
+    limit:"Superficies absorbentes o espejos, luz solar fuerte (en ToF) y objetos blandos o inclinados (en ultrasonido).",
+    ind:[["Robótica y AGV","Evitar obstáculos y mapear con SLAM"],["Automoción","Sensores de estacionamiento y LiDAR de asistencia"],["Industria","Nivel de tanques y posicionamiento de piezas"],["Topografía y defensa","Mapeo y detección de obstáculos en vehículos no tripulados"]],
+    eq:"LiDAR de seguridad industrial (clasificados IEC 61496) y escáneres 3D de largo alcance.",
+    check:["¿Por qué un ToF se degrada bajo luz solar directa?","¿Qué le pasa al ultrasonido contra una tela gruesa?"]
+  },
+  vision:{
+    how:"Una cámara convierte luz visible en píxeles con un sensor CMOS. Una cámara térmica mide el infrarrojo de onda larga (8–14 µm) que emite todo objeto según su temperatura, con microbolómetros o termopilas, y entrega una matriz de temperaturas.",
+    simple:"La cámara normal ve la luz que rebota; la térmica ve el calor que irradian las cosas.",
+    limit:"Resolución, emisividad de la superficie (el metal brillante engaña) y el vidrio, que bloquea el infrarrojo térmico.",
+    ind:[["Mantenimiento industrial","Termografía de tableros, motores y rodamientos"],["Seguridad y vigilancia","Detección de personas en oscuridad total"],["Salud y edificación","Cribado de temperatura y fugas térmicas"],["Bomberos y defensa","Ver a través del humo y detectar calor"]],
+    eq:"Cámaras térmicas radiométricas y cámaras industriales con óptica intercambiable.",
+    check:["¿Por qué el vidrio bloquea una cámara térmica?","¿Qué es la emisividad y por qué importa?"]
+  },
+  aire:{
+    how:"Los sensores de gas cambian una propiedad eléctrica al reaccionar: los de óxido metálico (MQ, MOX) varían su resistencia al calentarse; los electroquímicos generan una corriente proporcional a la concentración; los NDIR miden cuánta luz infrarroja absorbe el CO₂; los de partículas dispersan un láser.",
+    simple:"El gas reacciona con una superficie caliente o absorbe luz, y el chip traduce eso en un número.",
+    limit:"Deriva con los meses, sensibilidad cruzada entre gases y humedad o temperatura que alteran la lectura.",
+    ind:[["Edificios y HVAC","Ventilación bajo demanda según CO₂"],["Seguridad industrial","Detección de gases tóxicos e inflamables"],["Agricultura","Control de CO₂ en invernaderos"],["Protección civil y defensa","Detección de contaminantes en el ambiente"]],
+    eq:"Detectores de gas certificados (ATEX / IECEx) con calibración trazable.",
+    check:["¿Por qué un sensor MQ necesita precalentarse?","¿Qué ventaja tiene un NDIR para medir CO₂?"]
+  },
+  clima:{
+    how:"La humedad se mide con un condensador cuyo dieléctrico absorbe agua; la temperatura con termistores, diodos o termopares; la presión con una membrana de silicio que se deforma. De la presión se deduce la altitud porque baja unos 12 Pa por metro cerca del nivel del mar.",
+    simple:"Un material diminuto cambia sus propiedades eléctricas con el calor, la humedad o el aire que lo empuja.",
+    limit:"Autocalentamiento de la placa, ubicación cerca del ESP32 e histéresis en humedades altas.",
+    ind:[["Meteorología y agricultura","Estaciones y microclimas"],["HVAC y edificios","Control de confort"],["Aeronáutica y drones","Altitud barométrica"],["Cadena de frío","Registro de temperatura en transporte"]],
+    eq:"Sensores de humedad y temperatura calibrados con certificado, trazables a patrones nacionales.",
+    check:["¿Por qué alejar el sensor de temperatura del regulador del ESP32?","¿Cómo se obtiene la altitud a partir de la presión?"]
+  },
+  luz:{
+    how:"Un fotodiodo convierte fotones en corriente. Los sensores de color y espectrales ponen filtros ópticos delante de varios fotodiodos para medir cuánta energía hay en cada banda de longitud de onda; los de UV usan un fotodiodo sensible a esa banda.",
+    simple:"Cuenta cuánta luz llega y, con filtros, de qué colores es.",
+    limit:"Saturación a pleno sol, ángulo de entrada de la luz e infrarrojo que se cuela.",
+    ind:[["Horticultura","Espectro de luz para cultivo interior"],["Electrónica de consumo","Brillo automático de pantallas"],["Control de calidad","Medición de color en producción"],["Salud","Exposición UV y ritmos circadianos"]],
+    eq:"Espectrómetros y colorímetros calibrados con fuentes patrón.",
+    check:["¿Para qué sirve un filtro óptico delante del fotodiodo?","¿Qué mide el lux y qué no mide?"]
+  },
+  fuerza:{
+    how:"Una galga extensométrica cambia su resistencia al deformarse; cuatro de ellas en puente de Wheatstone producen unos milivoltios proporcionales a la carga, que un amplificador de 24 bits (HX711, NAU7802) digitaliza. Los sensores de presión usan una membrana y el mismo principio.",
+    simple:"Algo se estira o se aprieta un poquito y cambia su resistencia; se mide ese cambio.",
+    limit:"Temperatura, fluencia (creep) del material y vibración mecánica del montaje.",
+    ind:[["Básculas y logística","Pesaje industrial y comercial"],["Robótica","Sensado de agarre y torque"],["Salud","Presión en plantillas y colchones"],["Aeronáutica","Presión diferencial y velocidad del aire"]],
+    eq:"Celdas de carga certificadas OIML y transductores de presión industriales de 4–20 mA.",
+    check:["¿Qué es un puente de Wheatstone y por qué se usa?","¿Por qué hace falta un amplificador de 24 bits para una celda de carga?"]
+  },
+  agua:{
+    how:"El pH se mide como el voltaje de un electrodo de vidrio (unos 59 mV por unidad de pH a 25 °C); la conductividad (EC/TDS) mide cuánta corriente pasa entre dos electrodos; la humedad capacitiva del suelo detecta la permitividad del agua; el oxígeno disuelto usa un electrodo galvánico u óptico.",
+    simple:"Metes electrodos en el agua y mides qué tan fácil pasa la electricidad o qué voltaje se genera.",
+    limit:"Calibración frecuente, temperatura que cambia la lectura y ensuciamiento de los electrodos.",
+    ind:[["Agricultura e hidroponía","Control de nutrientes y riego"],["Acuicultura","Calidad del agua y oxígeno"],["Tratamiento de aguas","Monitoreo de pH y turbidez"],["Medio ambiente","Redes de monitoreo de ríos y lagos"]],
+    eq:"Sondas multiparamétricas con calibración trazable y limpieza automática.",
+    check:["¿Por qué se calibra una sonda de pH con soluciones buffer?","¿Qué diferencia hay entre un sensor de humedad resistivo y uno capacitivo?"]
+  },
+  sonido:{
+    how:"Un micrófono MEMS tiene una membrana de silicio que se mueve con la presión sonora y la convierte en voltaje o en un flujo digital I2S/PDM. Con varios micrófonos se calcula la dirección del sonido por la diferencia de tiempo de llegada.",
+    simple:"Una membrana diminuta vibra con el sonido y el chip lo convierte en números.",
+    limit:"Ruido de viento, resonancias de la carcasa y el procesamiento que exige la señal.",
+    ind:[["Dispositivos de voz","Asistentes y reconocimiento de comandos"],["Mantenimiento predictivo","Escuchar rodamientos y motores"],["Ciudades inteligentes","Monitoreo de ruido urbano"],["Seguridad y defensa","Localización acústica y detección de eventos"]],
+    eq:"Matrices de micrófonos calibradas y sensores acústicos industriales.",
+    check:["¿Cómo se localiza una fuente sonora con varios micrófonos?","¿Qué ventaja tiene I2S frente a una salida analógica?"]
+  },
+  energia:{
+    how:"La corriente se mide como la caída de voltaje en una resistencia shunt (ley de Ohm) que un amplificador de precisión digitaliza, o con un sensor Hall que detecta el campo magnético de la corriente sin tocar el cable. Para corriente alterna se usan transformadores de corriente (SCT-013).",
+    simple:"Pasas la corriente por una resistencia diminuta y mides cuánto voltaje aparece.",
+    limit:"Offset del sensor, ruido y, en la red eléctrica, la seguridad de manipular 230 V.",
+    ind:[["Energía y solar","Monitoreo de producción y consumo"],["Vehículos eléctricos y baterías","BMS y telemetría de carga"],["Industria","Eficiencia de motores y líneas"],["Robótica","Corriente de motores y de batería"]],
+    eq:"Analizadores de red clase 0.5 y shunts calibrados con aislamiento.",
+    check:["¿Por qué un shunt debe tener una resistencia muy baja?","¿Qué riesgo hay al medir corriente en la red de 230 V?"]
+  },
+  hmi:{
+    how:"Los sensores táctiles capacitivos detectan el cambio de capacitancia cuando un dedo se acerca; los encoders cuentan pulsos en cuadratura para dar giro y sentido; los de gestos usan fotodiodos con LED infrarrojo para ver cómo se mueve una mano.",
+    simple:"Detecta tu dedo, tu mano o el giro de una perilla y lo convierte en una señal.",
+    limit:"Rebotes mecánicos, humedad en superficies táctiles y luz ambiente en los de gestos.",
+    ind:[["Electrodomésticos","Paneles táctiles y perillas"],["Automoción","Controles de cabina"],["Industria","Interfaces robustas (encoders, joysticks)"],["Accesibilidad","Interfaces alternativas"]],
+    eq:"Controles táctiles IP67 certificados y encoders industriales.",
+    check:["¿Qué es una señal en cuadratura?","¿Por qué se usa antirrebote en un botón?"]
+  },
+  pos:{
+    how:"El GNSS calcula la posición a partir del retardo de las señales de varios satélites; RTK corrige errores con una estación base y llega a centímetros. UWB mide distancia por tiempo de vuelo de pulsos de radio muy cortos. Los sensores Hall detectan campo magnético para posición o giro.",
+    simple:"Escuchas varios satélites o balizas y, midiendo cuánto tardan sus señales, calculas dónde estás.",
+    limit:"Cielo despejado (GNSS), reflexiones multitrayecto, interferencia y suplantación (spoofing).",
+    ind:[["Agricultura de precisión","Guiado de maquinaria"],["Logística","Rastreo de flotas y almacenes"],["Robótica y drones","Navegación"],["Defensa","Navegación y tiempo precisos, con respaldo inercial frente a interferencias"]],
+    eq:"Receptores GNSS multibanda certificados y sistemas con IMU acoplado.",
+    check:["¿Qué mejora RTK respecto de un GNSS normal?","¿Por qué se combina un IMU con el GPS?"]
+  },
+  ident:{
+    how:"RFID/NFC acopla una bobina del lector con la etiqueta por inducción a 13.56 MHz: la etiqueta se alimenta del campo y responde con su identificador (UID). Un lector de huellas captura un patrón óptico o capacitivo y lo compara con plantillas guardadas; un chip seguro guarda claves criptográficas.",
+    simple:"El lector da energía a la tarjeta con un campo magnético y ella responde quién es.",
+    limit:"Clonación de etiquetas sin cifrar, distancia de lectura corta y manejo de datos biométricos.",
+    ind:[["Control de acceso","Puertas, tarjetas y relojes de asistencia"],["Logística y comercio","Inventarios y trazabilidad"],["Pagos y transporte","Tarjetas sin contacto"],["Seguridad y defensa","Autenticación de personas y de dispositivos"]],
+    eq:"Lectores con certificación de seguridad y elementos seguros (Common Criteria).",
+    check:["¿Cómo se alimenta una etiqueta NFC sin batería?","¿Por qué el UID de una tarjeta no basta para autenticar?"]
+  },
+  com:{
+    how:"Estos módulos mueven datos entre dispositivos: LoRa modula con espectro ensanchado (chirp) para llegar a kilómetros con muy poca velocidad; CAN usa dos cables diferenciales con arbitraje por prioridad; Remote ID es una difusión estándar de la identidad y la posición de un dron.",
+    simple:"Son los carteros del sistema: llevan los datos lejos, o entre máquinas, con las reglas de cada bus.",
+    limit:"Normativa de frecuencias y ciclo de trabajo, alcance real frente a obstáculos y cifrado de los datos.",
+    ind:[["Agricultura y medio ambiente","Redes de sensores de campo"],["Automoción y maquinaria","Redes CAN"],["Aviación","Identificación de aeronaves no tripuladas"],["Emergencias y defensa","Comunicaciones sin infraestructura celular"]],
+    eq:"Radios y gateways homologados, y buses CAN FD con transceptores aislados.",
+    check:["¿Por qué LoRa llega lejos pero transmite lento?","¿Para qué sirve la terminación de 120 Ω en un bus CAN?"]
+  }
+};
+const GRADE_NOTES = [
+  "Rango de temperatura ampliado (−40 a 85 °C o más) y calibración de fábrica con certificado.",
+  "Carcasa con protección IP, conectores bloqueables y cableado blindado.",
+  "Pruebas de compatibilidad electromagnética (EMC) y de vibración.",
+  "Vida útil y tasa de fallos documentadas (MTBF), con repuestos garantizados por años.",
+  "Certificaciones propias del sector (CE, ATEX, IEC 60601, AEC-Q100 según el caso)."
+];
+
+/* ---------- pin semantics ---------- */
+const PIN_INFO = [
+  [/^(VIN|VCC|VDD|V\+|\+VS|\+V|VS)(\b|$)/i, "Alimentación (VIN / VCC)", "Entrada de energía del módulo.", "Revisa el rango en la ficha (3.3 V, 5 V o 3.3–5 V): un voltaje de más puede dañarlo."],
+  [/^(3V3|3\.3V)/i, "Línea de 3.3 V", "En breakouts con regulador suele ser una salida para alimentar otras cosas; en módulos simples es la entrada.", "Si el módulo tiene VIN y 3V3, alimenta por VIN y deja 3V3 libre."],
+  [/^5V/i, "Entrada de 5 V", "Alimentación de módulos con regulador o con radiofrecuencia.", "Sus señales de salida pueden ser de 5 V: confirma si hace falta adaptar niveles."],
+  [/^(GND|GROUND)/i, "Tierra (GND)", "Referencia común de 0 V.", "Une siempre el GND del módulo con el del ESP32: sin tierra común las señales no se entienden."],
+  [/^SDA/i, "SDA (datos I2C)", "Línea bidireccional de datos del bus I2C.", "Comparte el bus con otros sensores; cada uno necesita una dirección distinta."],
+  [/^SCL/i, "SCL (reloj I2C)", "Línea de reloj del bus I2C, la genera el ESP32.", "Cables largos o muchas placas la hacen lenta: baja la frecuencia a 100 kHz."],
+  [/^(TX|TXD)/i, "TX (transmisión serie)", "Salida de datos del módulo hacia el ESP32.", "Se cruza: el TX del módulo va al RX del ESP32."],
+  [/^(RX|RXD)/i, "RX (recepción serie)", "Entrada de datos del módulo desde el ESP32.", "Se cruza: el RX del módulo va al TX del ESP32."],
+  [/^(MOSI|SDI|DIN)/i, "MOSI (SPI)", "Datos del ESP32 hacia el módulo.", "Todos los dispositivos SPI comparten MOSI, MISO y SCK; cada uno tiene su CS."],
+  [/^(MISO|SDO|DOUT)/i, "MISO (SPI)", "Datos del módulo hacia el ESP32.", "Si dos dispositivos comparten MISO, el que no está seleccionado debe soltar la línea."],
+  [/^(SCK|SCLK|CLK)/i, "SCK (reloj SPI)", "Reloj que marca el ritmo de cada bit.", "A frecuencias altas usa cables cortos."],
+  [/^(CS|SS|NSS|CSB)/i, "CS (selección de chip)", "Pin que activa este dispositivo en el bus SPI.", "Cada dispositivo SPI necesita su propio pin CS."],
+  [/^(INT|IRQ|ALRT|ALERT|DRDY|RDY|OS)/i, "Interrupción / dato listo", "El módulo avisa al ESP32 cuando hay un dato o un evento.", "Úsalo con attachInterrupt para no estar consultando constantemente."],
+  [/^(RST|RESET|XSHUT)/i, "Reinicio (RST)", "Reinicia el chip cuando se baja a nivel bajo.", "Opcional: déjalo sin conectar si el módulo ya trae su propio reinicio."],
+  [/^(EN|SDN|PWDN|SHDN|WAKEUP|START)/i, "Habilitación / apagado", "Enciende, apaga o despierta el chip.", "Útil para ahorrar batería; mira si es activo en alto o en bajo."],
+  [/^(AD0|ADDR|ADR|A0|A1|A2|SDO\/ADDR)/i, "Dirección I2C (ADDR)", "Unido a GND o a VCC cambia la dirección I2C del chip.", "Sirve para usar dos sensores iguales en el mismo bus."],
+  [/^(AO|AOUT|OUTPUT|OUT|SIG|ENV|RAW|VOUT)/i, "Salida de señal", "Entrega el resultado de la medición, analógico o digital según el módulo.", "Si es analógico, lee con un pin ADC1 del ESP32 y verifica que no pase de 3.3 V."],
+  [/^(DO|D0)/i, "Salida digital (DO)", "Pasa de nivel cuando la medida cruza un umbral ajustado con el potenciómetro.", "Útil para alarmas; la lectura fina está en la salida analógica."],
+  [/^(DATA|DQ|DAT)$/i, "Datos (1 hilo)", "Una sola línea bidireccional de datos.", "Necesita una resistencia pull-up de 4.7 kΩ a 3.3 V."],
+  [/^TRIG/i, "Trigger (disparo)", "El ESP32 manda un pulso corto para iniciar la medición.", "Un pulso de 10 µs es suficiente."],
+  [/^ECHO/i, "Echo (eco)", "Pulso cuya duración es proporcional a la distancia.", "En la versión de 5 V entrega 5 V: baja con un divisor de tensión antes del ESP32."],
+  [/^(LO\+|LO-|LO)/i, "Detección de electrodo suelto", "Se activa cuando un electrodo pierde contacto con la piel.", "Úsala para descartar lecturas sin contacto."],
+  [/^(NC|XDA|XCL|RD|IRD)/i, "Sin uso habitual", "Pin auxiliar o no conectado en el uso normal.", "Déjalo libre salvo que la hoja de datos indique lo contrario."]
+];
+function pinInfo(name){
+  const base = String(name).replace(/\s*\(.*\)\s*/g, "").trim();
+  for (const [rx, n, que, ojo] of PIN_INFO) if (rx.test(base) || rx.test(name)) return {n, que, ojo};
+  return {n: name, que: "Pin del módulo.", ojo: "Consulta la hoja de datos para su función exacta."};
+}
+
+/* ---------- anatomy templates ----------
+   Part = [id, name, slot, shape, what, why, watch]
+   Slots map to fixed rectangles on a 400x230 board drawing. */
+const SLOTS = {
+  core:{x:146,y:44,w:108,h:76}, coreL:{x:96,y:48,w:80,h:68}, coreR:{x:224,y:48,w:80,h:68},
+  under:{x:150,y:128,w:100,h:30}, topL:{x:44,y:30,w:52,h:26}, topR:{x:316,y:30,w:44,h:22},
+  midL:{x:44,y:70,w:44,h:34}, midR:{x:312,y:70,w:48,h:34}, botL:{x:44,y:118,w:54,h:30}, botR:{x:300,y:118,w:60,h:30}
+};
+const SUPPORT = {
+  reg:["reg","Regulador de voltaje (LDO)","topL","chip","Un chip pequeño que baja el voltaje de entrada (por ejemplo 5 V) a 3.3 V estables para el sensor.","Por eso muchos módulos aceptan 3.3–5 V en VIN.","Con 3.3 V directos el regulador puede perder unas décimas de voltio: revisa la hoja de datos."],
+  pullup:["pullup","Resistencias pull-up del bus I2C","midL","res","Dos resistencias (típicamente 4.7–10 kΩ) que mantienen SDA y SCL en nivel alto cuando nadie las baja.","I2C usa líneas de colector abierto: sin pull-ups el bus no funciona.","Cada placa suma sus pull-ups en paralelo. Con cinco o más placas la resistencia total baja demasiado: quita alguna."],
+  addr:["addr","Puente o pines de dirección","botL","jumper","Pads para soldar o pines para unir a GND o VCC que cambian la dirección I2C del chip.","Permite usar dos sensores iguales, o dos que comparten dirección, en el mismo bus.","No todos los chips ofrecen dirección alternativa: revisa la hoja de datos."],
+  qwiic:["qwiic","Conector Qwiic / STEMMA QT","midR","conn","Conector JST de 4 pines (GND, 3.3 V, SDA, SCL) que encadena placas sin soldar.","Conecta varios sensores I2C con un solo cable.","Es de 3.3 V: no lo alimentes con 5 V. Las direcciones repetidas siguen chocando."],
+  grove:["grove","Conector Grove","midR","conn","Conector de 4 pines con clave que lleva alimentación y dos señales.","Conexión sin soldar con cables Grove.","Confirma el voltaje del módulo (3.3 V o 5 V) antes de conectarlo."],
+  led:["led","LED de encendido","topR","led","Un LED que se enciende cuando el módulo recibe voltaje.","Te confirma que hay alimentación.","En proyectos a batería consume corriente constante: se puede quitar con un soldador."]
+};
+const ANAT = {
+  chip:[
+    ["ic","Chip sensor (circuito integrado)","core","chip","El componente negro y pequeño donde ocurre la medición: contiene el elemento sensible y un convertidor a digital.","Convierte la magnitud física en números que lees por el bus (I2C, SPI…) sin medir señales analógicas.","Revisa en la hoja de datos el rango, la resolución y el tiempo de estabilización: definen para qué proyectos sirve."],
+    ["caps","Condensadores de desacople","under","res","Condensadores pequeños cerca del chip que filtran el ruido de la alimentación.","Estabilizan el voltaje en los picos de consumo del sensor.","Si los cables largos meten ruido, añade 100 nF y 10 µF cerca del módulo."]
+  ],
+  optical:[
+    ["win","Ventana óptica y fotodiodo","core","lens","Zona transparente sobre un fotodiodo o fotosensor, donde entra la luz.","Capta fotones y los convierte en una corriente que el chip digitaliza.","Mantén la ventana limpia y sin tapar; el vidrio o los plásticos de color cambian la lectura."],
+    ["ic","Chip de acondicionamiento","under","chip","Chip que amplifica la corriente del fotodiodo y la convierte a digital.","Entrega la medida lista por I2C.","La luz solar directa puede saturarlo: ajusta la ganancia o el tiempo de integración."]
+  ],
+  hmi:[
+    ["ic","Chip de interfaz","core","chip","Controlador que interpreta la superficie, la antena o el contacto y entrega eventos limpios.","Evita que el ESP32 tenga que leer señales delicadas o filtrar rebotes.","Revisa si necesita 3.3 V estricto o tolera 5 V."],
+    ["io","Elemento de interacción","under","pad","Superficie, bobina o contacto que tocas, acercas o giras.","Es la parte que percibe a la persona o a la etiqueta.","Aíslalo de metal y de humedad, según el tipo."]
+  ],
+  air:[
+    ["vent","Cámara de medición con rejilla","core","grid","Cavidad con una malla que deja pasar el aire o el gas hacia el elemento sensible.","Permite que la muestra llegue al sensor sin dejar entrar polvo grueso.","No la tapes con cinta ni la selles: necesita flujo de aire y distancia del calor del ESP32."],
+    ["asic","Chip de lectura y compensación","under","chip","Electrónica que lee el elemento y corrige por temperatura y humedad.","Entrega la concentración o un índice ya procesado.","Muchos sensores de gas necesitan minutos u horas de calentamiento y calibración."]
+  ],
+  imu:[
+    ["ic","Chip IMU (MEMS)","core","chip","Chip con estructuras de silicio microscópicas que se mueven con la aceleración o con la rotación.","Mide aceleración, velocidad angular y, en algunos, campo magnético, en tres ejes.","Fíjalo rígido cerca del centro de masa: las vibraciones de la caja se leen como movimiento."],
+    ["axes","Marca de ejes X / Y / Z","under","axes","Flechas serigrafiadas que indican el sentido positivo de cada eje.","Te dicen cómo orientar el módulo respecto de tu robot.","Si montas la placa girada, corrige signos y orden de ejes en el software."]
+  ],
+  radar:[
+    ["patch","Antena impresa (patch)","core","patch","Rectángulo de cobre grabado en la placa que emite y recibe las ondas de radio.","Dirige la energía hacia delante y capta el eco.","Deja 3–5 mm de aire frente a la antena y aléjala de metal; PLA o PETG fino (1–1.5 mm) la atraviesa."],
+    ["tr","Chip transceptor mmWave","under","chip","Circuito que genera la señal de radio, la compara con el eco y calcula distancia y movimiento.","Entrega presencia, distancia o posiciones por UART o salida digital.","Se calienta y tiene picos de consumo: alimenta con 5 V estables y ventila la caja."]
+  ],
+  pir:[
+    ["dome","Lente de Fresnel (domo blanco)","core","dome","Domo de plástico con facetas que concentra el infrarrojo del ambiente sobre el sensor.","Divide el campo de visión en zonas: cuando un cuerpo caliente pasa de una zona a otra, el sensor ve un cambio.","Debe quedar al aire libre: el vidrio y el plástico común bloquean el IR. Evita corrientes de aire caliente y el sol directo."],
+    ["pyro","Sensor piroeléctrico (bajo el domo)","under","can","Cápsula metálica con un cristal que genera carga cuando cambia la temperatura que recibe.","Detecta variaciones de infrarrojo, no temperatura absoluta: solo ve lo que se mueve.","Tarda de 30 a 60 s en estabilizarse al encender."],
+    ["pot1","Potenciómetro de sensibilidad","botR","pot","Perilla que ajusta el umbral de detección y, con él, el alcance (de unos 3 a 7 m).","Más sensibilidad da más alcance pero también más falsos positivos.","Gírala poco a poco con un destornillador pequeño."],
+    ["pot2","Potenciómetro de tiempo","botL","pot","Perilla que fija cuánto tiempo permanece activa la salida (de unos 5 s a unos 5 min).","Evita que una luz se apague cuando alguien se queda quieto un momento.","Pruébalo en el mínimo mientras desarrollas."],
+    ["jmp","Puente de modo (H / L)","midL","jumper","Define si la salida se reactiva mientras haya movimiento (H) o entrega un solo pulso por evento (L).","Cambia el comportamiento que debe tener tu código.","Prueba ambos modos antes de decidir."]
+  ],
+  ultrasonic:[
+    ["tx","Transductor emisor (T)","coreL","can","Cápsula metálica con un cristal piezoeléctrico que vibra a 40 kHz.","Emite una ráfaga de ultrasonido, inaudible para las personas.","Apunta al objeto: el cono útil es de unos 15° alrededor del eje."],
+    ["rx","Transductor receptor (R)","coreR","can","Cápsula idéntica que convierte el eco en una señal eléctrica diminuta.","Capta el rebote del sonido.","Las superficies blandas o inclinadas absorben o desvían el eco."],
+    ["xtal","Cristal de cuarzo","under","xtal","Oscilador (unos 8 MHz) que da el reloj al microcontrolador del módulo.","Sincroniza con precisión el tiempo del pulso y del eco.","Si el eco no llega en unos 38 ms, el módulo informa que no hay objeto."]
+  ],
+  mq:[
+    ["can","Elemento sensor (cápsula con malla)","core","can","Cápsula metálica con una malla; dentro hay un material de óxido metálico y un calentador.","Su resistencia cambia cuando ciertos gases se pegan a la superficie caliente.","Consume unos 150 mA solo por el calentador, necesita precalentarse (minutos a horas) y no distingue bien un gas de otro."],
+    ["lm393","Comparador LM393","under","chip","Chip que compara la señal analógica con un umbral.","Entrega una salida digital (DO) cuando el gas supera el nivel.","Úsalo para alarmas; para medir concentración lee la salida analógica."],
+    ["pot","Potenciómetro de umbral","botR","pot","Perilla que fija el nivel en el que se activa DO.","Ajusta la sensibilidad de la alarma.","Calibra al aire limpio y después con una fuente conocida."]
+  ],
+  soil:[
+    ["plates","Placas capacitivas (pistas de cobre)","core","probe","Dos pistas de cobre dentro de la placa forman un condensador cuyo dieléctrico es el suelo.","La humedad cambia la permitividad: más agua, más capacitancia.","No sumerjas más allá de la línea marcada y sella el borde con barniz o termocontraíble."],
+    ["osc","Oscilador 555 y acondicionador","under","chip","Circuito que convierte la capacitancia en un voltaje analógico.","Entrega la lectura al ADC del ESP32.","La salida baja cuando hay más humedad: calibra en aire seco y en agua."],
+    ["coat","Recubrimiento (barniz)","botR","pad","Capa que aísla las pistas del suelo y de los fertilizantes.","Evita la corrosión que arruina los sensores resistivos.","Si se raya, el sensor se degrada en semanas."]
+  ],
+  probe:[
+    ["electrode","Electrodo o sonda externa","core","probe","La parte que se sumerge: un electrodo de vidrio, dos varillas de acero o una celda óptica, según el parámetro.","Genera el voltaje o la corriente que depende de la solución.","Se deteriora: calibra con soluciones patrón y guárdalo en el líquido que indique el fabricante, no en seco."],
+    ["cond","Placa acondicionadora","under","chip","Amplificador de muy alta impedancia que lee el electrodo y lleva la señal a un rango que el ADC puede leer.","Convierte milivoltios o microamperios en un voltaje legible.","Verifica que la salida no supere 3.3 V antes de conectarla al ESP32."],
+    ["bnc","Conector BNC o Gravity","midR","conn","Conector que une la sonda con la placa acondicionadora.","Mantiene la señal protegida del ruido en cables largos.","Mantén el conector seco: la humedad crea fugas y errores."]
+  ],
+  load:[
+    ["sense","Elemento sensible (resistivo o piezoeléctrico)","core","zig","Material cuya resistencia o voltaje cambia cuando se estira, se dobla o se aprieta.","Convierte la fuerza o la deformación en una señal eléctrica.","Responde de forma no lineal y con histéresis: calibra con pesos conocidos."],
+    ["div","Resistencia de referencia (divisor)","under","res","Una resistencia fija en serie que forma un divisor de tensión con el sensor.","Transforma el cambio de resistencia en un cambio de voltaje legible por el ADC.","Elige un valor cercano a la resistencia de reposo del sensor para tener máxima sensibilidad."]
+  ],
+  to39:[
+    ["can","Cápsula metálica TO-39","core","can","Encapsulado cilíndrico con una ventana frontal.","Protege el chip y define el campo de visión.","El ángulo de visión (por ejemplo 35° o 90°) cambia qué mide: elige la variante según tu distancia."],
+    ["win","Ventana de silicio (filtro IR)","under","lens","Ventana que deja pasar solo el infrarrojo lejano e ignora la luz visible.","Permite medir temperatura sin contacto por el calor que irradia el objeto.","El vidrio, el acrílico y el PLA bloquean el IR: no lo pongas detrás de una tapa."],
+    ["pile","Termopila y chip ASIC (dentro)","botR","chip","Termopares microscópicos conectados en serie, más un chip que los amplifica y corrige.","Convierte el flujo de calor en temperatura del objeto y del ambiente.","La emisividad del material cambia la lectura: los metales brillantes engañan."]
+  ],
+  power:[
+    ["term","Bornes de tornillo","coreL","terminal","Terminales donde conectas el cable cuya corriente quieres medir.","Hacen pasar la corriente por la resistencia shunt de la placa.","Aprieta bien: un borne flojo se calienta y falsea la medida."],
+    ["shunt","Resistencia shunt","coreR","res","Resistencia de valor muy pequeño (por ejemplo 0.1 Ω) por donde pasa la corriente que mides.","La caída de voltaje en ella es proporcional a la corriente (ley de Ohm).","Respeta el límite de corriente del módulo. En 230 V, NO es un montaje seguro para principiantes."],
+    ["amp","Chip amplificador y ADC","under","chip","Amplifica los milivoltios del shunt y los digitaliza.","Entrega corriente, voltaje y potencia por I2C.","El voltaje de modo común máximo limita en qué línea puedes medir."]
+  ],
+  cam:[
+    ["lens","Lente y sensor de imagen","core","lens","Lente de plástico sobre un sensor CMOS que convierte la luz en píxeles.","Captura imágenes o video para que el ESP32 las procese o las transmita.","Enfoca girando el lente; la luz tenue da imagen ruidosa."],
+    ["fpc","Conector de cinta flexible (FPC)","under","fpc","Conector de cobre plano donde se inserta la cinta de la cámara.","Une el sensor con el procesador.","Levanta con cuidado la pestaña negra antes de insertar o retirar la cinta."]
+  ],
+  bio:[
+    ["inamp","Amplificador de instrumentación","core","chip","Chip que amplifica la diferencia entre dos electrodos y rechaza lo que es común a ambos.","Eleva señales de microvoltios o milivoltios hasta un nivel que el ADC pueda leer.","Alimenta con batería, no con la red eléctrica, cuando haya contacto con una persona."],
+    ["jack","Entrada de electrodos (jack o broches)","midL","conn","Conector donde se enchufan los cables de los electrodos.","Lleva la señal desde la piel hasta la placa.","Usa electrodos nuevos y limpia la piel; un mal contacto da ruido."],
+    ["filt","Filtros analógicos (RC)","under","res","Resistencias y condensadores que recortan frecuencias fuera de la señal útil.","Quitan la deriva lenta y el ruido de alta frecuencia.","El ruido de red (50 Hz) pasa igual: filtra también por software."]
+  ],
+  esp32:[
+    ["chip","Chip ESP32 (radio integrada)","core","chip","El mismo sistema en un chip de tu placa, con CPU, Wi-Fi y Bluetooth.","Aquí el sensor es la radio: se lee por software, sin hardware extra.","El Wi-Fi o el Bluetooth deben estar activos para obtener datos."],
+    ["ant","Antena PCB","under","patch","Pista en forma de meandro grabada en el borde de la placa.","Emite y recibe la señal de 2.4 GHz.","No la cubras con metal, fibra de carbono ni cables: pierde alcance."]
+  ],
+  lidar:[
+    ["tx","Emisor láser infrarrojo","coreL","lens","Diodo láser infrarrojo de baja potencia con una lente.","Lanza pulsos de luz que no ves.","Superficies negras mate o transparentes devuelven poca luz."],
+    ["rx","Receptor de luz (SPAD o fotodiodo)","coreR","lens","Detector muy sensible que cuenta los fotones que regresan.","Mide cuánto tardó el pulso en volver.","La luz solar directa añade ruido y acorta el alcance."],
+    ["mcu","Chip de tiempo de vuelo","under","chip","Procesador que cronometra el pulso y calcula la distancia.","Entrega distancia por I2C o UART.","Revisa el alcance máximo y el ángulo de visión en la hoja de datos."]
+  ]
+};
+/* Per-sensor overrides: replace the archetype parts when the archetype would mislead. */
+const ANAT_ID = {
+  max30102:[
+    ["leds","LED rojo (660 nm) e infrarrojo (880 nm)","coreL","led2","Dos LED que iluminan el dedo con luz roja e infrarroja.","La sangre con oxígeno absorbe distinto cada color: de esa diferencia sale el SpO₂ (saturación de oxígeno).","No lo mires de cerca ni lo uses como luz."],
+    ["pd","Fotodiodo","coreR","lens","Detector que mide cuánta luz atraviesa o rebota en el dedo.","Cada latido cambia el volumen de sangre y, con él, la luz recibida: eso es el pulso.","Presiona con firmeza pero sin cortar la circulación: el movimiento y la luz ambiente meten ruido."],
+    ["afe","Chip de acondicionamiento de 18 bits","under","chip","Convierte la corriente del fotodiodo en datos y controla la intensidad de los LED.","Entrega la señal PPG cruda en una memoria FIFO por I2C.","Filtra y detecta picos en el ESP32: la señal cruda no es un pulso listo."]
+  ],
+  ad8232:[
+    ["inamp","Amplificador de instrumentación AD8232","core","chip","Chip especializado en señales cardíacas con filtros integrados.","Amplifica el ECG y rechaza el ruido común a ambos brazos.","Alimenta con batería, nunca con la red eléctrica, cuando esté conectado a una persona."],
+    ["jack","Jack de 3.5 mm para electrodos","midL","conn","Conector donde se enchufa el cable de tres electrodos.","Une los electrodos con la placa.","Usa electrodos adhesivos nuevos sobre piel limpia."],
+    ["ref","Electrodos RA, LA y RL","botR","pad","Brazo derecho (RA), brazo izquierdo (LA) y pierna derecha (RL, referencia).","Miden la diferencia de potencial del corazón entre los dos brazos; RL reduce el ruido común.","Una posición cambiada invierte la señal; mantén la misma en todas las pruebas."],
+    ["filt","Filtros pasa-altas y pasa-bajas","under","res","Resistencias y condensadores que recortan la banda útil del ECG (aprox. 0.5–40 Hz).","Eliminan la deriva de la línea base y el ruido de alta frecuencia.","Un cable largo capta ruido de 50 Hz: usa cable corto y filtra por software."]
+  ],
+  rc522:[
+    ["coil","Antena de bobina impresa","core","coil","Bobina rectangular grabada en la placa que genera un campo de 13.56 MHz.","Alimenta la etiqueta por inducción y recibe su respuesta.","Alcance de unos 3 cm; no lo pongas pegado a metal."],
+    ["ic","Chip MFRC522","under","chip","Controlador RFID que maneja el protocolo con las etiquetas.","Entrega el UID y los bloques de memoria por SPI.","Requiere 3.3 V estrictos; con 5 V se daña."]
+  ],
+  ky040:[
+    ["knob","Perilla con eje","core","knob","Eje giratorio con un clic por posición (detentes).","Mueve los contactos internos del encoder.","El eje es plástico: no lo fuerces."],
+    ["enc","Contactos A y B del encoder","under","pad","Dos contactos que se cierran con 90° de desfase.","El orden en que cambian da el sentido de giro (cuadratura).","Los rebotes producen conteos falsos: usa antirrebote por hardware o software."],
+    ["sw","Pulsador del eje","botR","pad","Interruptor que se cierra al presionar la perilla.","Sirve como botón de selección.","Es un contacto normal: lee con INPUT_PULLUP."]
+  ],
+  gps:[
+    ["ant","Antena cerámica (patch)","core","patch","Pieza cuadrada de cerámica que capta las señales de los satélites.","Recibe señales GNSS muy débiles, cerca de −130 dBm.","Necesita vista despejada del cielo y un plano metálico debajo; en interiores casi no funciona."],
+    ["ic","Receptor GNSS (u-blox)","under","chip","Chip que demodula varios satélites y calcula posición, velocidad y hora.","Entrega tramas NMEA o UBX por UART o I2C.","La primera posición (arranque en frío) puede tardar varios minutos."],
+    ["bat","Batería o supercondensador de respaldo","botR","can","Mantiene el reloj y los datos de los satélites con el módulo apagado.","Permite un arranque en caliente de segundos en vez de minutos.","Si se agota, vuelve el arranque en frío."],
+    ["pps","LED / pin PPS","topR","led","LED que parpadea una vez por segundo al tener posición fija.","Te confirma el fix sin escribir código y marca el segundo exacto.","Sin parpadeo, no hay posición válida todavía."]
+  ],
+  dht22:[
+    ["cap","Sensor capacitivo de humedad","core","grid","Película de polímero que absorbe humedad y cambia su capacitancia.","Mide la humedad relativa del aire.","Es lento (unos 2 s por lectura) y se desvía con el tiempo."],
+    ["ntc","Termistor NTC","under","can","Pequeña perla cuya resistencia baja al subir la temperatura.","Mide la temperatura del aire.","Aléjalo de fuentes de calor; el cuerpo plástico retarda la lectura."],
+    ["mcu","Microcontrolador interno de 8 bits","botR","chip","Chip dentro del plástico que digitaliza ambas medidas.","Entrega un paquete de 40 bits por un solo hilo.","El protocolo es sensible al tiempo: usa una librería probada."]
+  ],
+  ds18b20:[
+    ["ic","Chip DS18B20 en cápsula de acero","core","can","Sensor digital de temperatura dentro de una sonda impermeable.","Mide en °C con 9 a 12 bits de resolución y entrega el dato por 1-Wire.","Soporta inmersión, pero no sumerjas el cable ni los empalmes sin sellar."],
+    ["id","Código único de 64 bits","under","pad","Cada sensor trae un número de serie grabado de fábrica.","Permite colgar varios en el mismo cable y leerlos por separado.","Anota la dirección de cada uno al instalarlos."],
+    ["wire","Cable de 3 hilos","botR","wire","Rojo (VCC), negro (GND) y amarillo (DATA).","Une la sonda con el ESP32.","Necesita una resistencia pull-up de 4.7 kΩ entre DATA y 3.3 V."]
+  ]
+};
+const EMITTER_IDS = new Set(["apds9960","paj7620","tcrt5000","tcs34725","tmf8806"]);
+
+/* ---------- ESP32 wiring knowledge ---------- */
+const WIRE_KIND = {
+  pwr33:{c:"#E04F4F", why:"Alimenta el módulo desde el pin 3V3 del ESP32. Sirve para módulos de bajo consumo y mantiene las señales a 3.3 V."},
+  pwr5:{c:"#E8772E", why:"Alimenta el módulo desde el pin 5V (VIN) del ESP32, que viene del USB. Es para módulos que consumen más, como radares y cámaras."},
+  gnd:{c:"#6B7782", why:"Tierra común: une el GND del módulo con el GND del ESP32. Sin ella las señales no tienen referencia."},
+  "i2c-sda":{c:"#3B82F6", why:"GPIO21 es el SDA por defecto del bus I2C del ESP32. Todos los sensores I2C comparten SDA y SCL."},
+  "i2c-scl":{c:"#EAB308", why:"GPIO22 es el SCL por defecto del bus I2C del ESP32."},
+  "uart-rx":{c:"#22C55E", why:"El TX del módulo va al RX del ESP32 (se cruzan). GPIO16 y GPIO17 son la UART2, libre en la mayoría de las placas."},
+  "uart-tx":{c:"#16A34A", why:"El RX del módulo va al TX del ESP32 (se cruzan)."},
+  "spi-sck":{c:"#A855F7", why:"SCK del bus SPI (VSPI) en GPIO18."},
+  "spi-miso":{c:"#C084FC", why:"MISO del bus SPI en GPIO19: datos del módulo hacia el ESP32."},
+  "spi-mosi":{c:"#9333EA", why:"MOSI del bus SPI en GPIO23: datos del ESP32 hacia el módulo."},
+  "spi-cs":{c:"#7C3AED", why:"Selección de chip: cada dispositivo SPI necesita su propio pin CS."},
+  adc:{c:"#F59E0B", why:"Pin de ADC1 (GPIO32–39). ADC2 deja de funcionar cuando el Wi-Fi está activo. GPIO34–39 son solo entrada."},
+  "dig-in":{c:"#14B8A6", why:"Entrada digital. Si es un aviso del módulo, úsala con attachInterrupt para no consultar sin parar."},
+  "dig-out":{c:"#0EA5A4", why:"Salida digital del ESP32 hacia el módulo."},
+  data1w:{c:"#F97316", why:"GPIO4 con una resistencia pull-up de 4.7 kΩ a 3.3 V (bus de un solo hilo)."},
+  echo:{c:"#EF4444", why:"El ECHO entrega 5 V en la versión estándar. Baja a 3.3 V con un divisor de 1 kΩ y 2 kΩ antes del ESP32, porque sus GPIO toleran como máximo 3.3 V."},
+  "i2s-bclk":{c:"#06B6D4", why:"Reloj de bits del bus de audio I2S."},
+  "i2s-ws":{c:"#0891B2", why:"Reloj de palabra (izquierda/derecha) del bus I2S."},
+  "i2s-sd":{c:"#22D3EE", why:"Datos de audio I2S del micrófono hacia el ESP32."},
+  can:{c:"#84CC16", why:"Los pines CAN TX y RX del ESP32 (controlador TWAI) van al transceptor, no directo al bus."},
+  ctl:{c:"#64748B", why:"Pin de control opcional (reinicio, apagado o habilitación). Puedes dejarlo sin conectar."},
+  cfg:{c:"#94A3B8", why:"No va al ESP32: se une a GND o a 3V3 para configurar el módulo (por ejemplo, la dirección I2C)."},
+  nc:{c:"#94A3B8", why:"Sin uso habitual: déjalo libre salvo que la hoja de datos diga otra cosa."},
+  out33:{c:"#94A3B8", why:"Salida del regulador del propio módulo: no conectes aquí la alimentación del ESP32."}
+};
+
+/* ============================================================================
+   v2 part A: taxonomy, physical data and wiring engine
+   ========================================================================== */
+SECTORS.push({id:"defensa", n:"Defensa y campo"});
+SECLABEL.defensa = "Defensa y campo";
+FAM.com = "Comunicación";
+if (!BUSES.includes("CAN")) BUSES.splice(BUSES.indexOf("Placa propia"), 0, "CAN");
+FAMRX.push(["com", /lora|can bus|remote ?id|drone id|sub-?ghz|radio module|transceiver/]);
+SECRX.defensa = /defen[cs]e|military|tactical|uas|counter.?drone|remote ?id|gnss|rtk|surveillance|ruggedi[sz]ed|rover|geophone|thermal imag/;
+
+const PHYS_V2 = {
+  zedf9p:{arch:"chip",dim:[48,42,12],pkg:"Placa breakout con módulo GNSS blindado, conector de antena y USB-C (tamaño típico; varía por fabricante)",mount:"4× M3 en las esquinas",pins:["VIN","3V3","GND","TX","RX","SCL","SDA","PPS"],pwr:"3.3–5 V · ~70 mA en seguimiento",sig:"Posición, velocidad y hora en tramas NMEA o UBX; las correcciones RTK entran por UART2 o I2C",color:"#8E1F2F"},
+  icm42688:{arch:"imu",dim:[25.4,17.8,3],pkg:"Placa breakout estándar con IMU LGA de 2.5×3 mm",mount:"2× M2.5",pins:["VIN","3V3","GND","SCL","SDA","SDO","CS","INT1"],pwr:"3.3–5 V · ~1 mA",sig:"Aceleración (±16 g) y velocidad angular (±2000 °/s) con muy bajo ruido",color:"#184A78"},
+  icm20948:{arch:"imu",dim:[25.4,17.8,3],pkg:"Placa breakout estándar con IMU de 9 ejes LGA 3×3 mm",mount:"2× M2.5",pins:["VIN","3V3","GND","SCL","SDA","INT","AD0","CS"],pwr:"3.3–5 V · ~3 mA",sig:"Aceleración, giro y campo magnético en 3 ejes, o cuaterniones con el DMP",color:"#184A78"},
+  mmc5983:{arch:"imu",dim:[25.4,17.8,3],pkg:"Placa breakout estándar con magnetómetro LGA 3×3 mm",mount:"2× M2.5",pins:["VIN","3V3","GND","SCL","SDA","INT"],pwr:"3.3–5 V · ~1 mA",sig:"Campo magnético en 3 ejes con 18 bits (±8 gauss)",color:"#184A78"},
+  lepton:{arch:"cam",dim:[32,32,13],pkg:"Módulo Lepton de 11.8×12.7 mm en zócalo sobre breakout con regulador (tamaño típico)",mount:"4× M2",pins:["VIN","GND","SCK","MISO","CS","SDA","SCL","RST"],pwr:"3.3 V · ~150 mA",sig:"Video térmico por SPI (160×120) y configuración por I2C",color:"#184A78"},
+  remoteid:{arch:"esp32",dim:[51,28,8],pkg:"Radio Wi-Fi y Bluetooth 5 del propio ESP32",mount:"El mismo montaje de tu placa ESP32",pins:["Antena Wi-Fi/BT interna"],pwr:"Compartido con el radio del ESP32",sig:"Paquetes de Remote ID: identificador, posición y altura del dron",color:"#181C24"},
+  sx1262:{arch:"chip",dim:[24,17,3],pkg:"Módulo LoRa con blindaje metálico y conector de antena (SMA o u.FL)",mount:"2× M2.5",pins:["VCC","GND","SCK","MISO","MOSI","NSS","RESET","BUSY","DIO1","ANT"],pwr:"3.3 V · ~5 mA recibiendo, hasta ~120 mA transmitiendo a +22 dBm",sig:"Paquetes LoRa de hasta 255 bytes, con RSSI y SNR",color:"#164E3A"},
+  atecc608:{arch:"chip",dim:[25.4,17.8,3],pkg:"Placa breakout con el chip de 8 pines",mount:"2× M2.5",pins:["VIN","3V3","GND","SCL","SDA"],pwr:"2.0–5.5 V · ~10 mA al operar",sig:"Firmas ECDSA P-256, números aleatorios y claves guardadas dentro del chip",color:"#184A78"},
+  can:{arch:"chip",dim:[30,17,4],pkg:"Placa con transceptor CAN y bornes para el par trenzado",mount:"2× M2.5",pins:["3V3","GND","TXD","RXD","CANH","CANL"],pwr:"3.3 V (SN65HVD230) · ~10 mA",sig:"Tramas CAN a hasta 1 Mbit/s en un par diferencial",color:"#23272E"},
+  geofono:{arch:"probe",dim:[25,25,32],pkg:"Cápsula cilíndrica del SM-24 más placa amplificadora aparte",mount:"Clavo roscado o carcasa para enterrar",pins:["VCC","GND","AOUT"],pwr:"3.3–5 V · pocos mA (amplificador)",sig:"Voltaje de unos milivoltios proporcional a la velocidad del suelo",color:"#23272E"},
+  ze03:{arch:"air",dim:[32,20,22],pkg:"Celda electroquímica cilíndrica sobre placa con UART",mount:"2× M3",pins:["VIN","GND","TX","RX"],pwr:"5 V · ~10 mA (celda sin calentador)",sig:"Concentración en ppm por UART (9600 baudios) y salida analógica opcional",color:"#164E3A"},
+  iwr6843:{arch:"radar",dim:[54,52,6],pkg:"Placa de evaluación con antenas impresas 3TX/4RX",mount:"4× M3",pins:["5V","GND","TX","RX"],pwr:"5 V · ~1.5 a 2 A",sig:"Nube de puntos con distancia, velocidad y ángulo por UART",color:"#8E1F2F"},
+  paa5100:{arch:"optical",dim:[25,20,12],pkg:"Placa con sensor de flujo óptico, lente y LED integrado",mount:"2× M2.5",pins:["VIN","3V3","GND","SCK","MISO","MOSI","CS","INT"],pwr:"3.3–5 V · ~20 mA",sig:"Desplazamiento (X, Y) del suelo en cuentas por cuadro",color:"#184A78"},
+  ms5611:{arch:"chip",dim:[20,15,3],pkg:"Placa breakout con sensor de presión en cápsula metálica",mount:"2× M2",pins:["VCC","GND","SCL","SDA","CSB","PS"],pwr:"3.3 V · ~1 µA en reposo",sig:"Presión (10 a 1200 mbar) y temperatura de 24 bits",color:"#184A78"},
+  ms4525do:{arch:"chip",dim:[25,18,8],pkg:"Placa con sensor de presión diferencial y dos puertos de tubo",mount:"2× M2.5",pins:["VCC","GND","SCL","SDA"],pwr:"3.3 V · ~2 mA",sig:"Presión diferencial de 14 bits y temperatura por I2C",color:"#184A78"}
+};
+Object.assign(PHYS, PHYS_V2);
+
+Object.assign(ANAT_ID, {
+  zedf9p:[
+    ["gnss","Módulo ZED-F9P (blindaje metálico)","core","chip","Receptor GNSS de dos bandas que demodula varios satélites y calcula la posición.","Trabaja con L1 y L2: la combinación elimina casi todo el error de la ionosfera.","Necesita minutos de cielo despejado para su primer cálculo. Puede calentarse en uso continuo."],
+    ["ant","Conector de antena (SMA o u.FL)","topR","can","Conector coaxial por donde entra la señal de una antena externa.","Lleva la señal débil del satélite sin pérdidas desde la antena hasta el receptor.","Usa una antena multibanda con plano de tierra y cable corto; sin antena no hay señal."],
+    ["usb","Conector USB-C","midL","conn","Puerto para configurar el módulo desde el computador con u-center.","Sirve para actualizar firmware y ajustar la tasa de salida.","Para operar con el ESP32, usa UART o I2C."],
+    ["rtk","Entrada de correcciones RTK (UART2)","under","pad","Puerto serie por donde llegan las correcciones de la estación base.","Con ellas el error baja de metros a 1–2 cm.","Necesitas una base propia o un servicio NTRIP cercano."]
+  ],
+  mmc5983:[
+    ["amr","Chip magnetómetro (magnetorresistivo)","core","chip","Mide el campo magnético con elementos cuya resistencia cambia con él.","Da el rumbo respecto del norte magnético o detecta hierro cercano.","Aléjalo de motores, imanes y cables con corriente."],
+    ["setreset","Bobina de SET/RESET (dentro del chip)","under","coil","Pulsa un campo conocido para reiniciar el sensor.","Elimina el desvío (offset) que aparece con el uso y la temperatura.","Hazlo antes de cada lectura precisa."]
+  ],
+  lepton:[
+    ["lens","Lente infrarroja (LWIR)","core","lens","Óptica que concentra el infrarrojo de onda larga sobre el sensor.","Forma la imagen de calor de la escena.","El vidrio común bloquea el infrarrojo térmico: no pongas una ventana de vidrio delante."],
+    ["micro","Microbolómetro de 160×120 (detrás de la lente)","under","grid","Matriz de pequeños resistores que cambian al calentarse con la radiación infrarroja.","Cada píxel mide la temperatura de un punto de la escena.","Se recalibra solo de vez en cuando con un obturador interno: oirás un clic."],
+    ["sock","Zócalo del módulo","midR","conn","Conector donde se inserta el Lepton.","Permite cambiar el módulo sin soldar.","Insértalo recto, con cuidado: tiene muchos contactos finos."],
+    ["reg","Regulador de voltaje","topL","chip","Entrega los voltajes que necesita el módulo a partir de la entrada.","Alimenta el Lepton con tensión estable.","Mantén la alimentación limpia; el módulo es sensible al ruido."]
+  ],
+  sx1262:[
+    ["radio","Chip de radio SX1262","core","chip","Transceptor LoRa que modula con espectro ensanchado (chirp) entre 150 y 960 MHz.","Permite enlaces de kilómetros con muy poca potencia.","Revisa la banda legal de tu región antes de transmitir."],
+    ["ant","Conector de antena (SMA o u.FL)","topR","can","Salida de radiofrecuencia hacia la antena.","Irradia la señal; la antena debe estar sintonizada a la frecuencia.","Nunca transmitas sin antena: puedes dañar la etapa de salida."],
+    ["rf","Filtro y adaptación de RF","under","res","Componentes que ajustan la impedancia y filtran armónicos.","Mejoran el alcance y evitan interferir otras bandas.","No los toques: determinan el cumplimiento de normas."],
+    ["shield","Blindaje metálico","midL","pad","Lata de metal sobre los componentes de radio.","Reduce el ruido que el ESP32 mete en el receptor.","Mantén el módulo a unos centímetros de la antena Wi-Fi."]
+  ],
+  can:[
+    ["tr","Transceptor CAN (SN65HVD230)","core","chip","Traduce los niveles lógicos del ESP32 a señales diferenciales CANH y CANL.","Hace que el bus sea inmune al ruido en cables largos y entornos con motores.","Usa la versión de 3.3 V con el ESP32."],
+    ["bus","Bornes CANH y CANL","midR","terminal","Terminales del par trenzado del bus.","Conectan con los demás nodos: baterías, controladores de motor, otros ESP32.","Un par trenzado con 120 Ω de impedancia y masa común."],
+    ["term","Resistencia de terminación de 120 Ω (puente)","botL","jumper","Resistencia que se activa con un puente en los dos nodos de los extremos del bus.","Evita reflexiones de la señal en el cable.","Solo los dos extremos llevan terminación; en total deben medirse 60 Ω entre CANH y CANL."]
+  ],
+  atecc608:[
+    ["se","Elemento seguro ATECC608B","core","chip","Chip de 8 pines con acelerador de curva elíptica y memoria para claves.","Guarda la clave privada sin que salga nunca del chip y firma los mensajes.","Una vez bloqueada la configuración no se puede cambiar."],
+    ["keys","Ranuras de claves (16, dentro del chip)","under","pad","Zonas de memoria con reglas de uso: solo firmar, solo verificar, etc.","Separan las claves de identidad de las de sesión.","Planifica las ranuras antes de bloquear la configuración."]
+  ],
+  geofono:[
+    ["mass","Masa suspendida con bobina","core","can","Cilindro con una bobina colgada de resortes alrededor de un imán fijo a la carcasa.","Cuando el suelo vibra, la bobina se mueve respecto del imán y genera un voltaje.","Responde a vibraciones desde unos 10 Hz; el montaje debe estar bien acoplado al suelo."],
+    ["spike","Clavo o base de acople","botR","pad","Pieza que une la carcasa con la tierra.","Transmite las vibraciones del suelo al sensor.","Entiérralo en suelo firme y apisónalo; la hierba y el aire lo desacoplan."],
+    ["amp","Amplificador de bajo ruido","under","chip","Placa que sube los milivoltios de la bobina a un nivel legible.","Permite leer la señal con un ADC de 16 bits como el ADS1115.","Aleja el cable de motores y de la red eléctrica."]
+  ],
+  ze03:[
+    ["cell","Celda electroquímica con membrana","core","can","Cápsula con electrodos y electrolito; el gas atraviesa una membrana y reacciona.","Genera una corriente proporcional a la concentración del gas.","Las celdas se agotan en 1 a 2 años y responden a otros gases en menor medida."],
+    ["uart","Placa de acondicionamiento con UART","under","chip","Convierte la corriente de la celda a ppm y la entrega por serie.","Lo lees directo desde el ESP32 sin analógico.","Calibra con gas patrón; no sirve como alarma certificada."]
+  ],
+  paa5100:[
+    ["lens","Lente de enfoque corto","core","lens","Lente que enfoca el suelo entre 15 y 35 mm de distancia.","Forma la imagen de la textura del suelo.","Fuera de ese rango la imagen se desenfoca y se pierde el seguimiento."],
+    ["led","LED de iluminación del suelo","topR","led","LED que ilumina la superficie bajo el sensor.","Asegura contraste suficiente aun con poca luz.","Superficies brillantes o sin textura (vidrio) no sirven."],
+    ["dsp","Procesador de imagen","under","chip","Compara cuadro a cuadro la textura del suelo y calcula el desplazamiento.","Entrega cuánto se movió el robot en X e Y.","Combínalo con una IMU para saber la rotación."]
+  ],
+  ms5611:[
+    ["can","Cápsula con orificio de presión","core","can","Sensor de presión en una carcasa metálica con un pequeño orificio.","La presión del aire deforma una membrana de silicio y cambia su resistencia.","No cubras ni mojes el orificio; protégelo de la luz directa, que lo calienta."],
+    ["adc","Convertidor de 24 bits (dentro)","under","chip","Digitaliza la presión y la temperatura con alta resolución.","Da una resolución de unos 10 cm de altura.","Compensa la lectura con los coeficientes de calibración del propio chip."]
+  ],
+  ms4525do:[
+    ["ports","Puertos de presión (dos tubos)","core","can","Dos tubos: uno recibe la presión total y otro la estática.","La diferencia entre ambos es la presión dinámica, que da la velocidad del aire.","Conecta el tubo de Pitot al puerto correcto y evita pliegues en la manguera."],
+    ["asic","Chip de acondicionamiento","under","chip","Amplifica, compensa por temperatura y digitaliza.","Entrega la presión diferencial por I2C.","Elige el rango adecuado para tu velocidad (por ejemplo ±1 psi para aviones pequeños)."]
+  ]
+});
+
+/* ---------- wiring engine ---------- */
+Object.assign(WIRE_KIND, {
+  alt:{c:"#94A3B8", why:"Es un pin de otro modo de comunicación del mismo módulo (por ejemplo SPI cuando usas I2C). No se conecta en este montaje; algunos chips piden llevarlo a 3V3 o GND: revisa la hoja de datos."},
+  meas:{c:"#94A3B8", why:"Terminal de medida del módulo: aquí conectas lo que quieres medir (celda de carga, shunt, entrada analógica). No va al ESP32."},
+  unk:{c:"#94A3B8", why:"Función no mapeada automáticamente: consulta la hoja de datos de tu módulo."},
+  ext:{c:"#EF4444", why:"Este módulo se alimenta con más de 5 V: usa una fuente externa y une las tierras. No lo conectes al pin 5V del ESP32."},
+  mains:{c:"#EF4444", why:"Conexión a la red eléctrica (110–230 V). No va al ESP32. Es peligrosa: solo para quien sepa trabajar con tensión de red, dentro de una caja aislada."},
+  bus:{c:"#84CC16", why:"Par trenzado del bus: va al resto de los nodos, no al ESP32 directamente."},
+  "can-tx":{c:"#84CC16", why:"TX del controlador CAN (TWAI) del ESP32 hacia el pin TXD del transceptor."},
+  "can-rx":{c:"#65A30D", why:"RX del controlador CAN (TWAI) del ESP32 desde el pin RXD del transceptor."},
+  pulse:{c:"#14B8A6", why:"Entrada de pulsos: cuenta flancos con una interrupción (attachInterrupt)."}
+});
+const PIN_OV = {
+  lepton:{SDA:["sda"],SCL:["scl"]},
+  sx1262:{NSS:["cs"],BUSY:["din"],DIO1:["int"],RESET:["ctl",{opt:0}],ANT:["nc"]},
+  can:{TXD:["can-tx"],RXD:["can-rx"],CANH:["bus"],CANL:["bus"]},
+  fsr:{PIN1:["pwr"],"PIN2 (con divisor 10 kΩ)":["adc"]},
+  flex:{PIN1:["pwr"],"PIN2 (con divisor 22 kΩ)":["adc"]},
+  ads1115:{A0:["meas"],A1:["meas"],A2:["meas"],A3:["meas"]},
+  ina219:{"VIN+":["meas"],"VIN-":["meas"]},
+  ina226:{"IN+":["meas"],"IN-":["meas"],VBUS:["meas"]},
+  max30102:{IRD:["nc"],RD:["nc"]},
+  pzem:{L:["mains"],N:["mains"]},
+  sct013:{"Punta Jack (K / S1)":["meas"],"Anillo/Base Jack (L / S2)":["meas"]},
+  stretch:{EXT1:["pwr",{v:"3V3"}],EXT2:["adc"],"R_DIV (10kΩ)":["cfg"]},
+  lsm6dsv16x:{QVAR1:["meas"],QVAR2:["meas"]},
+  mhz19:{HD:["cfg"]},
+  meteo:{"RJ11 Anemómetro":["pulse"],"RJ11 Pluviómetro":["pulse"],"RJ11 Veleta (ADC)":["adc"]},
+  tcs34725:{LED:["ctl",{opt:1}]},
+  piezo:{"Cable rojo (centro)":["adc"],"Cable negro (latón) + 1 MΩ en paralelo":["gnd"]},
+  r503:{"3.3V_TOUCH":["pwr",{v:"3V3"}]},
+  ttp223:{"I/O":["din"]},
+  mpr121:{"E0..E11":["meas"]},
+  ms5611:{PS:["cfg"]}
+};
+const PRIMBUS = new Set(["I2C","SPI","UART","Analógico","Digital","I2S","1-Wire","Trigger/Echo","RS485","CAN"]);
+const primBus = s => s.b.find(b => PRIMBUS.has(b)) || "";
+function isStandalone(s){ return has(s, "interno") || s.b.includes("Interno") || s.b.includes("Placa propia"); }
+
+function pwrVolt(s, p){
+  const t = p.pwr || "";
+  if (/^\s*(5\s*[–-]\s*(12|24|28)|12|24|9\s*[–-]|230|110)/i.test(t)) return "EXT";
+  if (/3\.3\s*V\s*estricto/i.test(t)) return "3V3";
+  if (/^\s*5\s*V/i.test(t)) return "5V";
+  return "3V3";
+}
+function classifyPin(raw, s, prim){
+  let n = String(raw).trim();
+  const ov = PIN_OV[s.id] && PIN_OV[s.id][n];
+  if (ov) return Object.assign({k: ov[0]}, ov[1] || {});
+  let m = n.match(/^(rojo|negro|amarillo\/blanco|amarillo|verde|marr[oó]n|azul|blanco|cable [^(]+|cobre [^(]+)\s*\((.+?)\)\s*(\+.*)?$/i);
+  if (m) n = m[2];
+  m = n.match(/^[+\-]\s*\((.+)\)$/);
+  if (m) n = m[1];
+  const U = n.toUpperCase();
+  const B = s.b, hasI2C = B.includes("I2C"), hasSPI = B.includes("SPI"), hasUART = B.includes("UART"), hasI2S = B.includes("I2S"),
+        hasW1 = B.includes("1-Wire"), hasTE = B.includes("Trigger/Echo"), hasANA = B.includes("Analógico"), hasDIG = B.includes("Digital");
+  const altIf = (bus, k, extra) => (B.includes(bus) && prim !== bus) ? {k: "alt"} : Object.assign({k}, extra || {});
+  if (/GND|^-$/.test(U)) return {k: "gnd"};
+  if (/^PO\b/.test(U)) return {k: "adc"};
+  if (/^3VO\b/.test(U)) return {k: "out33"};
+  if (/^(VIN\+|VIN-|IN\+|IN-|IP\+|IP-|CT\+|CT-|[EA][+-]|JST|VIN_Z|VOUT_Z|REF|RFB|EXT\d)/.test(U)) return {k: "meas"};
+  if (/^(VIN|VCC|VDD|\+VS|3V3|3\.3V|5V|\+5V|VL)\b/.test(U) || /^V\+/.test(U) || /^\d+\s*[-–]\s*\d+\s*V$/.test(U)) {
+    if (/4-28V|12\s*-\s*24|24V|12V/.test(U)) return {k: "pwr", v: "EXT"};
+    if (/3\.3\s*V|3V3/.test(U)) return {k: "pwr", v: "3V3"};
+    if (/5\s*V/.test(U)) return {k: "pwr", v: "5V"};
+    return {k: "pwr"};
+  }
+  if (/^SPI\/I2C$/.test(U)) return {k: "cfg"};
+  if (/^(ADC|ADC \+)/.test(U)) return {k: "adc"};
+  if (/PULSO|PULSE/.test(U)) return {k: "pulse"};
+  if (/^S \(SE/.test(U)) return {k: hasANA ? "adc" : "din"};
+  if (/^RS485-[AB]$/.test(U)) return {k: "bus"};
+  if (/^USB_/.test(U)) return {k: "nc"};
+  if (/SDA/.test(U) && hasI2C) return altIf("I2C", "sda");
+  if (/SCL/.test(U) && hasI2C) return altIf("I2C", "scl");
+  if (/^(XDA|XCL|NC)$/.test(U)) return {k: "nc"};
+  if (/^TRIG/.test(U) && hasTE) return {k: "trig"};
+  if (/^ECHO/.test(U) && hasTE) return {k: "echo"};
+  if (/^(TX|TXD|U0T)\b/.test(U) && !/CAN/.test(s.id)) return altIf("UART", "tx");
+  if (/^(RX|RXD|U0R)\b/.test(U) && !/CAN/.test(s.id)) return altIf("UART", "rx");
+  if (/MISO|^SDO$|^DO \(MISO\)/.test(U)) { if (hasSPI) return (prim === "SPI") ? {k: "miso"} : (U === "SDO" ? {k: "cfg"} : {k: "alt"}); return {k: "unk"}; }
+  if (/^(MOSI|SDI|SI)$/.test(U)) return hasSPI ? altIf("SPI", "mosi") : {k: "unk"};
+  if (/^(CS|SS|NSS|CSB)\b/.test(U) || /\(CS\)/.test(U)) return hasSPI ? altIf("SPI", "cs") : {k: "unk"};
+  if (/^SD$/.test(U) && hasI2S) return {k: "i2s-sd"};
+  if (/^WS$/.test(U) && hasI2S) return {k: "i2s-ws"};
+  if (/^SCK$/.test(U) && hasI2S) return {k: "i2s-bclk"};
+  if (/^L\/R$|^GAIN/.test(U)) return {k: "cfg"};
+  if (/^(SCK|SCLK)$/.test(U)) return hasSPI ? altIf("SPI", "sck") : {k: "dout"};
+  if (/^CLK$/.test(U)) return hasSPI ? altIf("SPI", "sck") : {k: "din"};
+  if (/^(INT|INT1|INT2|IRQ|ALRT|ALERT|ALE|DRDY|RDY|EOC|GPO|GPIO|GPIO1|PPS|OS|SYN|SYNC)$/.test(U)) return {k: "int", opt: 1};
+  if (/^(RST|RESET|XSHUT|EN|SDN|PWDN|START|WAKE|WAKEUP|LPN|I2C_RST|SHDN|DIR)$/.test(U)) return {k: "ctl", opt: 1};
+  if (/^(ADDR|ADD|ADR|AD0|A0|A1|A2|CFG|SET|MODE|SEL|P0\/P1)\b/.test(U)) return {k: "cfg"};
+  if (/^(AO|AOUT|ENV|RAW|VRX|VRY|CDS)$/.test(U)) return {k: "adc", opt: (prim !== "Analógico" && B.length > 1) ? 1 : 0};
+  if (/^(OUT|OUTPUT|SIG)\b/.test(U)) {
+    if (hasANA && !hasDIG) return {k: "adc", opt: (prim !== "Analógico") ? 1 : 0};
+    return {k: "din", opt: (hasANA && prim !== "Analógico" && prim !== "Digital") ? 1 : 0};
+  }
+  if (/^D0$|^DO\b/.test(U)) return {k: "din"};
+  if (/^(DT|SW|LO[+-]?)$/.test(U)) return {k: "din"};
+  if (/^(DATA|DQ)$/.test(U)) return {k: hasW1 ? "w1" : "din"};
+  if (/^PWM$/.test(U)) return {k: "dout", opt: 1};
+  return {k: "unk"};
+}
+
+const POOLS = {adc:[34,35,36,39,32,33], dig:[27,26,25,14,13,33,32,4], cs:[5,13,14,27,26,25,15]};
+const UART_PAIRS = [[16,17],[25,26],[32,33]];
+const BUS_COLOR = {I2C:"#3B82F6", SPI:"#A855F7", UART:"#22C55E", Analógico:"#F59E0B", Digital:"#14B8A6", "1-Wire":"#F97316", I2S:"#06B6D4", CAN:"#84CC16", "Trigger/Echo":"#EF4444", RS485:"#84CC16"};
+function newCtx(){ return {used: new Set(), uart: new Map(), i2s: new Map(), use: new Map(), mem: new Map(), nDev: 0}; }
+function takeFrom(ctx, list){ for (const g of list) if (!ctx.used.has(g)) { ctx.used.add(g); return g; } return null; }
+function ctxUse(ctx, label, s, fn){
+  if (!label) return;
+  if (!ctx.use.has(label)) ctx.use.set(label, []);
+  const arr = ctx.use.get(label);
+  if (!arr.some(x => x.id === s.id && x.fn === fn)) arr.push({id: s.id, pn: s.pn, fn});
+}
+function wiringFor(s, ctx, opts){
+  opts = opts || {};
+  const p = physOf(s);
+  if (isStandalone(s)) return {internal: true, rows: [], note: has(s, "interno") || s.b.includes("Interno")
+    ? "No lleva cables: es una función del propio ESP32 (radio o pines táctiles internos). Se obtiene por software."
+    : "Es una placa completa con su propio microcontrolador: se programa y alimenta por separado (USB o adaptador FTDI)."};
+  const prim = primBus(s);
+  const volt = pwrVolt(s, p);
+  const rows = [];
+  for (const raw of p.pins) {
+    const c = classifyPin(raw, s, prim);
+    const row = {pin: raw, cls: c.k, opt: !!c.opt, kind: c.k, gpio: "—", fn: "", warn: ""};
+    const give = (g, label, kind, fn, shared) => { row.g = g; row.gpio = label; row.kind = kind; row.fn = fn; row.shared = !!shared; ctxUse(ctx, label, s, fn); };
+    if (c.k === "alt") { row.kind = "alt"; row.fn = "Otro modo"; rows.push(row); continue; }
+    if (["meas","unk","nc","cfg","out33","bus","mains"].includes(c.k)) {
+      row.kind = c.k; row.fn = ({meas:"Medida externa", unk:"Sin mapear", nc:"No conectar", cfg:"Configuración", out33:"Salida 3.3 V", bus:"Hacia el bus", mains:"Red eléctrica"})[c.k];
+      rows.push(row); continue;
+    }
+    if (c.k === "pwr") {
+      const v = c.v || volt;
+      if (v === "EXT") { row.kind = "ext"; row.fn = "Fuente externa"; }
+      else if (v === "5V") give("5V", "5V (VIN)", "pwr5", "Alimentación 5 V", true);
+      else give("3V3", "3V3", "pwr33", "Alimentación 3.3 V", true);
+      rows.push(row); continue;
+    }
+    if (c.k === "gnd") { give("GND", "GND", "gnd", "Tierra", true); rows.push(row); continue; }
+    if (row.opt && !opts.opt) { row.fn = "Opcional"; rows.push(row); continue; }
+    const out5 = volt === "5V";
+    switch (c.k) {
+      case "sda": give(21, "GPIO21", "i2c-sda", "SDA", true); ctx.used.add(21); break;
+      case "scl": give(22, "GPIO22", "i2c-scl", "SCL", true); ctx.used.add(22); break;
+      case "sck": give(18, "GPIO18", "spi-sck", "SCK", true); ctx.used.add(18); break;
+      case "miso": give(19, "GPIO19", "spi-miso", "MISO", true); ctx.used.add(19); break;
+      case "mosi": give(23, "GPIO23", "spi-mosi", "MOSI", true); ctx.used.add(23); break;
+      case "cs": { const g = takeFrom(ctx, POOLS.cs); give(g, g == null ? "sin pin libre" : "GPIO" + g, "spi-cs", "CS"); break; }
+      case "tx": case "rx": {
+        if (!ctx.uart.has(s.id)) { const i = ctx.uart.size; const pr = UART_PAIRS[i]; if (pr) { pr.forEach(x => ctx.used.add(x)); ctx.uart.set(s.id, pr); } else ctx.uart.set(s.id, null); }
+        const pr = ctx.uart.get(s.id);
+        const idx = ctx.uart.size - 1;
+        if (!pr) { give(null, "sin UART libre", c.k === "tx" ? "uart-rx" : "uart-tx", c.k === "tx" ? "RX" : "TX"); break; }
+        if (c.k === "tx") { give(pr[0], "GPIO" + pr[0] + (pr[0] === 16 ? " (RX2)" : " (RX)"), "uart-rx", "RX"); if (out5) row.warn = "Con alimentación de 5 V, confirma que la señal TX del módulo sea de 3.3 V."; }
+        else give(pr[1], "GPIO" + pr[1] + (pr[1] === 17 ? " (TX2)" : " (TX)"), "uart-tx", "TX");
+        void idx; break;
+      }
+      case "adc": { const g = takeFrom(ctx, POOLS.adc); give(g, g == null ? "sin ADC libre" : "GPIO" + g, "adc", "Entrada analógica"); if (out5) row.warn = "Con alimentación de 5 V, la salida analógica puede superar los 3.3 V del ESP32: usa un divisor de tensión."; break; }
+      case "din": case "int": case "pulse": { const g = takeFrom(ctx, POOLS.dig); give(g, g == null ? "sin GPIO libre" : "GPIO" + g, c.k === "int" ? "dig-in" : c.k === "pulse" ? "pulse" : "dig-in", c.k === "int" ? "Aviso (interrupción)" : c.k === "pulse" ? "Pulsos" : "Entrada digital"); if (out5 && c.k !== "pulse") row.warn = "Con alimentación de 5 V, confirma que la salida sea de 3.3 V."; break; }
+      case "dout": case "ctl": case "trig": { const g = takeFrom(ctx, POOLS.dig); give(g, g == null ? "sin GPIO libre" : "GPIO" + g, c.k === "ctl" ? "ctl" : "dig-out", c.k === "trig" ? "TRIG" : c.k === "ctl" ? "Control" : "Salida digital"); break; }
+      case "echo": { const g = takeFrom(ctx, POOLS.dig); give(g, g == null ? "sin GPIO libre" : "GPIO" + g, "echo", "ECHO (con divisor)"); row.warn = "Si el módulo se alimenta a 5 V, baja el ECHO a 3.3 V con un divisor de 1 kΩ y 2 kΩ."; break; }
+      case "w1": { if (ctx.used.has(4) && !ctx.mem.has("w1")) { const g = takeFrom(ctx, POOLS.dig); give(g, "GPIO" + g, "data1w", "1-Wire"); ctx.mem.set("w1", g); } else { ctx.used.add(4); ctx.mem.set("w1", 4); give(4, "GPIO4", "data1w", "1-Wire", true); } row.note = "Pull-up de 4.7 kΩ a 3V3"; break; }
+      case "i2s-bclk": case "i2s-ws": case "i2s-sd": {
+        if (!ctx.i2s.has(s.id)) { const t = [26, 25, 33]; if (t.every(x => !ctx.used.has(x))) { t.forEach(x => ctx.used.add(x)); ctx.i2s.set(s.id, t); } else ctx.i2s.set(s.id, [takeFrom(ctx, POOLS.dig), takeFrom(ctx, POOLS.dig), takeFrom(ctx, POOLS.dig)]); }
+        const t = ctx.i2s.get(s.id);
+        const i = c.k === "i2s-bclk" ? 0 : c.k === "i2s-ws" ? 1 : 2;
+        give(t[i], t[i] == null ? "sin GPIO libre" : "GPIO" + t[i], c.k, ["BCLK", "WS", "SD"][i]); break;
+      }
+      case "can-tx": case "can-rx": { const g = takeFrom(ctx, POOLS.dig); give(g, g == null ? "sin GPIO libre" : "GPIO" + g, c.k, c.k === "can-tx" ? "TWAI TX" : "TWAI RX"); break; }
+      default: rows.push(row); continue;
+    }
+    rows.push(row);
+  }
+  return {internal: false, rows, volt, prim};
+}
+const KIND_VIEW = {int:"dig-in", din:"dig-in", dout:"dig-out", tx:"uart-rx", rx:"uart-tx", "i2s":"i2s-sd"};
+function wireInfo(row){ return WIRE_KIND[row.kind] || WIRE_KIND[KIND_VIEW[row.kind]] || WIRE_KIND.unk; }
+function snippetFor(s, w){
+  if (w.internal) return "";
+  const g = fn => { const r = w.rows.find(x => x.fn === fn && x.g != null); return r ? r.g : null; };
+  const prim = w.prim;
+  if (prim === "I2C") return `#include <Wire.h>\n\nvoid setup() {\n  Serial.begin(115200);\n  Wire.begin(${g("SDA") || 21}, ${g("SCL") || 22});   // SDA, SCL\n  Wire.beginTransmission(${s.a || "0x00"});          // default I2C address\n  Serial.println(Wire.endTransmission() == 0 ? "Sensor found" : "No answer: check wiring and address");\n}\nvoid loop() {}`;
+  if (prim === "UART") { const rx = w.rows.find(x => x.fn === "RX"), tx = w.rows.find(x => x.fn === "TX"); return `void setup() {\n  Serial.begin(115200);\n  // Check the baud rate in the datasheet (many modules use 9600 or 115200)\n  Serial2.begin(115200, SERIAL_8N1, ${rx && rx.g != null ? rx.g : 16}, ${tx && tx.g != null ? tx.g : 17});  // RX, TX\n}\nvoid loop() {\n  while (Serial2.available()) Serial.write(Serial2.read());\n}`; }
+  if (prim === "SPI") return `#include <SPI.h>\n\nconst int PIN_CS = ${g("CS") || 5};\nvoid setup() {\n  Serial.begin(115200);\n  pinMode(PIN_CS, OUTPUT);\n  digitalWrite(PIN_CS, HIGH);\n  SPI.begin(18, 19, 23, PIN_CS);  // SCK, MISO, MOSI, CS\n}\nvoid loop() {}`;
+  if (prim === "Analógico") return `void setup() {\n  Serial.begin(115200);\n  analogReadResolution(12);   // 0..4095\n}\nvoid loop() {\n  int raw = analogRead(${g("Entrada analógica") || 34});  // ADC1 pin: works with Wi-Fi on\n  Serial.println(raw);\n  delay(200);\n}`;
+  if (prim === "1-Wire") return `#include <OneWire.h>\n#include <DallasTemperature.h>\n\nOneWire bus(${g("1-Wire") || 4});          // 4.7 kOhm pull-up to 3V3\nDallasTemperature sensors(&bus);\nvoid setup() { Serial.begin(115200); sensors.begin(); }\nvoid loop() {\n  sensors.requestTemperatures();\n  Serial.println(sensors.getTempCByIndex(0));\n  delay(1000);\n}`;
+  if (prim === "Trigger/Echo") return `const int TRIG = ${g("TRIG") || 25}, ECHO = ${g("ECHO (con divisor)") || 26};\nvoid setup() { Serial.begin(115200); pinMode(TRIG, OUTPUT); pinMode(ECHO, INPUT); }\nvoid loop() {\n  digitalWrite(TRIG, LOW); delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH); delayMicroseconds(10); digitalWrite(TRIG, LOW);\n  long us = pulseIn(ECHO, HIGH, 30000);\n  Serial.println(us * 0.0343 / 2);   // distance in cm\n  delay(100);\n}`;
+  if (prim === "I2S") return `// ESP-IDF / Arduino-ESP32 I2S input\n// BCLK = ${g("BCLK")}, WS = ${g("WS")}, DIN = ${g("SD")}\n// Use the i2s_std driver in RX mode, 16 kHz, 32-bit slots, left channel (L/R pin to GND).`;
+  if (prim === "CAN") return `#include <driver/twai.h>\n\nvoid setup() {\n  twai_general_config_t cfg = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)${g("TWAI TX") || 25}, (gpio_num_t)${g("TWAI RX") || 26}, TWAI_MODE_NORMAL);\n  twai_timing_config_t t = TWAI_TIMING_CONFIG_500KBITS();\n  twai_filter_config_t f = TWAI_FILTER_CONFIG_ACCEPT_ALL();\n  twai_driver_install(&cfg, &t, &f);\n  twai_start();\n}\nvoid loop() {}`;
+  if (prim === "Digital") { const r = w.rows.find(x => x.g != null && /dig|pulse/.test(x.kind)); return `void setup() {\n  Serial.begin(115200);\n  pinMode(${r ? r.g : 27}, INPUT);\n}\nvoid loop() {\n  Serial.println(digitalRead(${r ? r.g : 27}));\n  delay(100);\n}`; }
+  return "";
+}
+function wiringText(s, w){
+  const L = [`Conexiones de ${s.pn} al ESP32 DevKit (numeración GPIO clásica)`];
+  for (const r of w.rows) L.push(`- ${r.pin} → ${r.gpio}${r.fn ? " (" + r.fn + ")" : ""}${r.warn ? " · " + r.warn : ""}${r.note ? " · " + r.note : ""}`);
+  if (s.w) L.push("Antes de conectar: " + s.w);
+  return L.join("\n");
+}
+
+/* ============================================================================
+   v2 part B: interactive laboratory (anatomy, wiring, industries, principle)
+   ========================================================================== */
+let labTab = "anat", labSel = "", labWire = -1, labOpt = false;
+const LAB_TABS = [["anat","Anatomía"],["wire","Conexión al ESP32"],["ind","Industrias"],["fis","Cómo funciona"],["mod","Modelo 3D y CAD"],["ficha","Ficha y proyectos"]];
+
+function shapeSVG(shape, r, col){
+  const {x, y, w, h} = r, cx = x + w / 2, cy = y + h / 2;
+  const dark = "#171B21", metal = "#C9CED6", gold = "#D6A648", cu = "#B9783A";
+  switch (shape) {
+    case "chip": { let pins = ""; const n = Math.max(3, Math.floor(h / 9)); for (let i = 0; i < n; i++) { const py = y + 4 + i * ((h - 8) / Math.max(1, n - 1)); pins += `<rect x="${x - 3}" y="${py - 1.4}" width="5" height="2.8" fill="${metal}"/><rect x="${x + w - 2}" y="${py - 1.4}" width="5" height="2.8" fill="${metal}"/>`; }
+      return `${pins}<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${dark}" stroke="#3A424D"/><circle cx="${x + 7}" cy="${y + 7}" r="2.4" fill="#4B5563"/>`; }
+    case "lens": return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="#0F1318" stroke="#3A424D"/><circle cx="${cx}" cy="${cy}" r="${Math.min(w, h) / 2 - 4}" fill="#1E3A5F" stroke="${metal}" stroke-width="1.6"/><circle cx="${cx}" cy="${cy}" r="${Math.min(w, h) / 4}" fill="#2B5C99"/><circle cx="${cx - 4}" cy="${cy - 4}" r="2.4" fill="#fff" opacity=".55"/>`;
+    case "can": return `<circle cx="${cx}" cy="${cy}" r="${Math.min(w, h) / 2 - 1}" fill="${metal}" stroke="#7A828E" stroke-width="1.4"/><circle cx="${cx}" cy="${cy}" r="${Math.min(w, h) / 2 - 7}" fill="#8A929E"/><circle cx="${cx}" cy="${cy}" r="${Math.min(w, h) / 4}" fill="#2A2F37"/>`;
+    case "res": return [0, 1, 2].map(i => `<g><rect x="${x + i * (w / 3) + 2}" y="${cy - 5}" width="${w / 3 - 5}" height="10" rx="1.5" fill="#2B2F36"/><rect x="${x + i * (w / 3) + 4}" y="${cy - 5}" width="3" height="10" fill="${metal}"/><rect x="${x + i * (w / 3) + w / 3 - 9}" y="${cy - 5}" width="3" height="10" fill="${metal}"/></g>`).join("");
+    case "jumper": return [0, 1, 2].map(i => `<rect x="${x + 4 + i * (w - 12) / 3}" y="${cy - 5}" width="${(w - 12) / 3 - 4}" height="10" rx="2" fill="${gold}"/>`).join("") + `<path d="M${x + 8} ${cy - 8} L${x + w - 8} ${cy - 8}" stroke="${gold}" stroke-width="1.4" fill="none" stroke-dasharray="3 2"/>`;
+    case "conn": { let pins = ""; const n = Math.min(6, Math.floor(w / 8)); for (let i = 0; i < n; i++) pins += `<circle cx="${x + 7 + i * ((w - 14) / Math.max(1, n - 1))}" cy="${cy}" r="2.2" fill="${gold}"/>`; return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#E9E4D4" stroke="#8A8574"/>${pins}`; }
+    case "led": return `<circle cx="${cx}" cy="${cy}" r="${Math.min(w, h) / 2 - 2}" fill="#2BD576" stroke="#14804A"/><circle cx="${cx - 2}" cy="${cy - 2}" r="2" fill="#fff" opacity=".6"/>`;
+    case "led2": return `<circle cx="${x + w * 0.28}" cy="${cy}" r="${Math.min(w, h) / 2 - 3}" fill="#E5484D" stroke="#8E1F2F"/><circle cx="${x + w * 0.72}" cy="${cy}" r="${Math.min(w, h) / 2 - 3}" fill="#4A1F25" stroke="#8E1F2F"/><circle cx="${x + w * 0.28 - 2}" cy="${cy - 2}" r="2" fill="#fff" opacity=".6"/>`;
+    case "grid": { let d = ""; for (let i = 0; i < 6; i++) for (let j = 0; j < 4; j++) d += `<circle cx="${x + 9 + i * ((w - 18) / 5)}" cy="${y + 9 + j * ((h - 18) / 3)}" r="1.9" fill="#0F1318"/>`; return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="${metal}" stroke="#7A828E"/>${d}`; }
+    case "patch": return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${cu}" stroke="#7B4A20"/><path d="M${cx} ${y + h} V${y + h + 14}" stroke="${cu}" stroke-width="3"/><rect x="${x + 6}" y="${y + 6}" width="${w - 12}" height="${h - 12}" fill="none" stroke="#E0A56B" stroke-width="1"/>`;
+    case "dome": { let f = ""; for (let i = 0; i < 6; i++) f += `<path d="M${cx} ${cy} L${cx + Math.cos(i * 1.047) * (Math.min(w, h) / 2 - 2)} ${cy + Math.sin(i * 1.047) * (Math.min(w, h) / 2 - 2)}" stroke="#B9BEC7" stroke-width="1"/>`; return `<circle cx="${cx}" cy="${cy}" r="${Math.min(w, h) / 2 - 1}" fill="#F3F5F7" stroke="#9AA1AB" stroke-width="1.4"/>${f}<circle cx="${cx}" cy="${cy}" r="${Math.min(w, h) / 4}" fill="#E1E5EA" stroke="#B9BEC7"/>`; }
+    case "pot": return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#2F6FB0" stroke="#1B466F"/><circle cx="${cx}" cy="${cy}" r="${Math.min(w, h) / 2 - 5}" fill="#D9DEE6" stroke="#8A929E"/><path d="M${cx - 5} ${cy} H${cx + 5}" stroke="#2A2F37" stroke-width="2"/>`;
+    case "probe": return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#1F5A42" stroke="#123A2A"/><path d="M${x + 10} ${y + 6} V${y + h - 6} M${x + 20} ${y + 6} V${y + h - 6} M${x + 30} ${y + 6} V${y + h - 6} M${x + 40} ${y + 6} V${y + h - 6} M${x + 50} ${y + 6} V${y + h - 6}" stroke="${cu}" stroke-width="4"/>`;
+    case "zig": return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#2B2F36"/><path d="M${x + 6} ${cy} l8 -14 l10 28 l10 -28 l10 28 l10 -28 l10 28 l10 -14" stroke="${cu}" stroke-width="2.6" fill="none"/>`;
+    case "axes": return `<g stroke-width="2" fill="none"><path d="M${x + 8} ${y + h - 4} H${x + 56}" stroke="#E5484D"/><path d="M${x + 8} ${y + h - 4} V${y - 14}" stroke="#2BD576"/><path d="M${x + 8} ${y + h - 4} L${x + 30} ${y + h - 22}" stroke="#5B9DF5"/></g><g font-family="var(--f-mono)" font-size="8" fill="#EAF2EE"><text x="${x + 58}" y="${y + h}">X</text><text x="${x + 4}" y="${y - 16}">Z</text><text x="${x + 32}" y="${y + h - 22}">Y</text></g>`;
+    case "pad": return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${cu}" stroke="#7B4A20"/><rect x="${x + 4}" y="${y + 4}" width="${w - 8}" height="${h - 8}" rx="2" fill="none" stroke="#E0A56B"/>`;
+    case "coil": { let d = ""; for (let i = 0; i < 4; i++) d += `<rect x="${x + 4 + i * 4}" y="${y + 4 + i * 3}" width="${w - 8 - i * 8}" height="${h - 8 - i * 6}" rx="2" fill="none" stroke="${cu}" stroke-width="2"/>`; return d; }
+    case "knob": return `<circle cx="${cx}" cy="${cy}" r="${Math.min(w, h) / 2 - 1}" fill="#3A4049" stroke="#1A1E24" stroke-width="2"/><circle cx="${cx}" cy="${cy}" r="${Math.min(w, h) / 2 - 7}" fill="#C9CED6"/><path d="M${cx} ${cy} V${cy - Math.min(w, h) / 2 + 5}" stroke="#2A2F37" stroke-width="3"/>`;
+    case "xtal": return `<rect x="${x}" y="${y + h / 2 - 7}" width="${w}" height="14" rx="6" fill="${metal}" stroke="#7A828E"/>`;
+    case "fpc": return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="#2B2F36" stroke="#141820"/><rect x="${x + 4}" y="${y + 3}" width="${w - 8}" height="${h - 6}" fill="#E0A56B"/><rect x="${x}" y="${y + h - 5}" width="${w}" height="5" fill="#111"/>`;
+    case "terminal": return [0, 1].map(i => `<g><rect x="${x + i * (w / 2)}" y="${y}" width="${w / 2 - 2}" height="${h}" rx="2" fill="#1F7A4D" stroke="#0F4B2E"/><circle cx="${x + i * (w / 2) + (w / 4)}" cy="${cy}" r="${Math.min(w / 5, h / 3)}" fill="${metal}" stroke="#7A828E"/><path d="M${x + i * (w / 2) + (w / 4) - 4} ${cy} H${x + i * (w / 2) + (w / 4) + 4}" stroke="#2A2F37" stroke-width="2"/></g>`).join("");
+    case "wire": return `<path d="M${x} ${y + 4} q${w / 2} -10 ${w} 6" stroke="#E5484D" stroke-width="4" fill="none"/><path d="M${x} ${cy} q${w / 2} 8 ${w} 0" stroke="#171B21" stroke-width="4" fill="none"/><path d="M${x} ${y + h - 4} q${w / 2} -8 ${w} -2" stroke="#E5C100" stroke-width="4" fill="none"/>`;
+    default: return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#2B2F36" stroke="#3A424D"/>`;
+  }
+}
+function anatomyParts(s){
+  const p = physOf(s);
+  const base = ANAT_ID[s.id] || ANAT[p.arch] || ANAT.chip;
+  const parts = base.map(x => ({id: x[0], name: x[1], slot: x[2], shape: x[3], what: x[4], why: x[5], watch: x[6]}));
+  const used = new Set(parts.map(x => x.slot));
+  const add = key => {
+    const x = SUPPORT[key]; if (!x) return;
+    let slot = x[2];
+    if (used.has(slot)) { const alt = ["midL", "botL", "topL", "midR", "botR", "topR"].find(sl => !used.has(sl)); if (!alt) return; slot = alt; }
+    used.add(slot);
+    parts.push({id: x[0], name: x[1], slot, shape: x[3], what: x[4], why: x[5], watch: x[6]});
+  };
+  if (!isStandalone(s) && !ANAT_ID[s.id]) {
+    if (/3\.3\s*[–-]\s*5\s*V/.test(p.pwr) && ["chip", "optical", "imu", "air", "hmi"].includes(p.arch)) add("reg");
+    if (s.b.includes("I2C") && ["chip", "optical", "imu", "air", "hmi", "lidar", "to39", "power"].includes(p.arch)) { const x = SUPPORT.pullup; parts.push({id: x[0], name: x[1] + " (si la placa los trae)", slot: used.has("midL") ? "botL" : "midL", shape: x[3], what: x[4], why: x[5], watch: x[6]}); used.add(used.has("midL") ? "botL" : "midL"); }
+  }
+  if (!isStandalone(s)) { if (has(s, "qwiic")) add("qwiic"); else if (has(s, "grove")) add("grove"); }
+  parts.push({id: "pins", name: "Pines de conexión", slot: "hdr", shape: "hdr", what: "Fila de pines donde conectas el módulo al ESP32. Cada uno tiene una función distinta.", why: "Toca un pin de la lista para ver qué hace.", watch: "El orden y los nombres cambian entre fabricantes: lee la serigrafía de tu placa."});
+  return parts;
+}
+function pinListHTML(s){
+  const p = physOf(s);
+  return `<ul class="pinfo">${p.pins.map(n => { const i = pinInfo(n); return `<li><b>${esc(n)}</b><span>${esc(i.n)}</span><p>${esc(i.que)} <em>${esc(i.ojo)}</em></p></li>`; }).join("")}</ul>`;
+}
+function anatomySVG(s, parts, sel){
+  const p = physOf(s);
+  const hdrPins = p.pins.slice(0, 10);
+  const hx0 = 44, hx1 = 356, step = hdrPins.length > 1 ? (hx1 - hx0) / (hdrPins.length - 1) : 0;
+  let pinsSVG = "";
+  hdrPins.forEach((n, i) => { const px = hdrPins.length > 1 ? hx0 + i * step : 200; const lab = n.length > 7 ? n.slice(0, 6) + "…" : n; pinsSVG += `<rect x="${px - 4}" y="184" width="8" height="12" rx="1.5" fill="#D6A648" stroke="#8A6A22"/><text x="${px}" y="176" text-anchor="middle" font-family="var(--f-mono)" font-size="7.6" fill="#DCE6E0">${esc(lab)}</text>`; });
+  if (p.pins.length > 10) pinsSVG += `<text x="372" y="176" text-anchor="end" font-family="var(--f-mono)" font-size="7.6" fill="#DCE6E0">+${p.pins.length - 10}</text>`;
+  const body = parts.map((pt, i) => {
+    const pressed = sel === pt.id;
+    if (pt.id === "pins") return `<g class="part" data-part="pins" role="button" tabindex="0" aria-pressed="${pressed}" aria-label="${esc(pt.name)}"><rect class="hl" x="30" y="166" width="340" height="36" rx="6" fill="none" stroke="transparent"/><rect class="hit" x="30" y="166" width="340" height="36"/>${badge(364, 150, i + 1)}</g>`;
+    const r = SLOTS[pt.slot] || SLOTS.core;
+    return `<g class="part" data-part="${esc(pt.id)}" role="button" tabindex="0" aria-pressed="${pressed}" aria-label="${esc(pt.name)}"><rect class="hl" x="${r.x - 5}" y="${r.y - 5}" width="${r.w + 10}" height="${r.h + 10}" rx="8" fill="none" stroke="transparent"/>${shapeSVG(pt.shape, r)}<rect class="hit" x="${r.x - 5}" y="${r.y - 5}" width="${r.w + 10}" height="${r.h + 10}"/>${badge(r.x - 8, r.y - 8, i + 1)}</g>`;
+  }).join("");
+  return `<svg viewBox="0 0 400 214" role="img" aria-label="Esquema típico de ${esc(s.pn)}: toca cada pieza para ver qué hace">
+    <rect x="14" y="8" width="372" height="198" rx="10" fill="${esc(p.color)}" stroke="#0A0D10" stroke-width="2"/>
+    <circle cx="26" cy="20" r="4" fill="#0A0D10" stroke="#C9CED6"/><circle cx="374" cy="20" r="4" fill="#0A0D10" stroke="#C9CED6"/><circle cx="26" cy="194" r="4" fill="#0A0D10" stroke="#C9CED6"/><circle cx="374" cy="194" r="4" fill="#0A0D10" stroke="#C9CED6"/>
+    <text x="200" y="22" text-anchor="middle" font-family="var(--f-mono)" font-size="8.5" fill="#B7C7BF" letter-spacing="1.2">${esc(s.pn.slice(0, 34))}</text>
+    ${body}${pinsSVG}</svg>`;
+}
+function badge(x, y, n){ return `<g class="bdg"><circle cx="${x + 8}" cy="${y + 8}" r="8" fill="#0E5C4C" stroke="#fff" stroke-width="1.2"/><text x="${x + 8}" y="${y + 11.2}" text-anchor="middle" font-family="var(--f-mono)" font-size="9" font-weight="600" fill="#fff">${n}</text></g>`; }
+
+function anatTab(s){
+  const parts = anatomyParts(s);
+  if (!labSel || !parts.some(x => x.id === labSel)) labSel = parts[0].id;
+  const cur = parts.find(x => x.id === labSel);
+  const det = cur.id === "pins"
+    ? `<h3>${parts.indexOf(cur) + 1}. ${esc(cur.name)}</h3><p>${esc(cur.what)}</p>${pinListHTML(s)}<p class="note">${esc(cur.watch)}</p>`
+    : `<h3>${parts.indexOf(cur) + 1}. ${esc(cur.name)}</h3><dl class="sd"><div><dt>Qué es</dt><dd>${esc(cur.what)}</dd></div><div><dt>Para qué sirve</dt><dd>${esc(cur.why)}</dd></div><div><dt>Ojo con</dt><dd>${esc(cur.watch)}</dd></div></dl>`;
+  return `<div class="anat">
+    <div>
+      <div class="board-box">${anatomySVG(s, parts, labSel)}</div>
+      <p class="note">Esquema típico de este tipo de módulo: la posición y los componentes de tu placa pueden variar según el fabricante; las funciones sí aplican.</p>
+    </div>
+    <div class="anat-side">
+      <ul class="partlist" aria-label="Piezas del módulo">${parts.map((pt, i) => `<li><button type="button" data-part="${esc(pt.id)}" aria-pressed="${pt.id === labSel}"><span class="num">${i + 1}</span><span>${esc(pt.name)}</span></button></li>`).join("")}</ul>
+      <div class="detail" aria-live="polite">${det}</div>
+    </div>
+  </div>`;
+}
+
+function wiringSVG(w, s, sel){
+  const rows = w.rows;
+  const rowH = 26, top = 46;
+  const targets = [];
+  rows.forEach(r => { if (r.g != null && r.gpio !== "—" && !targets.includes(r.gpio)) targets.push(r.gpio); });
+  const ord = t => t === "3V3" ? 0 : t === "5V (VIN)" ? 1 : t === "GND" ? 2 : 3;
+  targets.sort((a, b) => ord(a) - ord(b) || (parseInt(a.replace(/\D/g, "")) || 0) - (parseInt(b.replace(/\D/g, "")) || 0));
+  const H = Math.max(rows.length, targets.length) * rowH + top + 22;
+  const ty = t => top + targets.indexOf(t) * rowH + rowH / 2;
+  const ry = i => top + i * rowH + rowH / 2;
+  let wires = "", labelsL = "", labelsR = "";
+  rows.forEach((r, i) => {
+    const info = wireInfo(r), y1 = ry(i);
+    const hasT = r.g != null && r.gpio !== "—" && targets.includes(r.gpio);
+    labelsL += `<text x="168" y="${y1 + 3.5}" text-anchor="end" font-family="var(--f-mono)" font-size="10.5" fill="var(--ink)">${esc(r.pin.length > 22 ? r.pin.slice(0, 21) + "…" : r.pin)}</text><circle cx="176" cy="${y1}" r="3.4" fill="${info.c}"/>`;
+    if (hasT) {
+      const y2 = ty(r.gpio), sel1 = sel === i;
+      const d = `M180 ${y1} C 330 ${y1}, 410 ${y2}, 560 ${y2}`;
+      wires += `<g class="wire" data-wire="${i}" role="button" tabindex="0" aria-pressed="${sel1}" aria-label="${esc(r.pin)} a ${esc(r.gpio)}"><path d="${d}" fill="none" stroke="${info.c}" stroke-width="${sel1 ? 5 : 2.6}" stroke-linecap="round" ${r.opt ? 'stroke-dasharray="5 4"' : ""} opacity="${sel === -1 || sel1 ? 1 : .45}"/><path d="${d}" fill="none" stroke="transparent" stroke-width="14"/></g>`;
+    } else {
+      const sel1 = sel === i;
+      wires += `<g class="wire" data-wire="${i}" role="button" tabindex="0" aria-pressed="${sel1}" aria-label="${esc(r.pin)}: ${esc(r.fn)}"><path d="M180 ${y1} H250" stroke="${info.c}" stroke-width="${sel1 ? 4 : 2}" stroke-dasharray="4 4" fill="none"/><text x="256" y="${y1 + 3.5}" font-family="var(--f-mono)" font-size="9.5" fill="var(--muted)">${esc(r.fn || "—")}</text><path d="M180 ${y1} H330" stroke="transparent" stroke-width="14"/></g>`;
+    }
+  });
+  targets.forEach(t => { const y = ty(t); const kind = (rows.find(r => r.gpio === t) || {}).kind; const c = (WIRE_KIND[kind] || {}).c || "var(--muted)";
+    labelsR += `<circle cx="560" cy="${y}" r="3.4" fill="${c}"/><text x="570" y="${y + 3.5}" font-family="var(--f-mono)" font-size="10.5" fill="var(--ink)">${esc(t)}</text>`; });
+  return `<svg viewBox="0 0 700 ${H}" role="img" aria-label="Diagrama de conexión de ${esc(s.pn)} al ESP32">
+    <rect x="12" y="10" width="164" height="${H - 20}" rx="9" fill="var(--sunk)" stroke="var(--line)"/>
+    <text x="94" y="30" text-anchor="middle" font-family="var(--f-display)" font-size="12" font-weight="700" fill="var(--ink)">${esc(s.pn.slice(0, 22))}</text>
+    <rect x="552" y="10" width="136" height="${H - 20}" rx="9" fill="var(--sunk)" stroke="var(--line)"/>
+    <text x="620" y="30" text-anchor="middle" font-family="var(--f-display)" font-size="12" font-weight="700" fill="var(--ink)">ESP32 DevKit</text>
+    ${wires}${labelsL}${labelsR}</svg>`;
+}
+function wireTab(s){
+  const ctx = newCtx();
+  const w = wiringFor(s, ctx, {opt: labOpt});
+  if (w.internal) return `<div class="detail"><h3>Sin cableado</h3><p>${esc(w.note)}</p></div>`;
+  const rows = w.rows;
+  if (labWire >= rows.length) labWire = -1;
+  const cur = labWire >= 0 ? rows[labWire] : null;
+  const info = cur ? wireInfo(cur) : null;
+  const detail = cur
+    ? `<h3>${esc(cur.pin)} → ${esc(cur.gpio)}</h3><p><b>${esc(cur.fn || "Sin conexión")}</b></p><p>${esc(pinInfo(cur.pin).que)}</p><p>${esc(info.why)}</p>${cur.note ? `<p class="note">${esc(cur.note)}</p>` : ""}${cur.warn ? `<p class="alert">${esc(cur.warn)}</p>` : ""}`
+    : `<h3>Toca un cable</h3><p>Cada color es una función: rojo y naranja alimentan, gris es tierra, azul y amarillo forman el bus I2C, verde es serie, morado es SPI. Toca un cable o una fila de la tabla para ver por qué va ahí.</p>`;
+  const optN = rows.filter(r => r.opt).length;
+  return `<div class="wiring">
+    <div class="wire-box">${wiringSVG(w, s, labWire)}</div>
+    <div class="wire-side">
+      <div class="detail" aria-live="polite">${detail}</div>
+      ${optN ? `<label class="chk"><input type="checkbox" data-labopt ${labOpt ? "checked" : ""}> Mostrar los ${optN} pines opcionales</label>` : ""}
+      <p class="note">Mapa orientativo con la numeración clásica del ESP32 DevKit (30 o 38 pines). Confirma con la hoja de datos de tu módulo antes de alimentarlo.</p>
+    </div>
+  </div>
+  <table class="wtab"><thead><tr><th>Pin del módulo</th><th>Va a</th><th>Función</th><th>Aviso</th></tr></thead><tbody>${rows.map((r, i) => `<tr data-wire="${i}" aria-selected="${labWire === i}" tabindex="0"><td><i style="background:${wireInfo(r).c}"></i>${esc(r.pin)}</td><td>${esc(r.gpio)}</td><td>${esc(r.fn)}</td><td>${esc(r.warn || r.note || "")}</td></tr>`).join("")}</tbody></table>
+  ${s.w ? `<p class="alert"><strong>Antes de conectar:</strong> ${esc(s.w)}</p>` : ""}
+  <div class="code-head"><h3>Esqueleto de código (Arduino / ESP32)</h3><button type="button" class="btn small" data-labcopy="code">Copiar código</button><button type="button" class="btn small" data-labcopy="tabla">Copiar conexiones</button></div>
+  <pre class="code">${esc(snippetFor(s, w))}</pre>`;
+}
+
+function indTab(s){
+  const fi = FAMINFO[s.f] || {ind: [], eq: ""};
+  const own = Array.isArray(s.ind) && s.ind.length;
+  const ind = own ? s.ind : fi.ind;
+  const sets = RECIPES.filter(r => r.ids.includes(s.id));
+  return `<div class="ind-grid">
+    <section><h3>Dónde se usa ${own ? "este sensor" : "esta tecnología"}</h3>
+      <ul class="ind-list">${ind.map(([a, b]) => `<li><b>${esc(a)}</b><span>${esc(b)}</span></li>`).join("")}</ul>
+      ${own ? "" : `<p class="note">Aplicaciones de la familia ${esc(FAM[s.f])}; el chip concreto puede variar.</p>`}
+    </section>
+    <section><h3>Equivalente de grado industrial</h3><p>${esc(s.eq || fi.eq)}</p>
+      <h3 style="margin-top:12px">Qué cambia de un prototipo a un producto</h3>
+      <ul class="plain">${GRADE_NOTES.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+    </section>
+    <section><h3>Sectores donde aparece aquí</h3><p class="combo">${s.s.map(x => `<button type="button" class="pill" data-gosector="${x}">${esc(SECLABEL[x])}</button>`).join("")}</p>
+      ${s.s.includes("defensa") ? `<p class="alert resp"><strong>Uso responsable:</strong> ${esc(SECINFO.defensa.nota)}</p>` : ""}
+      ${sets.length ? `<h3 style="margin-top:12px">Recetas que lo usan</h3><p class="combo">${sets.map(r => `<button type="button" class="pill" data-bench-recipe="${esc(r.id)}">${esc(r.n)}</button>`).join("")}</p>` : ""}
+    </section>
+  </div>`;
+}
+function fisTab(s){
+  const fi = FAMINFO[s.f] || {};
+  const p = physOf(s);
+  return `<div class="fis">
+    <section><h3>Principio físico</h3><p>${esc(s.how || fi.how || "Consulta la hoja de datos del fabricante.")}</p></section>
+    <section class="feyn"><h3>Explicado simple (técnica de Feynman)</h3><p>${esc(fi.simple || "")}</p><p class="note">Intenta decirlo con tus propias palabras sin mirar: si te trabas, ahí está lo que falta repasar.</p></section>
+    <section><h3>Qué señal entrega</h3><p>${esc(p.sig)}</p></section>
+    <section><h3>Qué lo limita en la práctica</h3><p>${esc(fi.limit || "Calibración, ruido y condiciones de montaje.")}</p></section>
+    <section><h3>Preguntas de repaso</h3><ol class="plain num">${(fi.check || []).map(q => `<li>${esc(q)}</li>`).join("")}</ol></section>
+  </div>`;
+}
+function fichaTab(s){
+  const on = inRadar(s.id), internal = has(s, "interno"), q = termOf(s), p = physOf(s);
+  const plug = [has(s, "qwiic") ? "Qwiic / STEMMA QT" : "", has(s, "grove") ? "Grove" : ""].filter(Boolean).join(", ");
+  const combos = (s._combos || s.c).map(id => byId.get(id)).filter(Boolean);
+  const specs = [
+    ["Formato físico y medidas", `${esc(p.pkg)} · <code>${esc(dimStr(p))}</code>`],
+    ["Alimentación y consumo", esc(p.pwr)],
+    ["Qué señal / dato entrega", esc(p.sig)],
+    ["Interfaz", s.b.length ? esc(s.b.join(", ")) : "Ver hoja de datos"],
+    s.a ? ["Dirección I2C por defecto", `<code>${esc(s.a)}</code>`] : null,
+    ["Precio orientativo", `${esc(priceLabel(s))} · ${esc(priceTitle(s))}`],
+    ["Dificultad", esc(LEVEL_T[s.l])],
+    plug ? ["Conexión sin soldar", esc(plug)] : null,
+    has(s, "esphome") ? ["ESPHome", "Tiene componente: funciona sin escribir el driver"] : null,
+    ["Sectores", esc(s.s.map(x => SECLABEL[x]).join(", "))],
+    ["Carcasa (Fusion 360 / 3D)", esc(enclosureHint(s))]
+  ].filter(Boolean);
+  return `<div class="ficha-tab">
+    <p>${esc(s.d)}</p>
+    ${s.w ? `<p class="alert"><strong>Antes de conectar:</strong> ${esc(s.w)}</p>` : ""}
+    <dl class="specs">${specs.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
+    <div><h3>Ideas de proyecto</h3><ul class="ideas">${s.i.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
+    ${combos.length ? `<div><h3>Combínalo con</h3><p class="combo">${combos.map(o => `<button type="button" class="pill" data-open="${o.id}">${esc(o.pn)}${o.own === "si" ? " · lo tienes" : o.own === "kit" ? " · en tu kit" : ""}</button>`).join("")}</p></div>` : ""}
+    <div><h3>${internal ? "Dónde aprender a usarlo" : "Buscar «" + esc(q) + "» en"}</h3><div class="buy">${storeGroupsHTML(q, internal ? ["lista"] : null)}</div></div>
+  </div>`;
+}
+function fichaHTML(s){
+  const on = inRadar(s.id), inCmp = cmpList.includes(s.id);
+  const body = labTab === "anat" ? anatTab(s) : labTab === "wire" ? wireTab(s) : labTab === "ind" ? indTab(s) : labTab === "fis" ? fisTab(s) : labTab === "mod" ? cadViewerHTML(s) : fichaTab(s);
+  return `<div class="ficha lab">
+    <div class="ficha-top">
+      <p class="meta"><span>${esc(FAM[s.f])}</span>${flagsHTML(s)}</p>
+      <button type="button" class="x" data-act="close">Cerrar</button>
+      <h2 id="ficha-t">${esc(s.pn)}</h2>
+      <p class="what">${esc(s.n)}</p>
+    </div>
+    <div class="lab-actions">
+      <button type="button" class="radar-btn" data-radar="${s.id}" aria-pressed="${on}">${on ? "En tu radar" : "+ Agregar a mi radar"}</button>
+      <button type="button" class="btn small" data-cmp="${s.id}" aria-pressed="${inCmp}">${inCmp ? "Quitar de comparar" : "Comparar"}</button>
+    </div>
+    <div class="lab-tabs" role="tablist" aria-label="Laboratorio del sensor">${LAB_TABS.map(([id, n]) => `<button type="button" role="tab" data-tab="${id}" aria-selected="${labTab === id}">${n}</button>`).join("")}</div>
+    <div class="lab-body" role="tabpanel">${body}</div>
+  </div>`;
+}
+function relabel(){ if (openId && byId.has(openId)) { const d = $("#ficha"); const top = d.scrollTop; $("#ficha-body").innerHTML = fichaHTML(byId.get(openId)); d.scrollTop = top; } }
+
+/* ============================================================================
+   v2 part C: views (panel, compare, project bench), recipes and events
+   ========================================================================== */
+RECIPES.push(
+  {id:"defensa-per",n:"🛡️ Vigilancia perimetral pasiva",d:"Radar de presencia, vibración del suelo, sonido y térmico para vigilar un perímetro sin cámaras visibles; alerta por LoRa.",ids:["ld2450","geofono","ads1115","inmp441","mlx90640","sx1262"]},
+  {id:"rover",n:"🤖 Rover autónomo de campo",d:"Navegación con GNSS RTK, IMU y magnetómetro, percepción de obstáculos, consumo de batería y bus CAN hacia los motores.",ids:["zedf9p","icm42688","mmc5983","vl53l5cx","ina226","can"]},
+  {id:"gnssdenied",n:"🧭 Navegación sin GPS",d:"Estimación de posición por inercia, rumbo magnético, altitud barométrica y flujo óptico cuando el GNSS falla o es interferido.",ids:["icm42688","mmc5983","ms5611","paa5100","tfluna","bno085"]},
+  {id:"uas-aware",n:"📡 Conciencia del espacio aéreo",d:"Recibe el Remote ID de los drones cercanos, los ubica con tu GPS, autentica el nodo y reenvía por LoRa.",ids:["remoteid","gps","sx1262","atecc608","bme280"]},
+  {id:"campo-amb",n:"🌾 Estación de campo de largo alcance",d:"Clima, partículas y gases tóxicos con energía monitoreada y envío por LoRa, sin Wi-Fi ni red celular.",ids:["sx1262","bme680","ze03","pms5003","ina226","sht45"]}
+);
+
+let view = "explorar", selAddr = "", benchOut = "";
+let cmpList = [];
+try { const raw = JSON.parse(localStorage.getItem("radar-sensores-cmp") || "[]"); if (Array.isArray(raw)) cmpList = raw.filter(x => typeof x === "string").slice(0, 4); } catch (e) {}
+function saveCmp(){ try { localStorage.setItem("radar-sensores-cmp", JSON.stringify(cmpList)); } catch (e) {} }
+function toggleCmp(id){
+  if (!byId.has(id)) return;
+  if (cmpList.includes(id)) cmpList = cmpList.filter(x => x !== id);
+  else { cmpList.push(id); if (cmpList.length > 4) cmpList.shift(); }
+  saveCmp(); v2Refresh();
+}
+function setView(v){
+  view = v; document.body.dataset.view = v;
+  document.querySelectorAll("#vnav [data-view]").forEach(b => b.setAttribute("aria-current", String(b.dataset.view === v)));
+  v2Refresh(); window.scrollTo(0, 0);
+}
+function v2Refresh(){
+  const cn = $("#cmp-n"), bn = $("#bench-n");
+  if (cn) cn.textContent = String(cmpList.filter(id => byId.has(id)).length);
+  if (bn) bn.textContent = String(state.radar.filter(r => byId.has(r.id)).length);
+  if (view === "panel") renderPanel(); else if (view === "comparar") renderCompare(); else if (view === "banco") renderBench();
+  if (openId && byId.has(openId)) relabel();
+}
+function goExplore(o){
+  if (openId) closeFicha();
+  if (o.sector != null) { state.sector = o.sector; try { location.hash = o.sector || "todos"; } catch (e) {} }
+  if (o.fam != null) { state.fam = o.fam; const f = $("#fam"); if (f) f.value = o.fam; }
+  if (o.bus) { state.bus.clear(); state.bus.add(o.bus); }
+  renderSectors(); renderFilters(); renderGrid();
+  setView("explorar");
+  const t = $("#resultados"); if (t) t.scrollIntoView({block: "start"});
+}
+
+/* ---------- panel ---------- */
+function barRows(entries, max, color, attr){
+  return entries.map(([k, n, label]) => `<li><button type="button" ${attr}="${esc(k)}"><span class="bl">${esc(label)}</span><span class="bt"><i style="width:${Math.max(3, n / max * 100)}%;background:${color(k)}"></i></span><b>${n}</b></button></li>`).join("");
+}
+function renderPanel(){
+  const el = $("#panel-body"); if (!el) return;
+  const own = DATA.filter(s => s.own === "si").length, kit = DATA.filter(s => s.own === "kit").length;
+  const nuevos = DATA.filter(s => has(s, "nuevo")).length;
+  const rad = state.radar.filter(r => byId.has(r.id)).length;
+  const kpi = [[DATA.length, "Sensores en el catálogo"], [SECTORS.length, "Sectores"], [Object.keys(FAM).length, "Familias de medición"], [own + kit, "Que ya tienes (con el kit)"], [nuevos, "Novedades"], [rad, "En tu proyecto"]];
+  const secs = SECTORS.map(x => {
+    const list = DATA.filter(s => s.s.includes(x.id));
+    const fam = {}; list.forEach(s => fam[s.f] = (fam[s.f] || 0) + 1);
+    const top = Object.entries(fam).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([f, n]) => `${FAM[f]} ${n}`).join(" · ");
+    const inf = SECINFO[x.id] || {d: ""};
+    return `<article class="sec-card${x.id === "defensa" ? " hot" : ""}"><header><h3>${esc(x.n)}</h3><b>${list.length}</b></header><p>${esc(inf.d)}</p><p class="top">${esc(top)}</p>${inf.nota ? `<p class="resp">${esc(inf.nota)}</p>` : ""}<button type="button" class="btn small" data-gosector="${x.id}">Explorar ${esc(x.n)}</button></article>`;
+  }).join("");
+  const famC = {}; DATA.forEach(s => famC[s.f] = (famC[s.f] || 0) + 1);
+  const famE = Object.entries(famC).sort((a, b) => b[1] - a[1]).map(([k, n]) => [k, n, FAM[k] || k]);
+  const busC = {}; DATA.forEach(s => s.b.forEach(b => busC[b] = (busC[b] || 0) + 1));
+  const busE = Object.entries(busC).sort((a, b) => b[1] - a[1]).map(([k, n]) => [k, n, k]);
+  const heat = [0, 1, 2, 3, 4, null].map(p => [1, 2, 3].map(l => DATA.filter(s => (s.p == null ? null : s.p) === p && s.l === l).length));
+  const hmax = Math.max(1, ...heat.flat());
+  const heatHTML = `<table class="heat"><thead><tr><th></th><th>Fácil</th><th>Medio</th><th>Avanzado</th></tr></thead><tbody>${heat.map((r, i) => `<tr><th>${["Gratis", "€", "€€", "€€€", "€€€€", "n/d"][i]}</th>${r.map((n, j) => `<td title="${n} sensores" style="background:color-mix(in srgb,var(--mask) ${Math.round(n / hmax * 78)}%,transparent)">${n || ""}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+  const addr = new Map();
+  DATA.forEach(s => { if (s.a && s.b.includes("I2C")) { if (!addr.has(s.a)) addr.set(s.a, []); addr.get(s.a).push(s); } });
+  let cells = "";
+  for (let r = 0; r < 8; r++) {
+    cells += `<span class="ah">${(r * 16).toString(16).toUpperCase().padStart(2, "0")}</span>`;
+    for (let c = 0; c < 16; c++) {
+      const v = r * 16 + c, a = "0x" + v.toString(16).toUpperCase().padStart(2, "0");
+      const reserved = v < 0x08 || v > 0x77, list = addr.get(a) || [];
+      cells += `<button type="button" class="ac${list.length > 1 ? " dup" : list.length ? " use" : ""}${selAddr === a ? " sel" : ""}" ${reserved ? "disabled" : ""} data-addr="${a}" aria-label="${a}${list.length ? ": " + list.map(x => x.pn).join(", ") : ": libre"}" title="${a}${list.length ? " · " + esc(list.map(x => x.pn).join(", ")) : ""}">${list.length || ""}</button>`;
+    }
+  }
+  const selList = selAddr && addr.get(selAddr) ? addr.get(selAddr) : [];
+  const dupN = [...addr.values()].filter(l => l.length > 1).length;
+  const recipes = RECIPES.map(r => `<article class="rec-card"><h3>${esc(r.n)}</h3><p>${esc(r.d)}</p><p class="combo">${r.ids.filter(id => byId.has(id)).map(id => `<button type="button" class="pill" data-open="${id}">${esc(byId.get(id).pn)}</button>`).join("")}</p><button type="button" class="btn small" data-bench-recipe="${esc(r.id)}">Cargar en el banco de proyecto</button></article>`).join("");
+  el.innerHTML = `
+    <section aria-labelledby="pn-h"><div class="sec-head"><h2 id="pn-h" class="sec-h">Panel del catálogo</h2><span class="hint">Una vista general para decidir por dónde empezar. Toca cualquier barra, sector o dirección.</span></div>
+      <div class="kpis">${kpi.map(([n, l]) => `<div class="kpi"><b>${n}</b><span>${esc(l)}</span></div>`).join("")}</div></section>
+    <section aria-labelledby="ps-h"><h2 id="ps-h" class="sec-h">Sectores</h2><div class="sec-grid">${secs}</div></section>
+    <div class="two">
+      <section aria-labelledby="pf-h"><h2 id="pf-h" class="sec-h">Qué se puede medir</h2><ul class="bars">${barRows(famE, famE[0][1], () => "var(--mask)", "data-gofam")}</ul></section>
+      <section aria-labelledby="pb-h"><h2 id="pb-h" class="sec-h">Cómo se conectan</h2><ul class="bars">${barRows(busE, busE[0][1], k => BUS_COLOR[k] || "var(--pad)", "data-gobus")}</ul></section>
+    </div>
+    <div class="two">
+      <section aria-labelledby="pa-h"><h2 id="pa-h" class="sec-h">Mapa de direcciones I2C</h2>
+        <p class="hint">Cada casilla es una dirección del bus. Verde: un sensor del catálogo la usa por defecto. Ámbar: varios la comparten y chocan si los pones juntos (${dupN} direcciones con choque posible).</p>
+        <div class="amap" role="group" aria-label="Direcciones I2C">${cells}</div>
+        <div class="amap-sel" aria-live="polite">${selAddr ? (selList.length ? `<b>${esc(selAddr)}</b> · ${selList.map(s => `<button type="button" class="pill" data-open="${s.id}">${esc(s.pn)}</button>`).join("")}` : `<b>${esc(selAddr)}</b> · libre en el catálogo`) : "Toca una casilla para ver qué sensores la usan."}</div></section>
+      <section aria-labelledby="ph-h"><h2 id="ph-h" class="sec-h">Precio y dificultad</h2><p class="hint">Cuántos sensores hay en cada combinación. Los más oscuros son los más comunes.</p>${heatHTML}</section>
+    </div>
+    <section aria-labelledby="pr-h"><div class="sec-head"><h2 id="pr-h" class="sec-h">Recetas de proyecto</h2><span class="hint">Cada receta carga sus sensores en tu banco para ver pines y choques.</span></div><div class="rec-grid">${recipes}</div></section>`;
+}
+
+/* ---------- compare ---------- */
+function cmpItems(){ return cmpList.map(id => byId.get(id)).filter(Boolean); }
+function renderCompare(){
+  const el = $("#cmp-body"); if (!el) return;
+  const items = cmpItems();
+  const dl = DATA.map(s => `<option value="${esc(s.pn)}"></option>`).join("");
+  const head = `<div class="sec-head"><h2 class="sec-h">Comparar sensores</h2><span class="hint">Hasta 4. Las celdas con fondo marcado son las que difieren entre ellos.</span></div>
+    <div class="cmp-bar"><label class="sr" for="cmp-in">Agregar un sensor por nombre</label><input id="cmp-in" list="cmp-dl" placeholder="Agregar por nombre, ej.: BNO085"><datalist id="cmp-dl">${dl}</datalist><button type="button" class="btn small" data-cmpadd>Agregar</button><button type="button" class="btn small" data-cmpradar>Usar mi radar</button><button type="button" class="btn small" data-cmpclear>Vaciar</button></div>`;
+  if (items.length < 2) { el.innerHTML = `<section>${head}<p class="empty">${items.length ? "Agrega al menos un sensor más para compararlos." : "Todavía no hay sensores. Usa «Comparar» en el laboratorio de un sensor o escribe un nombre arriba."}</p>${items.length ? chipsCmp(items) : ""}</section>`; return; }
+  const P = items.map(physOf);
+  const fiOf = s => (Array.isArray(s.ind) && s.ind.length ? s.ind : (FAMINFO[s.f] || {ind: []}).ind).slice(0, 3).map(x => x[0]).join(", ");
+  const rows = [
+    ["Qué mide", items.map(s => s.n)], ["Familia", items.map(s => FAM[s.f])], ["Interfaz", items.map(s => s.b.join(", ") || "n/d")],
+    ["Dirección I2C", items.map(s => s.a || "—")], ["Alimentación", P.map(p => p.pwr)], ["Qué entrega", P.map(p => p.sig)],
+    ["Medidas", P.map(p => dimStr(p))], ["Precio", items.map(s => priceLabel(s))], ["Dificultad", items.map(s => LEVEL_T[s.l])],
+    ["Sin soldar", items.map(s => [has(s, "qwiic") ? "Qwiic" : "", has(s, "grove") ? "Grove" : ""].filter(Boolean).join(" · ") || "—")],
+    ["ESPHome", items.map(s => has(s, "esphome") ? "Sí" : "No")], ["Sectores", items.map(s => s.s.map(x => SECLABEL[x]).join(", "))],
+    ["Industrias", items.map(fiOf)], ["Antes de conectar", items.map(s => s.w || "—")]
+  ];
+  const addrs = items.filter(s => s.a && s.b.includes("I2C")), seen = {}; addrs.forEach(s => (seen[s.a] = seen[s.a] || []).push(s.pn));
+  const clash = Object.entries(seen).filter(([, l]) => l.length > 1);
+  const maxL = Math.max(...P.map(p => p.dim[0])), tot = P.reduce((a, p) => a + p.dim[0], 0);
+  const k = Math.min(4, 640 / (tot + 18 * P.length));
+  let x = 12, svg = "";
+  const maxH = Math.max(...P.map(p => p.dim[1]));
+  items.forEach((s, i) => { const p = P[i], w = Math.max(10, p.dim[0] * k), h = Math.max(8, p.dim[1] * k); svg += `<rect x="${x}" y="${12 + (maxH * k - h)}" width="${w}" height="${h}" rx="3" fill="${esc(p.color)}" stroke="var(--ink)" stroke-opacity=".5"/><text x="${x + w / 2}" y="${12 + maxH * k + 16}" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--ink)">${esc(s.pn.slice(0, 14))}</text><text x="${x + w / 2}" y="${12 + maxH * k + 29}" text-anchor="middle" font-family="var(--f-mono)" font-size="9" fill="var(--muted)">${p.dim[0]}×${p.dim[1]} mm</text>`; x += w + 18; });
+  const svgH = 12 + maxH * k + 38;
+  void maxL;
+  el.innerHTML = `<section>${head}${chipsCmp(items)}
+    ${clash.length ? `<p class="alert"><strong>Choque I2C:</strong> ${clash.map(([a, l]) => `${esc(a)} → ${l.map(esc).join(", ")}`).join(" · ")}. No los conectes juntos en el mismo bus sin cambiar la dirección o usar un multiplexor.</p>` : ""}
+    <div class="cmp-wrap"><table class="cmp"><thead><tr><th></th>${items.map(s => `<th><button type="button" class="pn" data-open="${s.id}">${esc(s.pn)}</button><button type="button" class="rm" data-cmp="${s.id}">Quitar</button></th>`).join("")}</tr></thead>
+    <tbody>${rows.map(([l, vals]) => { const same = vals.every(v => v === vals[0]); return `<tr><th scope="row">${esc(l)}</th>${vals.map(v => `<td${same ? "" : ' class="diff"'}>${esc(v)}</td>`).join("")}</tr>`; }).join("")}</tbody></table></div>
+    <h3 class="sec-h" style="margin-top:6px">Tamaño real relativo</h3><div class="scale-box"><svg viewBox="0 0 ${Math.max(660, x)} ${svgH}" role="img" aria-label="Comparación de tamaño de los sensores elegidos">${svg}</svg></div></section>`;
+}
+function chipsCmp(items){ return `<p class="combo cmp-chips">${items.map(s => `<span class="pill on">${esc(s.pn)} <button type="button" data-cmp="${s.id}" aria-label="Quitar ${esc(s.pn)}">×</button></span>`).join("")}</p>`; }
+
+/* ---------- project bench ---------- */
+function benchData(){
+  const items = state.radar.map(r => byId.get(r.id)).filter(Boolean);
+  const ctx = newCtx();
+  const wires = items.map(s => ({s, w: wiringFor(s, ctx, {opt: false})}));
+  return {items, ctx, wires};
+}
+function busesOf(w){
+  const k = new Set(w.rows.filter(r => r.g != null).map(r => r.kind));
+  const out = [];
+  if (k.has("i2c-sda")) out.push("I2C"); if (k.has("spi-sck")) out.push("SPI"); if (k.has("uart-rx") || k.has("uart-tx")) out.push("UART");
+  if (k.has("adc")) out.push("Analógico"); if (k.has("dig-in") || k.has("dig-out") || k.has("echo") || k.has("pulse")) out.push("Digital");
+  if (k.has("data1w")) out.push("1-Wire"); if (k.has("i2s-sd")) out.push("I2S"); if (k.has("can-tx")) out.push("CAN");
+  return out;
+}
+function benchDiagram(wires){
+  const rowsN = Math.ceil(wires.length / 2), H = Math.max(180, rowsN * 70 + 30);
+  const dev = (o, i) => { const left = i % 2 === 0, y = 20 + Math.floor(i / 2) * 70, x = left ? 12 : 488;
+    if (o.w.internal) return `<g><rect x="${x}" y="${y}" width="190" height="52" rx="8" fill="var(--surface)" stroke="var(--line)" stroke-dasharray="4 3"/><text x="${x + 10}" y="${y + 21}" font-family="var(--f-display)" font-size="12" font-weight="700" fill="var(--ink)">${esc(o.s.pn.slice(0, 21))}</text><text x="${x + 10}" y="${y + 39}" font-family="var(--f-mono)" font-size="9.5" fill="var(--muted)">sin cableado</text></g>`;
+    const bs = busesOf(o.w);
+    let lines = ""; bs.forEach((b, j) => { const yy = y + 14 + j * 7 - (bs.length - 1) * 3.5 + 12; lines += `<path d="M${left ? x + 190 : x} ${yy} H${left ? 252 : 438}" stroke="${BUS_COLOR[b]}" stroke-width="3" stroke-linecap="round"/>`; });
+    return `<g>${lines}<rect x="${x}" y="${y}" width="190" height="52" rx="8" fill="var(--surface)" stroke="var(--line)"/><text x="${x + 10}" y="${y + 21}" font-family="var(--f-display)" font-size="12" font-weight="700" fill="var(--ink)">${esc(o.s.pn.slice(0, 21))}</text><text x="${x + 10}" y="${y + 39}" font-family="var(--f-mono)" font-size="9.5" fill="var(--muted)">${esc(bs.join(" · ") || "solo alimentación")}</text></g>`; };
+  return `<svg viewBox="0 0 690 ${H}" role="img" aria-label="Diagrama de bloques del nodo: el ESP32 al centro y cada sensor conectado por su bus">
+    <rect x="252" y="8" width="186" height="${H - 16}" rx="12" fill="var(--mask-soft)" stroke="var(--mask)" stroke-width="2"/>
+    <text x="345" y="${H / 2 - 4}" text-anchor="middle" font-family="var(--f-display)" font-size="16" font-weight="700" fill="var(--ink)">ESP32</text>
+    <text x="345" y="${H / 2 + 14}" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--muted)">DevKit</text>
+    ${wires.map(dev).join("")}</svg>`;
+}
+function benchPinText(d){
+  const L = ["Asignación de pines del ESP32 DevKit para el banco de proyecto (" + new Date().toLocaleDateString("es") + ")"];
+  for (const [label, arr] of orderedUse(d.ctx)) L.push(`${label}: ${arr.map(x => `${x.pn} (${x.fn})`).join("; ")}`);
+  return L.join("\n");
+}
+function orderedUse(ctx){
+  const ord = k => k === "3V3" ? 0 : k === "5V (VIN)" ? 1 : k === "GND" ? 2 : 3;
+  return [...ctx.use.entries()].sort((a, b) => ord(a[0]) - ord(b[0]) || (parseInt(a[0].replace(/\D/g, "")) || 0) - (parseInt(b[0].replace(/\D/g, "")) || 0));
+}
+function renderBench(){
+  const el = $("#bench-body"); if (!el) return;
+  const d = benchData();
+  const head = `<div class="sec-head"><h2 class="sec-h">Banco de proyecto</h2><span class="hint">Arma tu nodo con los sensores de «Mi radar»: la app asigna pines del ESP32, dibuja el diagrama y revisa los choques.</span></div>`;
+  if (!d.items.length) { el.innerHTML = `<section>${head}<p class="empty">Tu banco está vacío. Agrega sensores con «+ Agregar a mi radar» o carga una receta completa.</p><div class="rec-grid">${RECIPES.map(r => `<article class="rec-card"><h3>${esc(r.n)}</h3><p>${esc(r.d)}</p><button type="button" class="btn small" data-bench-recipe="${esc(r.id)}">Cargar receta</button></article>`).join("")}</div></section>`; return; }
+  const chips = `<p class="combo cmp-chips">${d.items.map(s => `<span class="pill on"><button type="button" class="pn" data-open="${s.id}">${esc(s.pn)}</button> <button type="button" data-radar-rm="${s.id}" aria-label="Quitar ${esc(s.pn)}">×</button></span>`).join("")}</p>`;
+  const use = orderedUse(d.ctx);
+  const allPins = [...POOLS.adc, ...POOLS.dig, ...POOLS.cs];
+  const freePins = [...new Set(allPins)].filter(g => !d.ctx.used.has(g) && ![0, 2, 12, 15, 21, 22, 18, 19, 23].includes(g)).sort((a, b) => a - b);
+  const noPin = [...d.ctx.use.keys()].filter(k => /^sin /.test(k));
+  const i2cDev = d.wires.filter(x => !x.w.internal && x.s.b.includes("I2C") && primBus(x.s) === "I2C");
+  const notes = [];
+  const cf = conflicts();
+  cf.direct.forEach(([a, g]) => notes.push(["Choque", `La dirección I2C ${a} la usan ${g.map(([s]) => s.pn).join(" y ")}. Cambia la dirección de uno, usa un multiplexor (TCA9548A) o un segundo bus.`]));
+  cf.inv.forEach(([a, s, clash]) => notes.push(["Aviso", `${s.pn} (${a}) comparte dirección con tu ${clash.map(o => o.pn).join(", ")}.`]));
+  if (noPin.length) notes.push(["Choque", `Se acabaron los pines libres para: ${noPin.join(", ")}. Quita sensores o usa un segundo ESP32 / un expansor I2C.`]);
+  const uartDev = d.wires.filter(x => !x.w.internal && x.w.rows.some(r => r.kind === "uart-rx" && r.g != null));
+  if (uartDev.length > 1) notes.push(["Nota", `${uartDev.length} módulos usan UART: el ESP32 solo tiene UART2 con pines por defecto, los demás usan pines remapeados (funciona, pero revisa cada hoja de datos).`]);
+  if (d.wires.some(x => x.w.rows && x.w.rows.some(r => r.kind === "adc" && r.g != null && [0, 2, 4, 12, 13, 14, 15, 25, 26, 27].includes(r.g)))) notes.push(["Aviso", "Un sensor analógico quedó en un pin ADC2, que no funciona con el Wi-Fi activo."]);
+  if (d.wires.filter(x => x.w.rows && x.w.rows.some(r => r.kind === "pwr5")).length > 2) notes.push(["Nota", "Varios módulos se alimentan de 5 V: suma sus consumos y verifica que el USB (500 mA) o tu fuente alcance."]);
+  if (d.wires.some(x => x.w.rows && x.w.rows.some(r => r.kind === "mains"))) notes.push(["Peligro", "Incluiste un módulo con conexión a la red eléctrica. Aíslalo en una caja y no lo manipules con tensión."]);
+  d.items.filter(s => s.w).forEach(s => notes.push(["Antes de conectar", `${s.pn}: ${s.w}`]));
+  d.wires.filter(x => x.w.warnings).forEach(() => {});
+  const warnRows = [];
+  d.wires.forEach(({s, w}) => (w.rows || []).forEach(r => { if (r.warn) warnRows.push(`${s.pn} · ${r.pin}: ${r.warn}`); }));
+  [...new Set(warnRows)].slice(0, 6).forEach(t => notes.push(["Nivel", t]));
+  const noteHTML = notes.length ? `<ul class="audit">${notes.map(([k, t]) => `<li class="${/Choque|Peligro/.test(k) ? "bad" : /Aviso|Nivel/.test(k) ? "warn" : ""}"><b>${esc(k)}</b><span>${esc(t)}</span></li>`).join("")}</ul>` : `<p class="empty">Sin choques detectados.</p>`;
+  const i2cTable = i2cDev.length ? `<table class="wtab"><thead><tr><th>Dirección I2C</th><th>Sensor</th></tr></thead><tbody>${i2cDev.slice().sort((a, b) => (a.s.a || "").localeCompare(b.s.a || "")).map(x => `<tr><td>${esc(x.s.a || "n/d")}</td><td>${esc(x.s.pn)}</td></tr>`).join("")}</tbody></table>` : "";
+  el.innerHTML = `<section>${head}${chips}
+    <div class="bench-grid">
+      <div><h3 class="sec-h">Diagrama de bloques</h3><div class="scale-box">${benchDiagram(d.wires)}</div>
+        <p class="legend">${Object.entries(BUS_COLOR).filter(([k]) => !["RS485", "Trigger/Echo"].includes(k)).map(([k, c]) => `<span><i style="background:${c}"></i>${esc(k)}</span>`).join("")}</p></div>
+      <div><h3 class="sec-h">Revisión del nodo</h3>${noteHTML}</div>
+    </div>
+    <h3 class="sec-h" style="margin-top:6px">Asignación de pines del ESP32</h3>
+    <table class="wtab"><thead><tr><th>Pin</th><th>Quién lo usa</th></tr></thead><tbody>${use.map(([label, arr]) => `<tr><td>${esc(label)}</td><td>${arr.map(x => `${esc(x.pn)} <small>(${esc(x.fn)})</small>`).join(" · ")}</td></tr>`).join("")}</tbody></table>
+    <p class="hint">Pines que aún quedan libres para más sensores: <b>${freePins.map(g => "GPIO" + g).join(", ") || "ninguno"}</b>. No uses GPIO0, 2, 12 ni 15 para sensores que puedan estar activos al arrancar: son pines de arranque del ESP32.</p>
+    ${i2cTable}
+    <div class="row-btns"><button type="button" class="btn small" data-bench-copy="pins">Copiar tabla de pines</button><button type="button" class="btn small" data-bench-copy="yaml">Copiar ESPHome YAML</button><button type="button" class="btn small" data-bench-copy="list">Copiar lista del proyecto</button><button type="button" class="btn small" data-act="radar-clear">Vaciar banco</button></div>
+    ${benchOut ? `<textarea id="bench-ta" readonly aria-label="Salida generada">${esc(benchOut)}</textarea>` : ""}
+    <p class="hint">Mapa orientativo con la numeración clásica del ESP32 DevKit. Confirma cada conexión en la hoja de datos de tu módulo.</p></section>`;
+}
+async function copyV2(text, btn, label){
+  benchOut = text;
+  if (BRIDGE) { post({cmd: "copiar", texto: text}); if (btn) btn.textContent = label; return; }
+  try { await navigator.clipboard.writeText(text); if (btn) btn.textContent = label; } catch (e) { renderBench(); const ta = $("#bench-ta"); if (ta) { ta.focus(); ta.select(); } }
+}
+
+/* ---------- events ---------- */
+const V2SEL = "[data-view],[data-tab],[data-part],[data-wire],[data-cmp],[data-gosector],[data-gofam],[data-gobus],[data-addr],[data-bench-recipe],[data-bench-copy],[data-labcopy],[data-cmpadd],[data-cmpclear],[data-cmpradar]";
+document.addEventListener("click", e => {
+  const t = e.target.closest(V2SEL); if (!t) return;
+  const d = t.dataset;
+  if ("view" in d) setView(d.view);
+  else if ("tab" in d) { labTab = d.tab; labWire = -1; relabel(); }
+  else if ("part" in d) { labSel = d.part; relabel(); }
+  else if ("wire" in d) { labWire = Number(d.wire); relabel(); }
+  else if ("cmp" in d) { toggleCmp(d.cmp); }
+  else if ("gosector" in d) goExplore({sector: d.gosector});
+  else if ("gofam" in d) goExplore({fam: d.gofam});
+  else if ("gobus" in d) goExplore({bus: d.gobus});
+  else if ("addr" in d) { selAddr = selAddr === d.addr ? "" : d.addr; renderPanel(); }
+  else if ("benchRecipe" in d) { loadRecipeToRadar(d.benchRecipe); if (openId) closeFicha(); setView("banco"); }
+  else if ("benchCopy" in d) { const bd = benchData(); const txt = d.benchCopy === "pins" ? benchPinText(bd) : d.benchCopy === "yaml" ? esphomeYAML() : radarText(); copyV2(txt, t, "Copiado"); renderBenchKeep(); }
+  else if ("labcopy" in d) { const s = byId.get(openId); if (!s) return; const w = wiringFor(s, newCtx(), {opt: labOpt}); const txt = d.labcopy === "code" ? snippetFor(s, w) : wiringText(s, w); if (BRIDGE) post({cmd: "copiar", texto: txt}); else try { navigator.clipboard.writeText(txt); } catch (err) {} t.textContent = "Copiado"; }
+  else if ("cmpadd" in d) addCmpFromInput();
+  else if ("cmpclear" in d) { cmpList = []; saveCmp(); v2Refresh(); }
+  else if ("cmpradar" in d) { cmpList = state.radar.map(r => r.id).filter(id => byId.has(id)).slice(0, 4); saveCmp(); v2Refresh(); }
+});
+function renderBenchKeep(){ const y = window.scrollY; renderBench(); window.scrollTo(0, y); }
+function addCmpFromInput(){
+  const inp = $("#cmp-in"); if (!inp) return;
+  const q = norm(inp.value.trim()); if (!q) return;
+  const s = DATA.find(x => norm(x.pn) === q) || DATA.find(x => norm(x.pn).includes(q) || x.id === q);
+  if (s) { if (!cmpList.includes(s.id)) { cmpList.push(s.id); if (cmpList.length > 4) cmpList.shift(); saveCmp(); } v2Refresh(); }
+}
+document.addEventListener("change", e => {
+  if (e.target.matches("[data-labopt]")) { labOpt = e.target.checked; relabel(); }
+  else if (e.target.id === "cmp-in") addCmpFromInput();
+});
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const t = e.target.closest("g[data-part],g[data-wire],tr[data-wire]"); if (!t) return;
+  e.preventDefault(); t.dispatchEvent(new MouseEvent("click", {bubbles: true}));
+});
+document.body.dataset.view = "explorar";
+
 
 /* ---------- boot ---------- */
 (function boot(){
