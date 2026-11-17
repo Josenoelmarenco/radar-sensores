@@ -127,6 +127,12 @@ h1 span{color:var(--pad)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:12px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px 12px;display:flex;flex-direction:column;gap:7px;min-width:0}
 .card .meta{display:flex;justify-content:space-between;gap:8px;font:500 .7rem/1.2 var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.card-3d{position:relative;border:1px solid var(--line);border-radius:8px;background:radial-gradient(circle at 50% 42%,var(--surface) 0%,var(--sunk) 100%);height:112px;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:4px;cursor:pointer;transition:border-color .18s,transform .18s}
+.card-3d:hover{border-color:var(--mask)}
+.card-3d svg{width:100%;height:100%;max-height:104px;display:block;transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.card-3d:hover svg{transform:scale(1.05) translateY(-2px)}
+.card-3d .dim-tag{position:absolute;right:6px;bottom:5px;font:500 .66rem/1.2 var(--f-mono);background:var(--surface);color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 5px;opacity:.92}
+.card-3d .pkg-tag{position:absolute;left:6px;top:5px;font:500 .64rem/1.2 var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .price{color:var(--pad);letter-spacing:.02em;text-transform:none;white-space:nowrap}
 .card h3{font:600 1.16rem/1.18 var(--f-display);overflow-wrap:anywhere}
 .pn{background:none;border:0;padding:0;font:inherit;text-align:left;color:var(--ink)}
@@ -185,6 +191,17 @@ dialog::backdrop{background:rgba(6,14,11,.6)}
 .ficha .what{font-size:1.05rem;grid-column:1}
 .x{grid-row:1/3;grid-column:2;border:1px solid var(--line);background:none;border-radius:8px;padding:6px 11px;font-size:.875rem}
 .ficha h3{font:500 .74rem/1.2 var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.cad-box{border:1px solid var(--line);border-radius:10px;background:var(--sunk);overflow:hidden;display:grid}
+.cad-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--line)}
+.cad-tabs{display:flex;gap:5px;flex-wrap:wrap}
+.cad-stage{position:relative;min-height:228px;display:flex;align-items:center;justify-content:center;padding:10px 14px;background-image:radial-gradient(circle,var(--line) 1px,transparent 1px);background-size:14px 14px;perspective:900px;overflow:hidden}
+.cad-stage svg{width:100%;max-width:520px;height:auto;max-height:230px;display:block;transition:transform .38s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.cad-stage[data-tilt="front"] svg{transform:rotateX(18deg) rotateZ(-14deg) scale(1.03)}
+.cad-stage[data-tilt="side"] svg{transform:rotateX(-14deg) rotateY(22deg) rotateZ(12deg) scale(1.03)}
+.cad-foot{display:flex;justify-content:space-between;align-items:center;gap:8px 14px;flex-wrap:wrap;padding:8px 12px;background:var(--surface);border-top:1px solid var(--line);font-size:.82rem;color:var(--muted)}
+.pinbar{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.pin-pill{font:500 .72rem/1.3 var(--f-mono);border-radius:5px;padding:2px 7px;border:1px solid var(--line);background:var(--bg);display:inline-flex;align-items:center;gap:5px}
+.pin-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
 .specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .specs div{padding:8px 11px;box-shadow:0 0 0 1px var(--line)}
 .specs dt{font:500 .68rem/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -574,14 +591,485 @@ function busHTML(s){
   return s.b.map(b => `<span class="chip">${esc(b)}${b === "I2C" && s.a ? ` <b>${esc(s.a)}</b>` : ""}</span>`).join("");
 }
 const inRadar = id => state.radar.some(r => r.id === id);
+
+/* ---------- 3D vector models, physical specs & CAD blueprint ---------- */
+const PHYS = {
+  max30102:{arch:"optical",dim:[21,14,3.3],pkg:"Placa breakout óptica",mount:"2× M2 (sep. 15 mm)",pins:["VIN","SCL","SDA","INT","IRD","RD","GND"],pwr:"3.3–5 V · ~0.6 mA",sig:"FIFO I2C 18 bits (IR 880 nm + Rojo 660 nm)",color:"#164E3A"},
+  ad8232:{arch:"bio",dim:[36,28,7],pkg:"Placa ECG + jack 3.5 mm + 3 electrodos",mount:"2× M3 en esquinas",pins:["GND","3.3V","OUTPUT","LO-","LO+","SDN"],pwr:"3.3 V (batería) · ~0.17 mA",sig:"Señal analógica ECG 0–3.3 V (ancho de banda 0.5–40 Hz)",color:"#8E1F2F"},
+  max30205:{arch:"chip",dim:[20,14,3],pkg:"Placa contacto térmico",mount:"2× M2.5",pins:["VCC","GND","SDA","SCL","OS","A0","A1","A2"],pwr:"2.7–3.3 V · ~0.6 mA",sig:"Temperatura digital 16 bits (resolución 0.0039 °C)",color:"#184A78"},
+  tmp117:{arch:"chip",dim:[25.4,17.8,4.5],pkg:"Breakout Qwiic / STEMMA QT",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA","INT"],pwr:"1.8–5.5 V · ~3.5 µA (1 Hz)",sig:"Temperatura I2C 16 bits (±0.1 °C sin calibrar)",color:"#181C24"},
+  myoware:{arch:"bio",dim:[38,37,9],pkg:"Escudo EMG con 3 broches snap",mount:"3 broches de electrodo clínico",pins:["+Vs","GND","ENV","RAW","REF"],pwr:"3.3–5 V · ~9 mA",sig:"Envolvente EMG rectificada + señal cruda analógica",color:"#68236D"},
+  gsr:{arch:"bio",dim:[24,20,9],pkg:"Módulo Grove + 2 dedales de velcro",mount:"2× M2 (estándar Grove)",pins:["GND","VCC","NC","SIG"],pwr:"3.3–5 V · ~1.5 mA",sig:"Tensión analógica proporcional a conductancia cutánea (µS)",color:"#145A68"},
+  max86150:{arch:"optical",dim:[26,22,4],pkg:"Breakout óptico + electrodos secos",mount:"2× M2.5",pins:["VIN","3V3","GND","SCL","SDA","INT"],pwr:"3.3 V + 5 V LED · ~1.5 mA",sig:"PPG + ECG sincronizados en FIFO I2C de 18 bits",color:"#181C24"},
+  ads1292r:{arch:"bio",dim:[35,30,8],pkg:"Front-end clínico 24 bits + DB9/Jack",mount:"4× M2.5",pins:["VCC","GND","DRDY","MISO","MOSI","SCLK","CS","START","PWDN"],pwr:"3.3 V · ~1 mA",sig:"2 canales SPI de 24 bits (ECG + impedancia respiratoria)",color:"#8E1F2F"},
+  ad5933:{arch:"chip",dim:[30,22,4.5],pkg:"Analizador de impedancia I2C",mount:"2× M2.5",pins:["VIN","GND","SCL","SDA","RFB","VIN_Z","VOUT_Z"],pwr:"3.3–5 V · ~10 mA",sig:"Parte real e imaginaria DFT (1 kHz–100 kHz) por I2C",color:"#184A78"},
+  mlx90614:{arch:"to39",dim:[17,11.5,11],pkg:"Cápsula metálica TO-39 en placa",mount:"2× M2 (sep. 12 mm)",pins:["VIN","GND","SCL","SDA"],pwr:"3.3–5 V · ~1.5 mA",sig:"Temperatura objeto (-70 a 380 °C) y ambiente por I2C",color:"#184A78"},
+  stretch:{arch:"load",dim:[150,2,2],pkg:"Cordón elástico de caucho conductivo",mount:"2 pinzas caimán o terminales crimpados",pins:["EXT1","EXT2","R_DIV (10kΩ)"],pwr:"3.3 V en divisor resistivo · <0.3 mA",sig:"Resistencia variable (~350 Ω/cm en reposo, sube al estirar)",color:"#23272E"},
+  sdp810:{arch:"air",dim:[29,18,13],pkg:"Cuerpo con 2 tomas de manguera (Ø4 mm)",mount:"2× M2.5 + 2 tubos de silicona",pins:["VDD","GND","SDA","SCL"],pwr:"3.3 V · ~3.8 mA",sig:"Presión diferencial en Pascales (±500 Pa) y temperatura",color:"#181C24"},
+  ld2410:{arch:"radar",dim:[35,7,5],pkg:"Tira ultracompacta con antena patch 24 GHz",mount:"Encaje en ranura o cinta 3M (sin tornillos)",pins:["VCC (5V)","GND","TX","RX","OUT"],pwr:"5 V DC · ~79 mA",sig:"Pin digital de ocupación + tramas UART (distancia y energía por puerta)",color:"#184A78"},
+  ld2450:{arch:"radar",dim:[44,15,5],pkg:"Radar 24 GHz 1T2R con antena patch",mount:"2× M2 en extremos",pins:["5V","GND","TX","RX"],pwr:"5 V DC · ~120 mA",sig:"Coordenadas (X, Y) en mm y velocidad de hasta 3 objetivos por UART",color:"#164E3A"},
+  mr60bha2:{arch:"radar",dim:[32,26,11],pkg:"Módulo 60 GHz + XIAO ESP32-C6 apilado",mount:"2× M2 / carcasa cilíndrica Seeed",pins:["5V","GND","TX","RX","GPIO"],pwr:"5 V USB-C · ~150 mA",sig:"Frecuencia respiratoria, ritmo cardíaco y distancia por UART/ESPHome",color:"#145A68"},
+  mr60fda2:{arch:"radar",dim:[32,26,11],pkg:"Módulo 60 GHz de techo + XIAO ESP32-C6",mount:"Montaje en techo a 2.2–3 m de altura",pins:["5V","GND","TX","RX","GPIO"],pwr:"5 V USB-C · ~150 mA",sig:"Estado de caída confirmada, presencia estática y movimiento",color:"#145A68"},
+  c4002:{arch:"radar",dim:[36,22,6],pkg:"Módulo radar mmWave Gravity",mount:"2× M2.5",pins:["VCC","GND","TX","RX"],pwr:"3.3–5 V · ~90 mA",sig:"Presencia + telemetría micro-Doppler procesada",color:"#181C24"},
+  ak5816:{arch:"radar",dim:[23,23,3.5],pkg:"Módulo BGA/SMD con antena 4×4 AiP",mount:"Soldadura SMD en placa de evaluación",pins:["VDD","GND","SPI/I2C","IRQ","RST"],pwr:"1.8 / 3.3 V · industrial",sig:"Nube de puntos 3D, postura y signos vitales (60 GHz)",color:"#164E3A"},
+  rcwl0516:{arch:"radar",dim:[36,17,3],pkg:"Placa con antena Doppler impresa en cobre",mount:"2× M2 en esquinas",pins:["3V3","GND","OUT","VIN (4-28V)","CDS"],pwr:"4–28 V · ~2.8 mA",sig:"Salida digital ALTA (3.3 V por ~2 s) al detectar movimiento",color:"#164E3A"},
+  pir:{arch:"pir",dim:[32,24,18],pkg:"Placa con domo Fresnel blanco + 2 potenciómetros",mount:"2× M2 (sep. 28 mm)",pins:["VCC (5V)","OUT","GND"],pwr:"4.5–12 V (o 3.3 V puenteando regulador) · ~65 µA",sig:"Pulso digital 3.3 V cuando un cuerpo cálido se mueve",color:"#164E3A"},
+  csi:{arch:"esp32",dim:[51,28,8],pkg:"Antena PCB integrada del propio ESP32",mount:"El mismo montaje de tu placa ESP32",pins:["Antena Wi-Fi 2.4 GHz interna"],pwr:"0 mA extra (usa el Wi-Fi activo del ESP32)",sig:"Matriz de amplitud y fase por subportadora OFDM (CSI)",color:"#181C24"},
+  mpu6050:{arch:"imu",dim:[21,16,3.3],pkg:"Placa GY-521 con ejes X/Y impresos",mount:"2× M3 (sep. 15.5 mm)",pins:["VCC","GND","SCL","SDA","XDA","XCL","AD0","INT"],pwr:"3.3–5 V · ~3.6 mA",sig:"Aceleración 3 ejes + giroscopio 3 ejes (16 bits por I2C)",color:"#184A78"},
+  bno085:{arch:"imu",dim:[25.4,17.8,4.6],pkg:"Breakout Qwiic / STEMMA QT de 9 ejes",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA","INT","RST","P0/P1"],pwr:"3.3–5 V · ~12 mA",sig:"Cuaterniones de orientación absoluta y vectores de gravedad listos",color:"#181C24"},
+  bno055:{arch:"imu",dim:[26,20,4.5],pkg:"Breakout IMU 9 ejes con procesador ARM",mount:"4× M2.5",pins:["VIN","3V3","GND","SDA","SCL","RST","INT","ADR"],pwr:"3.3–5 V · ~12.3 mA",sig:"Ángulos de Euler (Roll, Pitch, Yaw) y cuaterniones en grados",color:"#184A78"},
+  lsm6dsox:{arch:"imu",dim:[25.4,17.8,4.5],pkg:"Breakout Qwiic / STEMMA QT con núcleo ML",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA","INT1","INT2"],pwr:"3.3–5 V · ~0.55 mA",sig:"6 ejes + árbol de decisión ML interno en interrupción INT1",color:"#181C24"},
+  lsm6dsv16x:{arch:"imu",dim:[25.4,17.8,4.5],pkg:"Breakout Qwiic con entrada Qvar electrostática",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA","QVAR1","QVAR2","INT"],pwr:"3.3–5 V · ~0.65 mA",sig:"6 ejes + fusión SFLP + carga electrostática Qvar",color:"#8E1F2F"},
+  bmi270:{arch:"imu",dim:[25.4,17.8,4.2],pkg:"Breakout Qwiic ultra bajo consumo",mount:"2× M2.5",pins:["3V3","GND","SDA","SCL","INT1","INT2"],pwr:"3.3 V · ~0.68 mA (30 µA solo acelerómetro)",sig:"6 ejes + podómetro y gestos de muñeca por interrupción",color:"#8E1F2F"},
+  bmi323:{arch:"imu",dim:[27,20,4.5],pkg:"Módulo Gravity / Qwiic 6–10 ejes",mount:"2× M2.5",pins:["VCC","GND","SDA","SCL","INT1","INT2"],pwr:"3.3–5 V · ~0.7 mA",sig:"Aceleración y giroscopio de 16 bits con motor de eventos",color:"#181C24"},
+  lis3dh:{arch:"imu",dim:[20,18,4],pkg:"Breakout acelerómetro 3 ejes",mount:"2× M2.5",pins:["VIN","3V3","GND","SCL","SDA","SDO","CS","INT"],pwr:"3.3–5 V · ~2 µA a 11 µA",sig:"Aceleración X/Y/Z (±2g a ±16g) + detección de doble toque",color:"#184A78"},
+  qmc5883l:{arch:"imu",dim:[18,14,3.5],pkg:"Placa GY-271 brújula magnética",mount:"2× M2.5",pins:["VCC","GND","SCL","SDA","DRDY"],pwr:"3.3–5 V · ~2 mA",sig:"Campo magnético 3 ejes (±2 o ±8 Gauss) para rumbo de brújula",color:"#184A78"},
+  sw420:{arch:"hmi",dim:[32,14,7],pkg:"Cápsula cilíndrica azul de vibración + potenciómetro",mount:"1× M3 central",pins:["VCC","GND","DO"],pwr:"3.3–5 V · ~4 mA",sig:"Pulso digital cuando la vibración supera el umbral del potenciómetro",color:"#184A78"},
+  tilt:{arch:"hmi",dim:[32,14,6],pkg:"Ampolla cilíndrica con bola conductiva",mount:"1× M3 central",pins:["VCC","GND","DO"],pwr:"3.3–5 V · ~3 mA",sig:"Contacto abierto/cerrado según el ángulo de inclinación",color:"#164E3A"},
+  hcsr04:{arch:"ultrasonic",dim:[45,20,15],pkg:"Placa con 2 cilindros ultrasónicos (T y R)",mount:"4× M1.5 en esquinas (o soporte de 2 ojos Ø16 mm)",pins:["VCC","TRIG","ECHO","GND"],pwr:"5 V (o 3.3 V en versión HC-SR04P/RCWL-9610) · ~15 mA",sig:"Duración de pulso en ECHO (µs / 58 = distancia en cm)",color:"#184A78"},
+  vl53l0x:{arch:"optical",dim:[25,13,3.5],pkg:"Placa láser ToF 940 nm (hasta 2 m)",mount:"2× M2.5 (sep. 19 mm)",pins:["VIN","GND","SCL","SDA","GPIO1","XSHUT"],pwr:"3.3–5 V · ~19 mA activo",sig:"Distancia absoluta en milímetros por I2C",color:"#68236D"},
+  vl53l1x:{arch:"optical",dim:[25.4,17.8,4.2],pkg:"Placa láser ToF de largo alcance (4 m)",mount:"4× M2.5",pins:["VIN","GND","SCL","SDA","INT","XSHUT"],pwr:"3.3–5 V · ~16 mA",sig:"Distancia en mm hasta 4 m con región de interés (ROI) ajustable",color:"#181C24"},
+  vl53l5cx:{arch:"optical",dim:[25.4,17.8,4.5],pkg:"Láser ToF multizona 8×8 (64 zonas)",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA","LPn","INT","I2C_RST"],pwr:"3.3–5 V · ~85 mA activo",sig:"Matriz de 64 distancias simultáneas (8×8 píxeles de profundidad)",color:"#8E1F2F"},
+  tmf8806:{arch:"optical",dim:[25.4,17.8,4.5],pkg:"Breakout Qwiic dToF con histograma",mount:"4× M2.5",pins:["3V3","GND","SDA","SCL","EN","INT","GPIO"],pwr:"3.3 V · ~27 mA",sig:"Distancia submilimétrica + nivel de confianza hasta 5 m",color:"#8E1F2F"},
+  tfluna:{arch:"lidar",dim:[35,21.25,13.5],pkg:"Cuerpo óptico negro de doble lente",mount:"2× M2 laterales",pins:["5V","RXD/SDA","TXD/SCL","GND","CFG","INT"],pwr:"5 V DC · ~70 mA",sig:"Distancia en cm (100–250 Hz) + intensidad de señal (AMP)",color:"#181C24"},
+  ld19:{arch:"lidar",dim:[38,38,33],pkg:"Torreta LiDAR rotatoria de 360°",mount:"4× M2.5 en la base",pins:["5V","TX","PWM","GND"],pwr:"5 V DC · ~180 mA",sig:" Barrido polar 360° (4500 puntos/s con ángulo, distancia y reflectancia)",color:"#181C24"},
+  jsnsr04t:{arch:"probe",dim:[41,28.5,16],pkg:"Sonda ultrasónica impermeable (Ø22 mm) + placa",mount:"Agujero circular Ø22 mm con aro de goma + 4× M2.5 en placa",pins:["5V","TRIG/TX","ECHO/RX","GND"],pwr:"3.3–5 V · ~8 mA",sig:"Pulso ultrasónico o trama UART (20 cm a 4.5 m, resistente al agua)",color:"#184A78"},
+  tcrt5000:{arch:"hmi",dim:[32,14,8],pkg:"Pareja LED IR + fototransistor en cabezal negro",mount:"1× M3 central",pins:["VCC","GND","DO","AO"],pwr:"3.3–5 V · ~15 mA",sig:"Nivel analógico de reflectancia (línea blanca/negra) + umbral digital",color:"#184A78"},
+  esp32cam:{arch:"cam",dim:[40,27,12],pkg:"Placa ESP32-S con ranura microSD + cámara OV2640",mount:"Cabezales de 2×8 pines (paso 2.54 mm)",pins:["5V","GND","U0R","U0T","IO0","3V3","IO16","IO4"],pwr:"5 V estable (≥500 mA en picos Wi-Fi/Flash)",sig:"Streaming MJPEG / capturas JPEG hasta 1600×1200 + inferencia local",color:"#181C24"},
+  mlx90640:{arch:"to39",dim:[25.4,17.8,10],pkg:"Cápsula metálica térmica 32×24 en placa Qwiic",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA"],pwr:"3.3 V · ~23 mA",sig:"Mapa térmico de 768 píxeles (32×24 temperaturas en °C a 1–32 Hz)",color:"#181C24"},
+  amg8833:{arch:"optical",dim:[25.4,17.8,5.5],pkg:"Sensor Grid-EYE SMD metálico 8×8",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA","INT"],pwr:"3.3–5 V · ~4.5 mA",sig:"Matriz térmica de 64 píxeles (8×8 temperaturas a 10 Hz)",color:"#184A78"},
+  gvision:{arch:"cam",dim:[40,20,11],pkg:"Módulo procesador Himax WiseEye2 + conector cámara CSI",mount:"2× M2 + conector Grove",pins:["GND","VCC","SDA/RX","SCL/TX"],pwr:"3.3–5 V · ~45 mA",sig:"Cajas delimitadoras (personas, rostros, gestos) ya inferidas por I2C/UART",color:"#145A68"},
+  person:{arch:"cam",dim:[25,25,6],pkg:"Placa cuadrada con minilente frontal y conector Qwiic",mount:"2× M2.5 superiores",pins:["3V3","GND","SDA","SCL","INT"],pwr:"3.3 V · ~45 mA",sig:"Coordenadas de rostros, hacia dónde miran y reconocimiento de hasta 8 IDs",color:"#164E3A"},
+  ccs811:{arch:"chip",dim:[21,15,3.5],pkg:"Placa breakout I2C (óxidos metálicos MOX)",mount:"2× M2.5",pins:["VCC","GND","SCL","SDA","WAKE","INT","RST","ADD"],pwr:"3.3 V · ~26 mA (calentador MOX)",sig:"eCO₂ (400–8192 ppm) y TVOC (0–1187 ppb) por I2C",color:"#68236D"},
+  scd41:{arch:"air",dim:[25.4,25.4,6.8],pkg:"Cámara fotoacústica metálica (10×10×6.5 mm) en PCB",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA"],pwr:"3.3–5 V · ~18 mA promedio (15 mA a 5V)",sig:"CO₂ real (400–5000 ppm) + temperatura y humedad por I2C",color:"#181C24"},
+  scd43:{arch:"air",dim:[25.4,25.4,6.8],pkg:"Cámara fotoacústica de alta exactitud en PCB",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA"],pwr:"3.3–5 V · ~18 mA",sig:"CO₂ real fotoacústico de nueva generación + T/HR por I2C",color:"#8E1F2F"},
+  stcc4:{arch:"air",dim:[20,15,4],pkg:"Ultracompacto de conductividad térmica SMD (4×3×1.2 mm)",mount:"2× M2.5",pins:["VDD","GND","SDA","SCL"],pwr:"3.3 V · <1 mA",sig:"CO₂ en interiores + temperatura y humedad a muy bajo consumo",color:"#181C24"},
+  mhz19:{arch:"air",dim:[33,20,9],pkg:"Cámara óptica NDIR dorada con membrana blanca",mount:"Pines o pestañas laterales",pins:["Vin (5V)","GND","Tx","Rx","PWM","HD"],pwr:"4.5–5.5 V · ~40 mA promedio (150 mA pico)",sig:"CO₂ NDIR en ppm por UART (9600 bps) o ancho de pulso PWM",color:"#96600C"},
+  sen55:{arch:"air",dim:[52.3,43.3,22.3],pkg:"Caja blanca/metálica con microventilador y ranuras",mount:"2 pestañas de tornillo M3 + cable JST-GH 6 pines",pins:["VDD (5V)","GND","SDA","SCL","SEL","NC"],pwr:"5 V DC · ~63 mA (ventilador activo)",sig:"PM1.0, PM2.5, PM4, PM10, índice VOC, índice NOx, T y HR por I2C",color:"#145A68"},
+  sen66:{arch:"air",dim:[55,26,21],pkg:"Módulo todo-en-uno más compacto con CO₂ integrado",mount:"2× M2.5 + conector JST 6 pines",pins:["VDD","GND","SDA","SCL","SEL","NC"],pwr:"3.3 / 5 V · ~60 mA",sig:"PM1/2.5/4/10 + CO₂ real + VOC + NOx + Temperatura + Humedad",color:"#145A68"},
+  pms5003:{arch:"air",dim:[50,38,21],pkg:"Caja metálica azul/plateada con microventilador láser",mount:"4× M2 roscados en el chasis metálico",pins:["VCC (5V)","GND","SET","RX","TX","RST"],pwr:"5 V DC · ~100 mA (3.3 V en pines lógicos)",sig:"Conteo láser de partículas (PM1.0, PM2.5 y PM10 en µg/m³) por UART",color:"#184A78"},
+  bmv080:{arch:"optical",dim:[25.4,17.8,4.2],pkg:"Micro-sensor óptico de partículas sin ventilador",mount:"4× M2.5 (ventana completamente despejada)",pins:["3V3","GND","SDA","SCL","CS","INT"],pwr:"3.3 V · silencioso y ultracompacto",sig:"Concentración PM2.5 y PM10 sin partes móviles por I2C/SPI",color:"#8E1F2F"},
+  bme680:{arch:"chip",dim:[25.4,17.8,4],pkg:"Cápsula metálica LGA de 8 pines (3×3 mm) en breakout",mount:"4× M2.5",pins:["VIN","3V3","GND","SCK","SDO","SDI","CS"],pwr:"3.3–5 V · ~3.7 mA (con calentador de gas)",sig:"Temperatura, humedad, presión barométrica y resistencia de gas VOC (IAQ)",color:"#181C24"},
+  bme690:{arch:"chip",dim:[25.4,17.8,4],pkg:"Cápsula MEMS de gas con IA mejorada en breakout",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA","SDO","CS"],pwr:"3.3 V · bajo consumo",sig:"Perfiles térmicos multipaso de gas VOC/olores + T/HR/Presión",color:"#181C24"},
+  sgp41:{arch:"chip",dim:[25.4,17.8,4],pkg:"Chip DFN con membrana blanca anticontaminación",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA"],pwr:"3.3–5 V · ~3.5 mA",sig:"Índices algorítmicos VOC (1–500) y NOx (1–500) por I2C",color:"#181C24"},
+  ens160:{arch:"chip",dim:[25,20,4],pkg:"Breakout digital MOX de 4 placas calientes",mount:"2× M2.5",pins:["VIN","3V3","GND","SCL","SDA","INT","CS"],pwr:"3.3 V · ~24 mA",sig:"Índice AQI (1–5), TVOC (ppb) y eCO₂ (ppm) compensados",color:"#184A78"},
+  sfa30:{arch:"air",dim:[42,24,8.5],pkg:"Celda electroquímica de formaldehído en módulo",mount:"2× M2.5 + conector JST",pins:["VDD","GND","SDA/RX","SCL/TX","SEL"],pwr:"3.3–5 V · ~1 mA",sig:"Concentración de formaldehído (HCHO en ppb) + T y HR",color:"#145A68"},
+  mq:{arch:"mq",dim:[32,20,22],pkg:"Cilindro de malla de acero inoxidable (Ø19 mm) en PCB",mount:"1× M3 o 4× M2 en esquinas",pins:["VCC (5V)","GND","DO","AO"],pwr:"5 V DC · ~150 mA (calentador interno continuo)",sig:"Tensión analógica (requiere divisor a 3.3 V) + umbral digital DO",color:"#164E3A"},
+  geiger:{arch:"power",dim:[108,63,25],pkg:"Placa de alta tensión con tubo Geiger-Müller J305 (90 mm)",mount:"4× M3 en esquinas con separadores aislantes",pins:["5V","GND","VIN/PULSE"],pwr:"5 V DC · ~30 mA (genera 400 V internos para el tubo)",sig:"Un pulso digital negativo por cada partícula ionizante (CPM -> µSv/h)",color:"#8E1F2F"},
+  as3935:{arch:"chip",dim:[26,22,5],pkg:"Breakout con bobina inductora SMD para RF de 500 kHz",mount:"2× M2.5 (lejos de fuentes conmutadas y Wi-Fi)",pins:["VCC","GND","SCL","SDA","IRQ","CS","SI"],pwr:"3.3 V · ~60 µA en escucha",sig:"Interrupción IRQ + distancia estimada al frente de tormenta (1–40 km)",color:"#8E1F2F"},
+  dht22:{arch:"air",dim:[25,15,7.7],pkg:"Carcasa plástica blanca con rejilla frontal (o azul en DHT11)",mount:"1 pestaña superior M3 + placa de 3 pines",pins:["VCC","DATA","GND"],pwr:"3.3–5 V · ~1.5 mA al medir",sig:"Trama digital propia de 40 bits (humedad % y temperatura °C cada 2 s)",color:"#184A78"},
+  sht30:{arch:"probe",dim:[50,14,14],pkg:"Cabezal transpirable sinterizado/PE + cable de 1 m",mount:"Prensaestopas o brida en exterior / invernadero",pins:["Rojo (VCC)","Negro (GND)","Amarillo (SCL)","Verde (SDA)"],pwr:"2.4–5.5 V · ~0.8 mA",sig:"Temperatura (±0.2 °C) y humedad relativa (±2 %) por I2C (0x44)",color:"#145A68"},
+  sht45:{arch:"chip",dim:[25.4,17.8,4],pkg:"Breakout Qwiic / STEMMA QT con ventana de PTFE",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA"],pwr:"3.3–5 V · ~0.4 µA en reposo",sig:"Temperatura (±0.1 °C) y humedad (±1 %) con calentador anticondensación",color:"#181C24"},
+  bme280:{arch:"chip",dim:[15,12,3],pkg:"Mini-placa breakout con cápsula metálica de 2.5×2.5 mm",mount:"1× o 2× M2.5",pins:["VCC","GND","SCL","SDA","CSB","SDO"],pwr:"3.3 V · ~3.6 µA (a 1 Hz)",sig:"Temperatura, humedad relativa y presión atmosférica (hPa)",color:"#68236D"},
+  bmp581:{arch:"chip",dim:[25.4,17.8,4],pkg:"Breakout Qwiic barométrico de ultra precisión",mount:"4× M2.5",pins:["3V3","GND","SDA","SCL","INT","CS"],pwr:"3.3 V · ~1.3 µA",sig:"Presión barométrica de 24 bits (detecta cambios de ±5 cm de altura)",color:"#8E1F2F"},
+  ds18b20:{arch:"probe",dim:[50,6,6],pkg:"Vaina cilíndrica de acero inoxidable Ø6 × 50 mm + cable 1 m",mount:"Sumergible / prensaestopas PG7 / pozo térmico",pins:["Rojo (VCC)","Amarillo/Blanco (DATA)","Negro (GND)"],pwr:"3.0–5.5 V · ~1 mA activo (requiere pull-up 4.7 kΩ)",sig:"Temperatura digital 9–12 bits por bus 1-Wire (varias sondas en 1 pin)",color:"#181C24"},
+  max31855:{arch:"probe",dim:[28,20,12],pkg:"Placa amplificadora con bornera azul + sonda termopar K",mount:"2× M2.5 en placa + punta trenzada M6",pins:["VIN","3Vo","GND","DO (MISO)","CS","CLK"],pwr:"3.3–5 V · ~1.5 mA",sig:"Temperatura de -200 a +1350 °C en palabras SPI de 32 bits",color:"#184A78"},
+  meteo:{arch:"hmi",dim:[240,180,160],pkg:"Mástil con cazoletas de viento, veleta y cubeta de lluvia",mount:"Abrazadera metálica en tubo o mástil exterior",pins:["RJ11 Anemómetro","RJ11 Veleta (ADC)","RJ11 Pluviómetro"],pwr:"Pasivo (interruptores reed magnéticos + red de resistencias)",sig:"Pulsos por giro (viento y 0.28 mm de lluvia) + tensión analógica (dirección)",color:"#23272E"},
+  ldr:{arch:"hmi",dim:[32,14,6],pkg:"Disco fotosensible de sulfuro de cadmio (Ø5 mm) en módulo",mount:"1× M3 central",pins:["VCC","GND","DO","AO"],pwr:"3.3–5 V · <2 mA",sig:"Tensión analógica proporcional a la luz + salida digital con umbral",color:"#184A78"},
+  bh1750:{arch:"optical",dim:[21,14,3.5],pkg:"Placa GY-302 con domo difusor blanco o chip transparente",mount:"2× M2.5",pins:["VCC","GND","SCL","SDA","ADDR"],pwr:"3.3–5 V · ~0.12 mA",sig:"Iluminancia directa en lux (1–65535 lx) por I2C",color:"#184A78"},
+  veml7700:{arch:"optical",dim:[25.4,17.8,4],pkg:"Breakout Qwiic / STEMMA QT con fotodiodo lateral/superior",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA"],pwr:"3.3–5 V · ~2 µA a 45 µA",sig:"Luz ambiental calibrada de 0 a 120 000 lux (16 bits)",color:"#181C24"},
+  ltr390:{arch:"optical",dim:[25.4,17.8,4],pkg:"Breakout Qwiic con ventana óptica UV + visible",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA","INT"],pwr:"3.3–5 V · ~0.1 mA",sig:" Conteo UVA (300–350 nm) para índice UV + lux de luz ambiental",color:"#181C24"},
+  as7341:{arch:"optical",dim:[25.4,17.8,4.2],pkg:"Espectrómetro de 11 canales en placa Qwiic + LED blanco",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA","INT","GPIO"],pwr:"3.3–5 V · ~0.3 mA (sin LED)",sig:"8 bandas del espectro visible (415–680 nm) + NIR + Clear + Flicker",color:"#181C24"},
+  tcs3448:{arch:"optical",dim:[25.4,17.8,4.2],pkg:"Espectrómetro multiespectral de 14 canales en Qwiic",mount:"4× M2.5",pins:["3V3","GND","SDA","SCL","INT","GPIO"],pwr:"3.3 V · ~0.5 mA",sig:"14 canales espectrales desde 380 nm hasta 1000 nm por I2C",color:"#8E1F2F"},
+  tcs34725:{arch:"optical",dim:[21,21,4],pkg:"Placa con filtro IR sobre sensor RGBC + LED neutro de iluminación",mount:"2× M2.5",pins:["VIN","3V3","GND","SCL","SDA","INT","LED"],pwr:"3.3–5 V · ~0.24 mA (más LED si se activa)",sig:"Canales Rojo, Verde, Azul y Claro (16 bits) + temperatura de color (K)",color:"#184A78"},
+  as7331:{arch:"optical",dim:[25.4,17.8,4],pkg:"Breakout Qwiic con fotodiodos UVA, UVB y UVC",mount:"4× M2.5",pins:["3V3","GND","SDA","SCL","INT","SYN"],pwr:"3.3 V · ~1.4 mA activo",sig:"Irradiancia separada en UVA, UVB y UVC con conversión de 24 bits",color:"#8E1F2F"},
+  flama:{arch:"hmi",dim:[32,14,7],pkg:"Fotodiodo negro receptor de 760–1100 nm en el borde de la PCB",mount:"1× M3 central",pins:["VCC","GND","DO","AO"],pwr:"3.3–5 V · ~3 mA",sig:"Caída de tensión analógica al ver radiación infrarroja de fuego + DO",color:"#184A78"},
+  hx711:{arch:"load",dim:[80,12.7,12.7],pkg:"Barra de aluminio (80×13×13 mm) + placa conversora HX711 (34×21 mm)",mount:"2× M4/M5 en cada extremo de la barra (en voladizo)",pins:["E+","E-","A-","A+","VCC","SCK","DT","GND"],pwr:"3.3–5 V · ~1.5 mA",sig:"Palabras serie de 24 bits proporcionales a la deformación en gramos/kg",color:"#164E3A"},
+  nau7802:{arch:"chip",dim:[25.4,23,6],pkg:"Breakout Qwiic con bornera de resorte para los 4 cables de la celda",mount:"4× M2.5",pins:["VIN","3V3","GND","SCL","SDA","E+","E-","A-","A+"],pwr:"3.3 V · ~2 mA",sig:"Lectura de puente de Wheatstone en 24 bits directamente por I2C (0x2A)",color:"#181C24"},
+  fsr:{arch:"load",dim:[60,19,0.5],pkg:"Película polimérica ultradelgada con cabezal redondo activo Ø14.7 mm",mount:"Adhesivo posterior 3M sobre superficie plana",pins:["PIN1","PIN2 (con divisor 10 kΩ)"],pwr:"3.3 V · <0.5 mA",sig:"Resistencia que cae de >1 MΩ (sin tocar) a ~200 Ω (fuerte presión)",color:"#23272E"},
+  flex:{arch:"load",dim:[75,6.3,0.5],pkg:"Tira flexible de poliamida con pista de carbono sensible al doblado",mount:"Dentro de un guante o articulación (sin doblar la base de los pines)",pins:["PIN1","PIN2 (con divisor 22 kΩ)"],pwr:"3.3 V · <0.3 mA",sig:"Resistencia que sube de ~10 kΩ (recto) a ~20–40 kΩ (doblado a 90°)",color:"#96600C"},
+  velostat:{arch:"load",dim:[100,100,0.1],pkg:"Hoja negra polimérica conductiva recortable con tijera",mount:"En sándwich entre dos cintas de cobre adhesivo",pins:["Cobre superior (3.3V)","Cobre inferior (ADC + pull-down)"],pwr:"3.3 V · <1 mA",sig:"Cambio de resistencia por presión en alfombras o plantillas a medida",color:"#23272E"},
+  piezo:{arch:"load",dim:[27,27,0.4],pkg:"Disco circular de latón (Ø27 mm) con centro cerámico blanco",mount:"Pegado o sujeto por el borde a la superficie que vibra",pins:["Cable rojo (centro)","Cable negro (latón) + 1 MΩ en paralelo"],pwr:"0 mA (genera su propio pico de voltaje al golpearse)",sig:"Pulso analógico de tensión proporcional a la fuerza del impacto",color:"#96600C"},
+  mprls:{arch:"to39",dim:[25.4,17.8,11],pkg:"Breakout Qwiic con boquilla metálica vertical (Ø2.5 mm) para tubo",mount:"4× M2.5 + manguera de silicona",pins:["VIN","3V3","GND","SCL","SDA","RST","EOC"],pwr:"3.3–5 V · ~1.7 mA al medir",sig:"Presión absoluta de 0 a 25 PSI (0–1720 hPa) en 24 bits por I2C",color:"#181C24"},
+  suelo:{arch:"soil",dim:[98,23,4],pkg:"Espada de PCB alargada con pistas capacitivas selladas",mount:"Clavada en el sustrato hasta la línea blanca (electrónica fuera)",pins:["VCC (3.3-5V)","GND","AOUT"],pwr:"3.3–5 V · ~5 mA",sig:"Tensión analógica (de ~2.8 V en seco a ~1.2 V en agua)",color:"#181C24"},
+  ph:{arch:"probe",dim:[42,32,20],pkg:"Electrodo cilíndrico (Ø12×150 mm) con conector BNC + placa Gravity/EZO",mount:"Prensaestopas PG13.5 en tapa del tanque DWC + 4× M3 para la placa",pins:["V+","GND","Po (Analógico) / SDA-SCL (EZO)"],pwr:"3.3–5 V · ~10 mA",sig:"Tensión analógica o valor digital de pH (0–14, resolución ±0.01–0.1)",color:"#181C24"},
+  tds:{arch:"probe",dim:[42,32,12],pkg:"Sonda impermeable de 2 agujas de titanio/inox + placa Gravity",mount:"Sumergida en el depósito + conector XH2.54 a placa",pins:["VCC (3.3-5V)","GND","AOUT"],pwr:"3.3–5 V · ~3 a 6 mA (excitación AC para no polarizar el agua)",sig:"Tensión analógica de 0 a 2.3 V proporcional a ppm de TDS / EC",color:"#181C24"},
+  do:{arch:"probe",dim:[42,32,20],pkg:"Sonda galvánica con membrana permeable y electrolito + placa BNC",mount:"Sumergida en solución nutritiva aireada + 4× M3 para la placa",pins:["VCC (3.3-5V)","GND","AOUT"],pwr:"3.3–5 V · ~2 mA",sig:"Tensión analógica (0–3.0 V) proporcional a mg/L de oxígeno disuelto",color:"#181C24"},
+  turbidez:{arch:"soil",dim:[38,28,20],pkg:"Horquilla óptica en U (canal de 12 mm de paso) + placa adaptadora",mount:"Flujo o inmersión hasta el cuello de la horquilla",pins:["VCC (5V)","GND","AO","DO"],pwr:"5 V DC · ~30 mA",sig:"Tensión analógica que baja conforme el agua se vuelve más turbia",color:"#184A78"},
+  nivel:{arch:"soil",dim:[62,20,3],pkg:"Placa roja/azul con 10 trazas paralelas expuestas",mount:"2× M3 superiores",pins:["S (Señal)","+ (VCC)","- (GND)"],pwr:"3.3–5 V · <20 mA (alimentar desde un GPIO solo al leer)",sig:"Tensión analógica según la altura del agua que puentea las pistas",color:"#8E1F2F"},
+  xkc:{arch:"soil",dim:[29,29,13],pkg:"Pastilla cilíndrica amarilla/negra (Ø29 mm) que va por fuera del tanque",mount:"Cinta adhesiva 3M o soporte plástico contra la pared exterior",pins:["Marrón (VCC 5-24V)","Amarillo (OUT)","Negro (GND)","Azul (MODE)"],pwr:"5–12 V · ~5 mA",sig:"Nivel digital ALTO/BAJO cuando el agua llega a la altura del disco",color:"#96600C"},
+  yfs201:{arch:"soil",dim:[58,36,34],pkg:"Cuerpo tubular negro con rosca de plomería G1/2\" y turbina interna",mount:"Roscado en línea en manguera o tubería de 1/2 pulgada",pins:["Rojo (5V)","Negro (GND)","Amarillo (PULSOS)"],pwr:"5 V DC · ~15 mA",sig:"Tren de pulsos Hall (~450 pulsos por cada litro de agua que pasa)",color:"#23272E"},
+  ms5837:{arch:"to39",dim:[16,12,5],pkg:"Cápsula cerámica/metálica con gel blanco impermeable y junta tórica",mount:"Alojamiento cilíndrico con O-ring en carcasa submarina",pins:["VDD (3.3V)","GND","SCL","SDA"],pwr:"3.3 V · ~0.6 µA a 1.2 mA",sig:"Presión hidrostática de 24 bits (0–30 bar, resolución de 2 mm de agua)",color:"#184A78"},
+  rs485:{arch:"probe",dim:[135,45,15],pkg:"Sonda industrial negra con 3 agujas de acero de 70 mm y cable blindado",mount:"Enterrada en zona radicular o sustrato",pins:["Marrón (12-24V)","Negro (GND)","Amarillo (RS485-A)","Azul (RS485-B)"],pwr:"5–24 V DC + conversor MAX485 hacia el ESP32",sig:"Registros Modbus RTU con humedad, temperatura, EC y NPK",color:"#23272E"},
+  inmp441:{arch:"hmi",dim:[14,14,2.5],pkg:"Placa circular negra (Ø14 mm) con orificio acústico inferior MEMS",mount:"Pegada contra la tapa con junta de espuma en el agujero de sonido",pins:["VDD (3.3V)","GND","SD","WS","SCK","L/R"],pwr:"3.3 V · ~1.4 mA",sig:"Flujo de audio digital I2S de 24 bits directo a memoria (DMA)",color:"#181C24"},
+  mic:{arch:"hmi",dim:[36,16,12],pkg:"Cápsula cilíndrica de micrófono electret (Ø9.7 mm) en PCB",mount:"1× M3 (o 2× M2 en MAX9814)",pins:["VCC","GND","OUT","GAIN (en MAX9814)"],pwr:"3.3–5 V · ~3 mA",sig:"Onda de audio analógica centrada en 1.25 V / 1.65 V para el ADC",color:"#8E1F2F"},
+  ina219:{arch:"chip",dim:[25.5,22.3,11],pkg:"Breakout con resistencia shunt SMD R100 (0.1 Ω) y bornera de 2 tornillos",mount:"2× M2.5",pins:["VCC","GND","SCL","SDA","VIN+","VIN-"],pwr:"3.3–5 V · ~0.7 mA",sig:"Voltaje de bus (0–26 V), caída en shunt, corriente (mA) y potencia (mW)",color:"#184A78"},
+  ina226:{arch:"chip",dim:[20.5,19.5,3.5],pkg:"Breakout con shunt de potencia y alerta programable",mount:"2× M2.5",pins:["V+","GND","SCL","SDA","ALE","VBUS","IN+","IN-"],pwr:"3.3–5 V · ~0.33 mA",sig:"Voltaje (hasta 36 V), corriente bidireccional y potencia en 16/20 bits",color:"#8E1F2F"},
+  acs712:{arch:"power",dim:[31,13,12],pkg:"Placa con bornera azul de 2 tornillos para el cable de potencia",mount:"2× M2",pins:["VCC (5V)","OUT","GND","IP+","IP-"],pwr:"5 V DC · ~10 mA",sig:"Tensión analógica centrada en VCC/2 (66 a 185 mV por cada amperio)",color:"#184A78"},
+  pzem:{arch:"power",dim:[78,37,19],pkg:"Caja translúcida con bornera AC de 4 tornillos + transformador toroidal",mount:"Dentro de cuadro eléctrico aislado",pins:["5V","RX","TX","GND (lado aislado)","L","N","CT+","CT- (lado 230V)"],pwr:"3.3–5 V en el lado optoaislado · alimentado por los 230 V AC en medida",sig:"Voltaje AC, corriente, potencia activa (W), factor de potencia, Hz y kWh",color:"#145A68"},
+  sct013:{arch:"power",dim:[57,32,22],pkg:"Pinza toroidal azul de núcleo de ferrita abrible + cable con jack 3.5 mm",mount:"Se abre y abraza un solo conductor (fase o neutro) sin pelarlo",pins:["Punta Jack (K / S1)","Anillo/Base Jack (L / S2)"],pwr:"Pasivo (requiere divisor de tensión a 1.65 V y resistor de carga si es salida en mA)",sig:"Onda senoidal proporcional a la corriente AC (0–1 V RMS en SCT-013-030)",color:"#184A78"},
+  max17048:{arch:"chip",dim:[25.4,17.8,7],pkg:"Breakout Qwiic con conector JST-PH de 2 pines para batería LiPo",mount:"2× M2.5",pins:["VIN","GND","SCL","SDA","ALRT","JST LiPo"],pwr:"Alimentado por la propia celda LiPo · ~23 µA",sig:"Voltaje de celda (V), porcentaje de carga (%) y tasa de descarga (%/h)",color:"#181C24"},
+  ads1115:{arch:"chip",dim:[28,17,3.3],pkg:"Placa ADC de 16 bits con 4 entradas analógicas y amplificador PGA",mount:"2× M2.5",pins:["VDD","GND","SCL","SDA","ADDR","ALRT","A0","A1","A2","A3"],pwr:"2.0–5.5 V · ~0.15 mA",sig:"4 canales simples (o 2 diferenciales) de 16 bits reales por I2C",color:"#184A78"},
+  apds9960:{arch:"optical",dim:[20,15.3,3.5],pkg:"Mini-placa con módulo óptico de 4 fotodiodos direccionales y LED IR",mount:"2× M2",pins:["VL","GND","VCC","SDA","SCL","INT"],pwr:"3.3 V · ~0.2 mA",sig:"Dirección de gesto (arriba/abajo/izq/der), proximidad y color RGBC",color:"#68236D"},
+  touch:{arch:"esp32",dim:[51,28,8],pkg:"Pines GPIO táctiles del propio ESP32 + parche de cobre o cable",mount:"Cualquier superficie conductiva conectada a un pin Touch",pins:["T0 (GPIO4)","T3 (GPIO15)","T4 (GPIO13)","T5 (GPIO12)","T6 (GPIO14)","T7 (GPIO27)","T8 (GPIO33)","T9 (GPIO32)"],pwr:"0 mA extra (periférico interno del ESP32, funciona en deep sleep)",sig:"Conteo de carga/descarga capacitiva que baja al acercar el dedo",color:"#181C24"},
+  ttp223:{arch:"hmi",dim:[15,11,3],pkg:"Mini-placa roja/azul con círculo táctil impreso en una cara",mount:"Pegada por detrás de plástico o acrílico de hasta 3 mm",pins:["VCC","I/O","GND"],pwr:"2.0–5.5 V · ~1.5 µA en bajo consumo",sig:"Salida digital ALTA (o modo interruptor con puente A/B) al tocar",color:"#8E1F2F"},
+  mpr121:{arch:"chip",dim:[33,19,4],pkg:"Placa con 12 almohadillas/pines de entrada capacitiva + I2C",mount:"4× M2.5",pins:["VIN","3Vo","GND","ADDR","SDA","SCL","IRQ","E0..E11"],pwr:"3.3–5 V · ~29 µA",sig:"Mascara de 12 bits de electrodos tocados + valores crudos de capacidad",color:"#181C24"},
+  paj7620:{arch:"optical",dim:[20,20,5],pkg:"Módulo óptico de cámara IR integrada de baja resolución para gestos",mount:"2× M2",pins:["VCC","GND","SCL","SDA","INT"],pwr:"3.3 V · ~2.8 mA",sig:"Código de 9 gestos (giros, empujar, tirar, saludar) a hasta 240 Hz",color:"#145A68"},
+  joystick:{arch:"hmi",dim:[40,26,32],pkg:"Domo ergonómico de pulgar sobre 2 potenciómetros y botón central",mount:"4× M3 en esquinas (sep. 33×20 mm)",pins:["GND","+5V (usar 3.3V)","VRx","VRy","SW"],pwr:"3.3 V · ~1 mA",sig:"Dos tensiones analógicas X/Y (centradas en ~1.65 V) + botón digital SW",color:"#181C24"},
+  ky040:{arch:"hmi",dim:[31,19,29],pkg:"Eje metálico estriado de giro infinito (Ø6 mm) con tuerca de panel",mount:"Tuerca M7 en agujero de carcasa + 2× M3 en PCB",pins:["CLK","DT","SW","+ (3.3V)","GND"],pwr:"3.3–5 V · <2 mA",sig:"Pulsos en cuadratura desfasados 90° (CLK/DT) + pulsador al presionar",color:"#181C24"},
+  irrx:{arch:"hmi",dim:[22,11,8],pkg:"Cápsula negra hemisférica de 3 patas con jaula metálica (38 kHz)",mount:"1× M3",pins:["OUT (S)","VCC (+)","GND (-)"],pwr:"2.7–5.5 V · ~0.4 mA",sig:"Tren de pulsos demodulados (protocolos NEC, Sony, RC5) al recibir IR",color:"#8E1F2F"},
+  as5600:{arch:"chip",dim:[23,23,3.5],pkg:"Placa cuadrada con chip Hall en el centro + imán diametral Ø6 mm",mount:"4× M2.5 centrando el chip a 1–2 mm del imán en el eje que gira",pins:["VCC","GND","OUT","DIR","SCL","SDA","GPO"],pwr:"3.3–5 V · ~1.5 a 6.5 mA",sig:"Ángulo absoluto de 0° a 360° en 12 bits (4096 pasos por vuelta) por I2C",color:"#181C24"},
+  pmw3901:{arch:"optical",dim:[28,15,6],pkg:"Lente óptica de flujo inferior en encapsulado negro sobre PCB",mount:"2× M2 mirando al suelo con despeje libre",pins:["3V3","GND","CS","SCK","MOSI","MISO","INT"],pwr:"3.3 V · ~9 mA",sig:"Incrementos de desplazamiento horizontal (ΔX, ΔY) por SPI",color:"#181C24"},
+  gps:{arch:"hmi",dim:[28,28,8.5],pkg:"Placa con antena cerámica cuadrada color arena (25×25×4 mm)",mount:"4× M2.5 con la cara cerámica mirando hacia el cielo",pins:["VCC","RX","TX","GND","PPS","SDA","SCL"],pwr:"3.3–5 V · ~25 mA (NEO-M8N) / ~8 mA (MAX-M10S)",sig:"Sentencias NMEA / tramas UBX con latitud, longitud, altitud, UTC y PPS",color:"#184A78"},
+  dw3000:{arch:"radar",dim:[36,24,4.5],pkg:"Módulo RF DWM3000 con antena cerámica plana UWB (6.5 / 8 GHz)",mount:"2× M2.5 manteniendo despejada la mitad superior de la antena",pins:["3V3","GND","SCK","MISO","MOSI","CS","IRQ","RST"],pwr:"3.3 V · ~40 mA en recepción/transmisión",sig:"Marcas de tiempo de picosegundos (ToF bidireccional → distancia ±10 cm)",color:"#164E3A"},
+  ble:{arch:"esp32",dim:[51,28,8],pkg:"Radio Bluetooth Low Energy 2.4 GHz integrada en el ESP32",mount:"El mismo montaje de tu placa ESP32",pins:["Antena PCB 2.4 GHz interna"],pwr:"Compartido con el radio del ESP32",sig:"Dirección MAC, paquetes de anuncio (iBeacon / BTHome) e intensidad RSSI (dBm)",color:"#181C24"},
+  hall:{arch:"hmi",dim:[28,15,4],pkg:"Encapsulado negro de 3 patas (TO-92 / SMD) en el extremo de la PCB",mount:"1× M3 alineado con el paso del imán",pins:["VCC","GND","DO (o AO)"],pwr:"3.3–5 V · ~4 mA",sig:"Conmutación digital limpia cada vez que se acerca el polo del imán",color:"#164E3A"},
+  rc522:{arch:"hmi",dim:[60,39,4.5],pkg:"Placa azul con bobina de antena rectangular impresa en los bordes",mount:"4× M2.5 (funciona detrás de plástico no metálico)",pins:["SDA (CS)","SCK","MOSI","MISO","IRQ","GND","RST","3.3V"],pwr:"3.3 V estricto · ~13 a 26 mA",sig:"UID único y bloques de memoria de tarjetas/llaveros MIFARE 13.56 MHz",color:"#184A78"},
+  pn532:{arch:"hmi",dim:[43,41,5],pkg:"Placa cuadrada roja con antena espiral en el borde y microinterruptor DIP",mount:"4× M2.5",pins:["GND","VCC","SDA/TX","SCL/RX","SCK","MISO","MOSI","SS"],pwr:"3.3–5 V · ~60 mA al leer",sig:"Lectura/escritura de etiquetas NTAG, MIFARE y emulación NFC con teléfonos",color:"#8E1F2F"},
+  r503:{arch:"hmi",dim:[25,25,21],pkg:"Cilindro metálico roscado (Ø19/22 mm) con anillo LED RGB y cristal táctil",mount:"Agujero circular Ø19 mm en puerta o caja con tuerca trasera M19",pins:["VCC (3.3V)","GND","TX","RX","WAKEUP","3.3V_TOUCH"],pwr:"3.3 V · ~30 mA (anillo y sensor activos)",sig:"ID de huella coincidente (1–200), nivel de confianza y control del LED por UART",color:"#23272E"},
+  gm65:{arch:"cam",dim:[46,27,15],pkg:"Bloque óptico rectangular con cámara central y LED blanco de iluminación",mount:"2× M2 tras ventana transparente",pins:["VCC (5V)","GND","TX","RX","USB_D-","USB_D+"],pwr:"5 V DC · ~120 mA al iluminar",sig:"Cadena de texto ASCII del código QR o de barras leído directamente por UART",color:"#23272E"}
+};
+
+function physOf(s){
+  if (PHYS[s.id]) return PHYS[s.id];
+  const isI2C = s.b.includes("I2C");
+  return {
+    arch: s.f === "radar" ? "radar" : s.f === "luz" ? "optical" : s.f === "agua" ? "probe" : "chip",
+    dim: [25.4, 17.8, 4.2],
+    pkg: "Placa breakout estándar",
+    mount: "2× o 4× M2.5",
+    pins: isI2C ? ["VIN","3V3","GND","SCL","SDA"] : ["VCC","GND", ...(s.b.length ? s.b : ["IO"])],
+    pwr: "3.3–5 V · ver hoja de datos",
+    sig: s.n,
+    color: "#184A78"
+  };
+}
+function dimStr(p){
+  const [l, w, h] = p.dim;
+  return `${l}×${w}×${h} mm`;
+}
+
+function topFeature3D(s, p){
+  const a = p.arch;
+  if (a === "optical") {
+    return `<g>
+      <polygon points="130,52 154,64 130,76 106,64" fill="#181A1F" stroke="#5A6572" stroke-width="1"/>
+      <polygon points="106,64 130,76 130,83 106,71" fill="#0D0F12"/>
+      <polygon points="154,64 130,76 130,83 154,71" fill="#232830"/>
+      <ellipse cx="123" cy="63" rx="6" ry="3.6" fill="#32D7A0" opacity=".88"/>
+      <ellipse cx="137" cy="65" rx="5.5" ry="3.3" fill="#FF5E6C" opacity=".85"/>
+      <polygon points="116,62 96,18 164,18 144,64" fill="url(#beam-${s.id})" opacity=".36"/>
+    </g>`;
+  }
+  if (a === "imu") {
+    return `<g>
+      <polygon points="130,54 148,63 130,72 112,63" fill="#171B20" stroke="#4D5761" stroke-width="1"/>
+      <polygon points="112,63 130,72 130,77 112,68" fill="#0C0E11"/>
+      <polygon points="148,63 130,72 130,77 148,68" fill="#252B33"/>
+      <circle cx="123" cy="63" r="1.6" fill="#E5B25A"/>
+      <g stroke-width="1.8" stroke-linecap="round">
+        <line x1="130" y1="62" x2="162" y2="46" stroke="#FF6464"/>
+        <line x1="130" y1="62" x2="98" y2="46" stroke="#43D39E"/>
+        <line x1="130" y1="62" x2="130" y2="25" stroke="#5AA9FF"/>
+      </g>
+      <text x="165" y="47" font-size="8" font-family="monospace" fill="#FF6464" font-weight="bold">+X</text>
+      <text x="85" y="47" font-size="8" font-family="monospace" fill="#43D39E" font-weight="bold">+Y</text>
+      <text x="134" y="29" font-size="8" font-family="monospace" fill="#5AA9FF" font-weight="bold">+Z</text>
+    </g>`;
+  }
+  if (a === "to39") {
+    return `<g>
+      <ellipse cx="130" cy="70" rx="20" ry="11" fill="#7D8894" stroke="#48525C"/>
+      <path d="M113,68 L113,44 A17,9.5 0 0,0 147,44 L147,68 A17,9.5 0 0,1 113,68 Z" fill="url(#metal-${s.id})" stroke="#54606B"/>
+      <ellipse cx="130" cy="44" rx="17" ry="9.5" fill="#B8C2CC" stroke="#54606B"/>
+      <ellipse cx="130" cy="44" rx="10.5" ry="5.8" fill="#1C2833" stroke="#E5B25A" stroke-width="1"/>
+      <ellipse cx="127" cy="42.5" rx="3.5" ry="1.8" fill="#66CCAD" opacity=".55"/>
+    </g>`;
+  }
+  if (a === "radar") {
+    return `<g>
+      <g fill="#E5B25A" stroke="#96600C" stroke-width=".6">
+        <polygon points="104,58 114,63 106,67 96,62"/><polygon points="118,51 128,56 120,60 110,55"/>
+        <polygon points="132,44 142,49 134,53 124,48"/><polygon points="116,65 126,70 118,74 108,69"/>
+        <polygon points="130,58 140,63 132,67 122,62"/><polygon points="144,51 154,56 146,60 136,55"/>
+      </g>
+      <polygon points="144,67 160,75 148,81 132,73" fill="#B5BFC8" stroke="#5A6670"/>
+      <path d="M112,35 Q130,22 148,35" fill="none" stroke="#66CCAD" stroke-width="1.6" stroke-dasharray="3 2"/>
+      <path d="M102,26 Q130,10 158,26" fill="none" stroke="#66CCAD" stroke-width="1.3" opacity=".65" stroke-dasharray="3 2"/>
+    </g>`;
+  }
+  if (a === "pir") {
+    return `<g>
+      <ellipse cx="130" cy="68" rx="30" ry="16" fill="#DCE3DF" stroke="#8C9B93"/>
+      <path d="M102,67 C102,30 158,30 158,67 Z" fill="#F7FAF8" stroke="#9AA8A1" stroke-width="1.2"/>
+      <path d="M112,56 L130,47 L148,56 M106,65 L130,56 L154,65 M130,39 L130,68" fill="none" stroke="#B7C4BE" stroke-width=".9"/>
+      <rect x="86" y="72" width="8" height="7" rx="1" fill="#E07A2E" stroke="#7A3E10"/>
+      <rect x="97" y="77" width="8" height="7" rx="1" fill="#E07A2E" stroke="#7A3E10"/>
+    </g>`;
+  }
+  if (a === "ultrasonic") {
+    return `<g>
+      <ellipse cx="110" cy="68" rx="17" ry="9.5" fill="#8C96A0"/>
+      <path d="M93,68 L93,45 A17,9.5 0 0,0 127,45 L127,68 A17,9.5 0 0,1 93,68 Z" fill="url(#metal-${s.id})" stroke="#58636E"/>
+      <ellipse cx="110" cy="45" rx="17" ry="9.5" fill="#CFD7DF" stroke="#58636E"/>
+      <ellipse cx="110" cy="45" rx="12" ry="6.5" fill="#252C33"/>
+      <ellipse cx="150" cy="68" rx="17" ry="9.5" fill="#8C96A0"/>
+      <path d="M133,68 L133,45 A17,9.5 0 0,0 167,45 L167,68 A17,9.5 0 0,1 133,68 Z" fill="url(#metal-${s.id})" stroke="#58636E"/>
+      <ellipse cx="150" cy="45" rx="17" ry="9.5" fill="#CFD7DF" stroke="#58636E"/>
+      <ellipse cx="150" cy="45" rx="12" ry="6.5" fill="#252C33"/>
+    </g>`;
+  }
+  if (a === "lidar") {
+    return `<g>
+      <ellipse cx="130" cy="70" rx="28" ry="15" fill="#1A2026" stroke="#45505B"/>
+      <path d="M104,66 L104,40 A26,14 0 0,0 156,40 L156,66 A26,14 0 0,1 104,66 Z" fill="#232B33" stroke="#52606E"/>
+      <ellipse cx="130" cy="40" rx="26" ry="14" fill="#2E3842" stroke="#66CCAD" stroke-width="1.2"/>
+      <ellipse cx="120" cy="54" rx="6" ry="4" fill="#0E5C4C" stroke="#66CCAD"/>
+      <ellipse cx="141" cy="54" rx="6" ry="4" fill="#0E5C4C" stroke="#E5B25A"/>
+    </g>`;
+  }
+  if (a === "probe") {
+    return `<g>
+      <path d="M148,68 C178,52 184,88 206,66" fill="none" stroke="#2D353C" stroke-width="4" stroke-linecap="round"/>
+      <g transform="translate(194,28) rotate(25)">
+        <rect x="0" y="0" width="13" height="46" rx="6.5" fill="url(#metal-${s.id})" stroke="#4D5863"/>
+        <rect x="0" y="0" width="13" height="12" rx="3" fill="#22282E"/>
+      </g>
+      <polygon points="112,56 134,67 118,75 96,64" fill="#22282E" stroke="#606D78"/>
+      <circle cx="138" cy="62" r="5.5" fill="#D5B05A" stroke="#7A5A12"/>
+    </g>`;
+  }
+  if (a === "air") {
+    return `<g>
+      <polygon points="130,36 172,57 130,78 88,57" fill="#E3E8E5" stroke="#7B8B83" stroke-width="1.2"/>
+      <polygon points="88,57 130,78 130,94 88,73" fill="#B8C3BE" stroke="#7B8B83"/>
+      <polygon points="172,57 130,78 130,94 172,73" fill="#CBD4D0" stroke="#7B8B83"/>
+      <ellipse cx="118" cy="56" rx="11" ry="6" fill="#242E2A" stroke="#6D7D75"/>
+      <ellipse cx="144" cy="58" rx="9" ry="5" fill="#FFFFFF" stroke="#95A59D"/>
+    </g>`;
+  }
+  if (a === "mq") {
+    return `<g>
+      <ellipse cx="130" cy="70" rx="20" ry="11" fill="#1F2428"/>
+      <path d="M112,68 L112,38 A18,10 0 0,0 148,38 L148,68 A18,10 0 0,1 112,68 Z" fill="url(#metal-${s.id})" stroke="#545F69" stroke-width="1.2"/>
+      <ellipse cx="130" cy="38" rx="18" ry="10" fill="#C7D0D8" stroke="#545F69"/>
+      <path d="M116,38 L144,38 M130,29 L130,47 M118,33 L142,43 M142,33 L118,43" stroke="#6D7882" stroke-width=".8"/>
+    </g>`;
+  }
+  if (a === "bio") {
+    return `<g>
+      <polygon points="122,55 142,65 128,72 108,62" fill="#1E242B" stroke="#5C6773"/>
+      <path d="M145,62 C170,45 182,42 198,38" fill="none" stroke="#E04F4F" stroke-width="2.2"/>
+      <path d="M148,66 C175,60 188,60 205,58" fill="none" stroke="#E5B25A" stroke-width="2.2"/>
+      <path d="M144,70 C170,76 184,78 198,78" fill="none" stroke="#37B87C" stroke-width="2.2"/>
+      <ellipse cx="201" cy="38" rx="8" ry="5" fill="#F2F6F4" stroke="#8C9B93"/><circle cx="201" cy="38" r="3" fill="#E04F4F"/>
+      <ellipse cx="207" cy="58" rx="8" ry="5" fill="#F2F6F4" stroke="#8C9B93"/><circle cx="207" cy="58" r="3" fill="#E5B25A"/>
+      <ellipse cx="201" cy="78" rx="8" ry="5" fill="#F2F6F4" stroke="#8C9B93"/><circle cx="201" cy="78" r="3" fill="#37B87C"/>
+    </g>`;
+  }
+  if (a === "cam") {
+    return `<g>
+      <polygon points="116,48 148,64 128,74 96,58" fill="#C5CED6" stroke="#68747E"/>
+      <ellipse cx="144" cy="62" rx="14" ry="8" fill="#161A1E" stroke="#54606B"/>
+      <path d="M132,61 L132,45 A12,7 0 0,0 156,45 L156,61 Z" fill="#1F252B" stroke="#54606B"/>
+      <ellipse cx="144" cy="45" rx="12" ry="7" fill="#2A333C" stroke="#66CCAD"/>
+      <ellipse cx="144" cy="45" rx="6.5" ry="3.8" fill="#0E5C4C"/>
+      <circle cx="142" cy="44" r="1.8" fill="#9EEAD2"/>
+    </g>`;
+  }
+  if (a === "load") {
+    return `<g>
+      <polygon points="78,52 168,36 182,44 92,60" fill="#D5DDE3" stroke="#66737E"/>
+      <polygon points="92,60 182,44 182,58 92,74" fill="#AAB6C0" stroke="#66737E"/>
+      <polygon points="78,52 92,60 92,74 78,66" fill="#909CA6" stroke="#66737E"/>
+      <circle cx="126" cy="55" r="4.2" fill="var(--sunk)" stroke="#66737E"/>
+      <circle cx="137" cy="53" r="4.2" fill="var(--sunk)" stroke="#66737E"/>
+      <rect x="122" y="42" width="16" height="4" rx="1" transform="rotate(-10 130 44)" fill="#FFFFFF" stroke="#96600C"/>
+    </g>`;
+  }
+  if (a === "soil") {
+    return `<g>
+      <polygon points="110,64 166,36 174,40 118,68" fill="#E5B25A" opacity=".88"/>
+      <polygon points="124,71 180,43 188,47 132,75" fill="#E5B25A" opacity=".88"/>
+      <path d="M140,56 L168,42 M152,62 L180,48" stroke="#181C24" stroke-width="2"/>
+    </g>`;
+  }
+  if (a === "power") {
+    return `<g>
+      <ellipse cx="130" cy="56" rx="24" ry="15" fill="none" stroke="#2670B8" stroke-width="9"/>
+      <ellipse cx="130" cy="56" rx="24" ry="15" fill="none" stroke="#5AA9FF" stroke-width="2"/>
+      <line x1="102" y1="72" x2="158" y2="40" stroke="#E06236" stroke-width="4" stroke-linecap="round"/>
+    </g>`;
+  }
+  return `<g>
+    <polygon points="112,56 148,56 148,74 112,74" fill="none" stroke="#E5B25A" stroke-width="1.4" transform="skewY(12) translate(0,-24)"/>
+    <ellipse cx="130" cy="60" rx="12" ry="7" fill="#232B33" stroke="#66CCAD" stroke-width="1.2"/>
+    <rect x="126" y="34" width="8" height="24" rx="3" fill="url(#metal-${s.id})" stroke="#525E6A"/>
+  </g>`;
+}
+
+function isoSVG(s, compact){
+  const p = physOf(s);
+  const c = p.color || "#184A78";
+  const qwiic = has(s, "qwiic"), grove = has(s, "grove");
+  const pinsN = Math.min(6, Math.max(3, (p.pins || []).length));
+  let pinPosts = "";
+  for (let i = 0; i < pinsN; i++) {
+    const px = 86 + i * 8.5, py = 74 + i * 4.2;
+    pinPosts += `<circle cx="${px}" cy="${py}" r="2.2" fill="#E5B25A" stroke="#784F08" stroke-width=".7"/>`;
+  }
+  const connBlock = qwiic
+    ? `<polygon points="158,68 172,61 177,64 163,71" fill="#1C2026" stroke="#E5B25A" stroke-width=".8"/>`
+    : grove
+    ? `<polygon points="154,66 170,58 176,62 160,70" fill="#F5F7F6" stroke="#8C9992" stroke-width=".9"/>`
+    : "";
+  const callouts = compact ? "" : `
+    <g font-family="var(--f-mono)" font-size="9.5" fill="var(--muted)">
+      <line x1="130" y1="45" x2="188" y2="24" stroke="var(--mask)" stroke-width="1" stroke-dasharray="2 2"/>
+      <circle cx="130" cy="45" r="2.4" fill="var(--mask)"/>
+      <text x="192" y="27" fill="var(--ink)" font-weight="600">${esc(p.pkg.split(" (")[0].slice(0, 32))}</text>
+      <line x1="92" y1="77" x2="54" y2="98" stroke="var(--pad)" stroke-width="1" stroke-dasharray="2 2"/>
+      <text x="10" y="110" fill="var(--ink)">Pines: ${esc(p.pins.slice(0, 4).join("·"))}${p.pins.length > 4 ? "…" : ""}</text>
+      <text x="192" y="108" fill="var(--muted)">Medidas: ${esc(dimStr(p))}</text>
+    </g>`;
+  const vb = compact ? "52 14 156 98" : "4 6 290 114";
+  return `<svg viewBox="${vb}" role="img" aria-label="Figura 3D de ${esc(s.pn)}">
+    <defs>
+      <linearGradient id="metal-${s.id}" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#9AA5B1"/><stop offset="48%" stop-color="#E6EDF2"/><stop offset="100%" stop-color="#7B8794"/>
+      </linearGradient>
+      <linearGradient id="beam-${s.id}" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%" stop-color="#66CCAD" stop-opacity=".75"/><stop offset="100%" stop-color="#66CCAD" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="130" cy="90" rx="64" ry="20" fill="#000" opacity=".14"/>
+    <!-- 3D extruded PCB substrate -->
+    <polygon points="130,42 186,68 130,94 74,68" fill="${c}" stroke="#8AA298" stroke-width="1"/>
+    <polygon points="74,68 130,94 130,101 74,75" fill="#0D221B" opacity=".82"/>
+    <polygon points="186,68 130,94 130,101 186,75" fill="#1E3A31" opacity=".85"/>
+    <!-- Mounting holes M2.5 -->
+    <ellipse cx="130" cy="48" rx="3.4" ry="1.9" fill="var(--sunk)" stroke="#E5B25A" stroke-width="1.2"/>
+    <ellipse cx="174" cy="68" rx="3.4" ry="1.9" fill="var(--sunk)" stroke="#E5B25A" stroke-width="1.2"/>
+    ${pinPosts}
+    ${connBlock}
+    ${topFeature3D(s, p)}
+    ${callouts}
+  </svg>`;
+}
+
+function cadBlueprintSVG(s){
+  const p = physOf(s);
+  const [L, W, H] = p.dim;
+  const maxDim = Math.max(L, W, 25);
+  const scale = Math.min(3.4, 150 / maxDim);
+  const bw = Math.max(54, Math.round(L * scale));
+  const bh = Math.max(36, Math.round(W * scale));
+  const bz = Math.max(10, Math.min(54, Math.round(H * scale * 1.2)));
+  const x0 = Math.round(135 - bw / 2), y0 = Math.round(105 - bh / 2);
+  const sx0 = 290, sy0 = Math.round(115 - bz / 2);
+  return `<svg viewBox="0 0 460 195" role="img" aria-label="Plano CAD con cotas en milímetros de ${esc(s.pn)}">
+    <g font-family="var(--f-mono)" font-size="10" fill="var(--muted)">
+      <text x="20" y="20" fill="var(--ink)" font-weight="600">PLANTA (TOP X–Y)</text>
+      <text x="285" y="20" fill="var(--ink)" font-weight="600">PERFIL (ALTURA Z)</text>
+      <!-- Top view PCB -->
+      <rect x="${x0}" y="${y0}" width="${bw}" height="${bh}" rx="5" fill="var(--surface)" stroke="var(--mask)" stroke-width="2"/>
+      <circle cx="${x0 + 9}" cy="${y0 + 9}" r="4" fill="var(--sunk)" stroke="var(--pad)" stroke-width="1.4"/>
+      <circle cx="${x0 + bw - 9}" cy="${y0 + 9}" r="4" fill="var(--sunk)" stroke="var(--pad)" stroke-width="1.4"/>
+      <rect x="${x0 + Math.round(bw * 0.28)}" y="${y0 + Math.round(bh * 0.24)}" width="${Math.round(bw * 0.44)}" height="${Math.round(bh * 0.52)}" rx="3" fill="var(--mask-soft)" stroke="var(--mask)" stroke-dasharray="3 2"/>
+      <text x="135" y="${y0 + Math.round(bh / 2) + 3}" text-anchor="middle" font-size="9" fill="var(--ink)">Zona activa</text>
+      <!-- Top horizontal dimension L -->
+      <line x1="${x0}" y1="${y0 - 14}" x2="${x0 + bw}" y2="${y0 - 14}" stroke="var(--pad)" stroke-width="1.3"/>
+      <line x1="${x0}" y1="${y0 - 19}" x2="${x0}" y2="${y0 - 3}" stroke="var(--pad)"/>
+      <line x1="${x0 + bw}" y1="${y0 - 19}" x2="${x0 + bw}" y2="${y0 - 3}" stroke="var(--pad)"/>
+      <text x="135" y="${y0 - 20}" text-anchor="middle" fill="var(--ink)" font-weight="600">Largo: ${L} mm</text>
+      <!-- Left vertical dimension W -->
+      <line x1="${x0 - 16}" y1="${y0}" x2="${x0 - 16}" y2="${y0 + bh}" stroke="var(--pad)" stroke-width="1.3"/>
+      <line x1="${x0 - 21}" y1="${y0}" x2="${x0 - 4}" y2="${y0}" stroke="var(--pad)"/>
+      <line x1="${x0 - 21}" y1="${y0 + bh}" x2="${x0 - 4}" y2="${y0 + bh}" stroke="var(--pad)"/>
+      <text x="${x0 - 22}" y="${y0 + Math.round(bh / 2) + 3}" text-anchor="end" fill="var(--ink)" font-weight="600">${W} mm</text>
+      <!-- Side profile view -->
+      <rect x="${sx0}" y="${sy0 + bz - 6}" width="110" height="6" rx="1.5" fill="var(--mask)" opacity=".85"/>
+      <rect x="${sx0 + 24}" y="${sy0}" width="62" height="${Math.max(4, bz - 6)}" rx="3" fill="var(--pad-soft)" stroke="var(--pad)" stroke-width="1.5"/>
+      <line x1="${sx0 + 124}" y1="${sy0}" x2="${sx0 + 124}" y2="${sy0 + bz}" stroke="var(--pad)" stroke-width="1.3"/>
+      <line x1="${sx0 + 118}" y1="${sy0}" x2="${sx0 + 130}" y2="${sy0}" stroke="var(--pad)"/>
+      <line x1="${sx0 + 118}" y1="${sy0 + bz}" x2="${sx0 + 130}" y2="${sy0 + bz}" stroke="var(--pad)"/>
+      <text x="${sx0 + 134}" y="${sy0 + Math.round(bz / 2) + 3}" fill="var(--ink)" font-weight="600">Alto: ${H} mm</text>
+      <text x="20" y="178" fill="var(--muted)">Fijación sugerida en Fusion 360: <tspan fill="var(--ink)" font-weight="600">${esc(p.mount)}</tspan></text>
+    </g>
+  </svg>`;
+}
+
+function scaleCompareSVG(s){
+  const p = physOf(s);
+  const [L, W] = p.dim;
+  const maxL = Math.max(L, 56);
+  const pxPerMm = Math.min(2.6, 155 / maxL);
+  const sw = Math.max(8, Math.round(L * pxPerMm)), sh = Math.max(8, Math.round(W * pxPerMm));
+  const coinR = Math.round((23.25 / 2) * pxPerMm);
+  const xiaoW = Math.round(21 * pxPerMm), xiaoH = Math.round(17.5 * pxPerMm);
+  const devW = Math.round(51 * pxPerMm), devH = Math.round(28 * pxPerMm);
+  return `<svg viewBox="0 0 460 190" role="img" aria-label="Comparación de escala real de ${esc(s.pn)}">
+    <g font-family="var(--f-mono)" font-size="9.5" fill="var(--muted)">
+      <!-- Sensor silhouette -->
+      <rect x="${Math.round(90 - sw / 2)}" y="${Math.round(82 - sh / 2)}" width="${sw}" height="${sh}" rx="3" fill="var(--mask-soft)" stroke="var(--mask)" stroke-width="2"/>
+      <text x="90" y="148" text-anchor="middle" fill="var(--ink)" font-weight="600">${esc(s.pn.slice(0, 18))}</text>
+      <text x="90" y="161" text-anchor="middle">${L} × ${W} mm</text>
+      <!-- 1 Euro Coin -->
+      <circle cx="215" cy="82" r="${coinR}" fill="var(--pad-soft)" stroke="var(--pad)" stroke-width="2"/>
+      <circle cx="215" cy="82" r="${Math.round(coinR * 0.68)}" fill="var(--surface)" stroke="var(--line)"/>
+      <text x="215" y="85" text-anchor="middle" font-size="9" fill="var(--ink)" font-weight="600">1 €</text>
+      <text x="215" y="148" text-anchor="middle" fill="var(--ink)">Moneda 1 €</text>
+      <text x="215" y="161" text-anchor="middle">Ø 23.25 mm</text>
+      <!-- XIAO ESP32 -->
+      <rect x="${Math.round(305 - xiaoW / 2)}" y="${Math.round(82 - xiaoH / 2)}" width="${xiaoW}" height="${xiaoH}" rx="2.5" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="3 2"/>
+      <text x="305" y="148" text-anchor="middle" fill="var(--ink)">XIAO ESP32</text>
+      <text x="305" y="161" text-anchor="middle">21 × 17.5 mm</text>
+      <!-- ESP32 DevKit -->
+      <rect x="${Math.round(395 - devW / 2)}" y="${Math.round(82 - devH / 2)}" width="${devW}" height="${devH}" rx="2.5" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="3 2"/>
+      <text x="395" y="148" text-anchor="middle" fill="var(--ink)">ESP32 DevKit</text>
+      <text x="395" y="161" text-anchor="middle">51 × 28 mm</text>
+    </g>
+  </svg>`;
+}
+
+function pinColor(pin){
+  const u = pin.toUpperCase();
+  if (/^(VIN|VCC|VDD|3V3|3\.3V|5V|\+)/.test(u)) return "#E04F4F";
+  if (/^(GND|-|E-)/.test(u)) return "#5C6873";
+  if (/^(SDA|SCL|TX|RX|MOSI|MISO|SCK|SCLK|CS|CLK|DT|DATA)/.test(u)) return "#1B9E77";
+  return "#D98A2B";
+}
+function pinBarHTML(p){
+  return `<div class="pinbar"><span style="font:500 .7rem/1 var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)">Pines del módulo:</span>${
+    (p.pins || []).map(pin => `<span class="pin-pill"><i class="pin-dot" style="background:${pinColor(pin)}"></i>${esc(pin)}</span>`).join("")
+  }</div>`;
+}
+
+let cadMode = "3d", cadTilt = "iso";
+function cadStageContent(s){
+  if (cadMode === "cad") return cadBlueprintSVG(s);
+  if (cadMode === "scale") return scaleCompareSVG(s);
+  return isoSVG(s, false);
+}
+function cadViewerHTML(s){
+  const p = physOf(s);
+  return `<div class="cad-box">
+    <div class="cad-bar">
+      <div class="cad-tabs" role="tablist" aria-label="Vista física del sensor">
+        <button type="button" class="pill" data-cad-mode="3d" aria-pressed="${cadMode === "3d"}">Figura 3D</button>
+        <button type="button" class="pill" data-cad-mode="cad" aria-pressed="${cadMode === "cad"}">Plano y cotas (mm)</button>
+        <button type="button" class="pill" data-cad-mode="scale" aria-pressed="${cadMode === "scale"}">Comparar tamaño (vs 1 € / ESP32)</button>
+      </div>
+      ${cadMode === "3d" ? `<div class="cad-tabs"><button type="button" class="pill" data-cad-tilt="iso" aria-pressed="${cadTilt === "iso"}">Isométrica</button><button type="button" class="pill" data-cad-tilt="front" aria-pressed="${cadTilt === "front"}">Inclinada</button><button type="button" class="pill" data-cad-tilt="side" aria-pressed="${cadTilt === "side"}">Lateral 3D</button></div>` : ""}
+    </div>
+    <div class="cad-stage" id="cad-stage" data-tilt="${cadMode === "3d" ? cadTilt : "iso"}">${cadStageContent(s)}</div>
+    <div class="cad-foot">${pinBarHTML(p)}<span><b>${esc(dimStr(p))}</b> · ${esc(p.mount)}</span></div>
+  </div>`;
+}
+
 function cardHTML(s){
-  const on = inRadar(s.id);
+  const on = inRadar(s.id), p = physOf(s);
   return `<article class="card">
     <p class="meta"><span>${esc(FAM[s.f])}</span><span class="price" title="${esc(priceTitle(s))}">${esc(priceLabel(s))}</span></p>
+    <div class="card-3d" data-open="${s.id}" title="Ver figura 3D y cotas de ${esc(s.pn)}">
+      <span class="pkg-tag">${esc(p.arch === "probe" ? "Sonda" : p.arch === "radar" ? "Radar" : p.arch === "air" ? "Cámara" : "Módulo")}</span>
+      ${isoSVG(s, true)}
+      <span class="dim-tag">${esc(dimStr(p))}</span>
+    </div>
     <h3><button type="button" class="pn" data-open="${s.id}">${esc(s.pn)}</button></h3>
     <p class="what">${esc(s.n)}</p>
     <p class="chips">${busHTML(s)}${flagsHTML(s)}</p>
-    <div class="acts"><button type="button" class="link" data-open="${s.id}">Ver ficha</button><button type="button" class="radar-btn" data-radar="${s.id}" aria-pressed="${on}">${on ? "En tu radar" : "+ Radar"}</button></div>
+    <div class="acts"><button type="button" class="link" data-open="${s.id}">Ver ficha 3D</button><button type="button" class="radar-btn" data-radar="${s.id}" aria-pressed="${on}">${on ? "En tu radar" : "+ Radar"}</button></div>
   </article>`;
 }
 function renderGrid(){
@@ -671,10 +1159,13 @@ function enclosureHint(s){
   return "Usa insertos roscados M2/M2.5 o pilares snap-fit en Fusion 360 y deja holgura para el conector JST/Dupont.";
 }
 function fichaHTML(s){
-  const on = inRadar(s.id), internal = has(s,"interno"), q = termOf(s);
+  const on = inRadar(s.id), internal = has(s,"interno"), q = termOf(s), p = physOf(s);
   const plug = [has(s,"qwiic") ? "Qwiic / STEMMA QT" : "", has(s,"grove") ? "Grove" : ""].filter(Boolean).join(", ");
   const combos = (s._combos || s.c).map(id => byId.get(id)).filter(Boolean);
   const specs = [
+    ["Formato físico y medidas", `${esc(p.pkg)} · <code>${esc(dimStr(p))}</code>`],
+    ["Alimentación y consumo", esc(p.pwr)],
+    ["Qué señal / dato entrega", esc(p.sig)],
     ["Interfaz", s.b.length ? esc(s.b.join(", ")) : "Ver hoja de datos"],
     s.a ? ["Dirección I2C por defecto", `<code>${esc(s.a)}</code>`] : null,
     ["Precio orientativo", `${esc(priceLabel(s))} · ${esc(priceTitle(s))}`],
@@ -691,6 +1182,7 @@ function fichaHTML(s){
       <h2 id="ficha-t">${esc(s.pn)}</h2>
       <p class="what">${esc(s.n)}</p>
     </div>
+    ${cadViewerHTML(s)}
     <p>${esc(s.d)}</p>
     ${s.w ? `<p class="alert"><strong>Antes de conectar:</strong> ${esc(s.w)}</p>` : ""}
     <dl class="specs">${specs.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
@@ -704,6 +1196,8 @@ let openId = "";
 function openFicha(id){
   const s = byId.get(id); if (!s) return;
   openId = id;
+  cadMode = "3d";
+  cadTilt = "iso";
   const dlg = $("#ficha");
   $("#ficha-body").innerHTML = fichaHTML(s);
   if (!dlg.open) { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } }
@@ -1170,6 +1664,8 @@ document.addEventListener("click", e => {
   if (!t) return;
   const d = t.dataset;
   if ("open" in d) { openFicha(d.open); }
+  else if ("cadMode" in d) { cadMode = d.cadMode; if (openId && byId.has(openId)) $("#ficha-body").innerHTML = fichaHTML(byId.get(openId)); }
+  else if ("cadTilt" in d) { cadTilt = d.cadTilt; const st = $("#cad-stage"); if (st) st.setAttribute("data-tilt", cadTilt); if (openId && byId.has(openId)) $("#ficha-body").innerHTML = fichaHTML(byId.get(openId)); }
   else if ("radar" in d) { toggleRadar(d.radar); }
   else if ("radarRm" in d) { state.radar = state.radar.filter(r => r.id !== d.radarRm); radarChanged(); renderNov(); }
   else if ("novRadar" in d) { novToggleRadar(d.novRadar); }

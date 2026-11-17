@@ -47,7 +47,7 @@ Swift → JS:
 - Menu ⌘T calls `window.radarTema()` (cycles `Auto` → `Oscuro` → `Claro` and persists in `meta.json`)
 - Menu ⌘F focuses `#q` search input; Menu ⌘D opens `~/Applications/RadarSensores-datos/` in Finder
 
-Relevance filtering, cross-language (ES ↔ EN) feed matching, bidirectional combination indexing (`_combos`), project recipes (`RECIPES`), Fusion 360 enclosure hints (`enclosureHint`), ESP32 electrical/bus auditing (`conflicts`, `nodeAudit`), and `ESPHome YAML` / `ESP32 pinout` generation (`esphomeYAML`, `pinoutText`) happen in JS in `index.html`.
+Relevance filtering, cross-language (ES ↔ EN) feed matching, bidirectional combination indexing (`_combos`), project recipes (`RECIPES`), 3D isometric models and CAD/scale diagrams (`PHYS`, `isoSVG`, `cadBlueprintSVG`, `scaleCompareSVG`), Fusion 360 enclosure hints (`enclosureHint`), ESP32 electrical/bus auditing (`conflicts`, `nodeAudit`), and `ESPHome YAML` / `ESP32 pinout` generation (`esphomeYAML`, `pinoutText`) happen in JS in `index.html`.
 
 If you add a bridge command, implement **both** sides and add it to this table.
 
