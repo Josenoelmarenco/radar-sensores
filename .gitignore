@@ -1,0 +1,5 @@
+build.log
+*.app/
+RadarSensores
+.DS_Store
+feeds-muestra.json

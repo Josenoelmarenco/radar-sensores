@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radar de sensores ESP32</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: perfboard-dotted hero with one ask bar, then a workbench of two columns:
+     the catalog grid on the left, the personal radar list on a sticky rail at the right. */
+  --bg:#F1F4EE; --surface:#FBFCF8; --sunk:#E5EBE2; --ink:#13211C; --muted:#56665E; --line:#CDD6CC;
+  --mask:#0E5C4C; --on-mask:#FFFFFF; --mask-soft:#DBEAE3;
+  --pad:#96600C; --pad-soft:#F4E7CB;
+  --ok:#1B7448; --warn:#A94610; --warn-soft:#F8E3D5;
+  --f-display:"Chakra Petch","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r:10px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1512; --surface:#121E1A; --sunk:#0F1A17; --ink:#E3EBE5; --muted:#94A59C; --line:#27382F;
+    --mask:#66CCAD; --on-mask:#07130F; --mask-soft:#17302A;
+    --pad:#E5B25A; --pad-soft:#2C2515;
+    --ok:#62D296; --warn:#F3935C; --warn-soft:#3A2114;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1512; --surface:#121E1A; --sunk:#0F1A17; --ink:#E3EBE5; --muted:#94A59C; --line:#27382F;
+  --mask:#66CCAD; --on-mask:#07130F; --mask-soft:#17302A;
+  --pad:#E5B25A; --pad-soft:#2C2515;
+  --ok:#62D296; --warn:#F3935C; --warn-soft:#3A2114;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.55 var(--f-body)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--mask);text-underline-offset:2px}
+h1,h2,h3,p,ul,dl,dd{margin:0}
+ul{padding:0;list-style:none}
+:focus-visible{outline:2px solid var(--pad);outline-offset:2px;border-radius:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+[hidden]{display:none!important}
+
+/* ---------- hero ---------- */
+.hero{background-color:var(--sunk);
+  background-image:linear-gradient(90deg,var(--sunk) 0,var(--sunk) 46%,transparent 82%),radial-gradient(circle,var(--line) 1.3px,transparent 1.8px);
+  background-size:auto,16px 16px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.hero-in{max-width:1240px;margin:0 auto;padding:30px 20px 20px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}
+.eyebrow{font:500 .74rem/1.2 var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+h1{font:700 clamp(2.2rem,5.4vw,3.7rem)/.98 var(--f-display);letter-spacing:.01em;text-transform:uppercase;text-wrap:balance;margin-bottom:14px}
+h1 span{color:var(--pad)}
+.lede{max-width:58ch;color:var(--muted);font-size:1.05rem}
+.scope{width:132px;height:132px;flex:none}
+.scope .ring{fill:none;stroke:var(--muted);stroke-opacity:.38;stroke-width:1}
+.scope .wedge{fill:var(--mask);opacity:.16}
+.scope .beam{stroke:var(--mask);stroke-width:1.6;stroke-linecap:round}
+.scope .sweep{transform-origin:60px 60px;animation:sweep 7s linear infinite}
+.scope .blip{fill:var(--pad);animation:blip 7s ease-out infinite}
+.scope .b2{animation-delay:-2.6s}.scope .b3{animation-delay:-4.1s}.scope .b4{animation-delay:-5.6s}
+@keyframes sweep{to{transform:rotate(360deg)}}
+@keyframes blip{0%,100%{opacity:.25}8%{opacity:1}45%{opacity:.5}}
+.ask{max-width:1240px;margin:0 auto;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap}
+.ask input{flex:1 1 340px;min-width:0;padding:14px 16px;border:1.5px solid var(--ink);border-radius:var(--r);background:var(--surface);font-size:1.05rem}
+.ask input::placeholder{color:var(--muted)}
+.btn{padding:12px 16px;border-radius:var(--r);border:1.5px solid var(--ink);background:var(--surface);font-weight:600;line-height:1.3}
+.btn.primary{background:var(--mask);border-color:var(--mask);color:var(--on-mask)}
+.btn.small{padding:7px 11px;font-size:.875rem;border-width:1px;border-color:var(--line)}
+.btn:hover{filter:brightness(1.06)}
+.try{max-width:1240px;margin:0 auto;padding:12px 20px 18px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.875rem;color:var(--muted)}
+.try span{margin-right:4px}
+.pill{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;font-size:.875rem;line-height:1.4}
+.pill:hover{border-color:var(--mask)}
+.pill[aria-pressed="true"]{background:var(--mask);border-color:var(--mask);color:var(--on-mask)}
+.answer{max-width:1240px;margin:0 auto;padding:0 20px 18px}
+.answer-in{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--pad);border-radius:var(--r);padding:16px 18px;display:grid;gap:12px}
+.answer h3{font:600 .8rem/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.answer .sum{font-size:1.05rem;max-width:75ch}
+.picks{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.pick{border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:grid;gap:4px;align-content:start;background:var(--bg)}
+.pick b{font:600 1.02rem/1.2 var(--f-display)}
+.pick small{color:var(--muted);font-size:.875rem}
+.pick .row{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:4px;font-size:.875rem}
+.note{font-size:.85rem;color:var(--muted);max-width:80ch}
+.alert{background:var(--warn-soft);color:var(--ink);border-radius:8px;padding:9px 12px;font-size:.92rem;border-left:3px solid var(--warn)}
+
+/* ---------- shared ---------- */
+.wrap{max-width:1240px;margin:0 auto;padding:26px 20px 56px;display:grid;gap:34px}
+.sec-h{font:600 .98rem/1.2 var(--f-display);letter-spacing:.09em;text-transform:uppercase}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.link{background:none;border:0;padding:0;color:var(--mask);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.hint{color:var(--muted);font-size:.92rem;max-width:80ch}
+
+/* ---------- discover ---------- */
+.disc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.disc{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--mask);border-radius:var(--r);padding:14px 16px;display:grid;gap:6px;align-content:start}
+.disc.gold{border-top-color:var(--pad)}
+.disc .k{font:500 .72rem/1.2 var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.disc b{font:600 1.22rem/1.15 var(--f-display)}
+.disc p{color:var(--muted);font-size:.94rem}
+.disc .link{justify-self:start;text-align:left}
+
+/* ---------- workbench ---------- */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 304px;gap:26px;align-items:start}
+.col-main{display:grid;gap:14px;min-width:0}
+.sectors{display:flex;flex-wrap:wrap;gap:4px 2px;border-bottom:1px solid var(--line)}
+.sectors button{background:none;border:0;border-bottom:3px solid transparent;padding:8px 11px;font-weight:500;color:var(--muted);margin-bottom:-1px;white-space:nowrap}
+.sectors button i{font:400 .72rem var(--f-mono);font-style:normal;margin-left:5px;opacity:.8}
+.sectors button:hover{color:var(--ink)}
+.sectors button[aria-current="true"]{color:var(--ink);border-bottom-color:var(--pad);font-weight:600}
+.filters{display:grid;gap:8px}
+.frow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.frow > span.lab{font:500 .72rem/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);min-width:66px}
+.frow select,.result-head select{padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);font-size:.875rem}
+.outside{background:var(--pad-soft);border-radius:var(--r);padding:10px 14px;font-size:.92rem;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.outside a{font-weight:600}
+.result-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.count{color:var(--muted);font-size:.92rem}
+.result-head label{font-size:.875rem;color:var(--muted);display:flex;gap:6px;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px 12px;display:flex;flex-direction:column;gap:7px;min-width:0}
+.card .meta{display:flex;justify-content:space-between;gap:8px;font:500 .7rem/1.2 var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.price{color:var(--pad);letter-spacing:.02em;text-transform:none;white-space:nowrap}
+.card h3{font:600 1.16rem/1.18 var(--f-display);overflow-wrap:anywhere}
+.pn{background:none;border:0;padding:0;font:inherit;text-align:left;color:var(--ink)}
+.pn:hover{color:var(--mask)}
+.what{font-size:.94rem;color:var(--ink);flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font:400 .72rem/1.3 var(--f-mono);border:1px solid var(--line);border-radius:5px;padding:2px 6px;white-space:nowrap}
+.chip b{font-weight:500;color:var(--mask)}
+.flag{font-size:.74rem;font-weight:600;border-radius:999px;padding:2px 9px;line-height:1.35;white-space:nowrap}
+.flag.own{background:var(--mask-soft);color:var(--ok)}
+.flag.kit{border:1px dashed var(--ok);color:var(--ok);padding:1px 8px}
+.flag.new{background:var(--pad-soft);color:var(--pad)}
+.flag.gem{border:1px solid var(--pad);color:var(--pad);padding:1px 8px}
+.acts{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:3px;font-size:.875rem}
+.radar-btn{border:1px solid var(--mask);background:none;color:var(--mask);border-radius:999px;padding:4px 12px;font-weight:600;font-size:.84rem;white-space:nowrap}
+.radar-btn[aria-pressed="true"]{background:var(--mask);color:var(--on-mask)}
+.empty{grid-column:1/-1;border:1px dashed var(--line);border-radius:var(--r);padding:22px;color:var(--muted)}
+
+/* ---------- radar rail ---------- */
+.rail{position:sticky;top:14px;max-height:calc(100dvh - 28px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.rail summary{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;cursor:pointer;list-style:none}
+.rail summary::-webkit-details-marker{display:none}
+.badge{font:500 .78rem/1 var(--f-mono);background:var(--pad-soft);color:var(--pad);border-radius:999px;padding:4px 9px}
+#radar-body{padding:0 16px 16px;display:grid;gap:12px}
+.sync{font-size:.8rem;color:var(--muted)}
+.rlist{display:grid;gap:6px}
+.rlist li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;border-top:1px solid var(--line);padding-top:7px}
+.rlist .pn{font:600 .98rem/1.2 var(--f-display)}
+.rlist small{grid-column:1;color:var(--muted);font-size:.8rem}
+.rlist .rm{grid-row:1/3;grid-column:2;align-self:center;background:none;border:0;color:var(--muted);font-size:.8rem;text-decoration:underline}
+.i2c{border-radius:8px;padding:10px 12px;font-size:.84rem;background:var(--warn-soft);border-left:3px solid var(--warn);display:grid;gap:5px}
+.i2c b{font-family:var(--f-mono);font-weight:500}
+.i2c.ok{background:var(--mask-soft);border-left-color:var(--ok)}
+#copy-out{width:100%;min-height:110px;font:400 .78rem/1.4 var(--f-mono);border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:8px}
+
+/* ---------- directory ---------- */
+.dir{display:grid;gap:12px}
+.dir-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px 26px}
+.dir-g h3{font:500 .74rem/1.2 var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.dir-g > p{font-size:.86rem;color:var(--muted);margin-bottom:8px}
+.dir-g li{padding:5px 0;border-top:1px solid var(--line);font-size:.92rem}
+.dir-g li a{font-weight:600}
+.dir-g li span{color:var(--muted);font-size:.84rem;display:block}
+.feeds{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:4px 26px}
+.feeds li{padding:6px 0;border-top:1px solid var(--line);font-size:.92rem}
+.feeds span{color:var(--muted);font-size:.84rem;display:block}
+.foot{color:var(--muted);font-size:.84rem;max-width:90ch;border-top:1px solid var(--line);padding-top:16px}
+
+/* ---------- ficha ---------- */
+dialog{border:1px solid var(--line);border-radius:14px;padding:0;background:var(--surface);color:var(--ink);width:min(780px,calc(100% - 24px));max-height:min(90dvh,940px)}
+dialog::backdrop{background:rgba(6,14,11,.6)}
+.ficha{padding:22px 24px 24px;display:grid;gap:16px}
+.ficha-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;align-items:start}
+.ficha-top .meta{font:500 .72rem/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.ficha h2{font:700 clamp(1.5rem,4vw,2.1rem)/1.05 var(--f-display);overflow-wrap:anywhere;grid-column:1}
+.ficha .what{font-size:1.05rem;grid-column:1}
+.x{grid-row:1/3;grid-column:2;border:1px solid var(--line);background:none;border-radius:8px;padding:6px 11px;font-size:.875rem}
+.ficha h3{font:500 .74rem/1.2 var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.specs div{padding:8px 11px;box-shadow:0 0 0 1px var(--line)}
+.specs dt{font:500 .68rem/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.specs dd{font-size:.92rem}
+.specs dd code{font:500 .86rem var(--f-mono);color:var(--mask)}
+.ideas li{padding:6px 0 6px 16px;border-top:1px solid var(--line);position:relative}
+.ideas li::before{content:"";position:absolute;left:1px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--pad)}
+.combo{display:flex;flex-wrap:wrap;gap:6px}
+.buy{display:grid;gap:9px}
+.buy p{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.92rem;align-items:baseline}
+.buy p > span{font:500 .7rem/1.2 var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);flex:0 0 100%}
+
+.upd{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-top:18px}
+.upd-status{font-size:.9rem;color:var(--muted)}
+.upd-btn{display:inline-flex;align-items:center;gap:9px}
+.upd-btn .spin{width:.85em;height:.85em;border:2px solid currentColor;border-right-color:transparent;border-radius:50%}
+.upd-btn[aria-busy="true"] .spin{animation:spin .8s linear infinite}
+.btn[disabled]{opacity:.7;cursor:progress}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hero.busy .scope .sweep{animation-duration:1.3s}
+.sec-h .badge{margin-left:8px;vertical-align:2px;letter-spacing:.02em;text-transform:none}
+.nov-bar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:10px}
+.novs{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(360px,1fr))}
+.nov{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--line);border-radius:var(--r);padding:11px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.nov.fresh{border-left-color:var(--pad)}
+.nov-meta{display:flex;flex-wrap:wrap;gap:4px 12px;font:500 .7rem/1.3 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.nov-t{font:600 1.04rem/1.25 var(--f-display);color:var(--ink);text-decoration:none;overflow-wrap:anywhere}
+.nov-t:hover{color:var(--mask);text-decoration:underline}
+.nov-s{font-size:.9rem;color:var(--muted);flex:1;overflow-wrap:anywhere}
+.nov .acts{margin-top:auto}
+.rep{display:grid;gap:4px}
+.rep li{display:flex;gap:8px;align-items:baseline;font-size:.9rem}
+.st{font:500 .7rem/1.6 var(--f-mono);border-radius:4px;padding:0 6px;flex:none}
+.st.ok{background:var(--mask-soft);color:var(--ok)}
+.st.fail{background:var(--warn-soft);color:var(--warn)}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap}
+@media (max-width:980px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .rail{position:static;max-height:none;order:-1}
+  .disc-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:600px){
+  .novs{grid-template-columns:minmax(0,1fr)}
+  .scope{display:none}
+  .hero-in{grid-template-columns:minmax(0,1fr);padding-top:22px}
+  .hero{background-image:none}
+  .ask .btn{flex:1 1 auto}
+  .ficha{padding:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  .scope .sweep,.scope .blip,.upd-btn .spin{animation:none!important}
+  .scope .blip{opacity:.9}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <div>
+      <p class="eyebrow" id="eyebrow">ESP32</p>
+      <h1>Radar de <span>sensores</span></h1>
+      <p class="lede">Empieza por lo que quieres medir o detectar. El radar te muestra qué sensor lo hace, qué más podrías construir con él y dónde conseguirlo.</p>
+      <div class="upd"><button class="btn upd-btn" id="upd" type="button" data-act="upd" title="Atajo: ⌘R"><span class="spin" aria-hidden="true"></span><span>Actualizar</span></button><span id="upd-status" class="upd-status" aria-live="polite"></span></div>
+    </div>
+    <svg class="scope" viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="ring" cx="60" cy="60" r="56"/><circle class="ring" cx="60" cy="60" r="38"/><circle class="ring" cx="60" cy="60" r="20"/>
+      <path class="ring" d="M60 4V116M4 60H116"/>
+      <g class="sweep"><path class="wedge" d="M60 60L11.5 32A56 56 0 0 1 60 4Z"/><path class="beam" d="M60 60V4"/></g>
+      <circle class="blip" cx="84" cy="38" r="3"/><circle class="blip b2" cx="86" cy="80" r="2.6"/><circle class="blip b3" cx="42" cy="88" r="3"/><circle class="blip b4" cx="34" cy="40" r="2.6"/>
+    </svg>
+  </div>
+  <form class="ask" id="ask" autocomplete="off">
+    <label class="sr" for="q">Qué quieres medir o detectar</label>
+    <input id="q" name="q" type="search" enterkeyhint="search" placeholder="Ej.: saber si alguien se cayó">
+    <button class="btn primary" type="submit">Buscar en el catálogo</button>
+  </form>
+  <div class="try" id="try"><span>Prueba con</span></div>
+  <section id="answer" class="answer" hidden aria-live="polite"></section>
+</header>
+
+<main class="wrap">
+  <section id="nov-sec" aria-labelledby="nov-h">
+    <div class="sec-head"><h2 id="nov-h" class="sec-h">Novedades del mercado <span id="nov-n" class="badge" hidden></span></h2><span class="hint">Productos y noticias de sensores detectados en las fuentes al presionar Actualizar.</span></div>
+    <div id="novedades"></div>
+  </section>
+
+  <section aria-labelledby="disc-h">
+    <div class="sec-head">
+      <h2 id="disc-h" class="sec-h">Tres pistas para hoy</h2>
+      <button class="link" type="button" data-act="shuffle">Mostrar otras tres</button>
+    </div>
+    <div id="discover" class="disc-grid"></div>
+  </section>
+
+  <div class="layout">
+    <section class="col-main" id="resultados" aria-labelledby="cat-h">
+      <h2 id="cat-h" class="sec-h">Catálogo</h2>
+      <nav id="sectors" class="sectors" aria-label="Sectores"></nav>
+      <div class="filters" id="filters">
+        <div class="frow" id="f-flags"><span class="lab">Mostrar</span></div>
+        <div class="frow" id="f-bus"><span class="lab">Interfaz</span></div>
+        <div class="frow" id="f-price"><span class="lab">Precio</span></div>
+        <div class="frow">
+          <span class="lab">Qué mide</span>
+          <label class="sr" for="fam">Qué mide</label>
+          <select id="fam"><option value="">Todo</option></select>
+        </div>
+      </div>
+      <div id="outside" class="outside" hidden></div>
+      <div class="result-head">
+        <p id="count" class="count"></p>
+        <label for="sort">Ordenar
+          <select id="sort">
+            <option value="sug">Sugerido</option>
+            <option value="precio">Precio, de menor a mayor</option>
+            <option value="nivel">Más fácil primero</option>
+            <option value="nombre">Nombre</option>
+          </select>
+        </label>
+      </div>
+      <div id="grid" class="grid"></div>
+    </section>
+
+    <aside class="rail" aria-labelledby="rail-h">
+      <details id="railbox" open>
+        <summary><h2 id="rail-h" class="sec-h">Mi radar</h2><span id="radar-n" class="badge">0</span></summary>
+        <div id="radar-body"></div>
+      </details>
+    </aside>
+  </div>
+
+  <section class="dir" id="tiendas" aria-labelledby="dir-h">
+    <h2 id="dir-h" class="sec-h">Tiendas y listas</h2>
+    <p id="dir-hint" class="hint"></p>
+    <div id="dir" class="dir-grid"></div>
+  </section>
+
+  <section class="dir" aria-labelledby="feeds-h">
+    <h2 id="feeds-h" class="sec-h">Dónde aparecen primero los sensores nuevos</h2>
+    <p class="hint">Quince minutos a la semana en estas páginas alcanzan para no perderte un lanzamiento.</p>
+    <ul id="feeds" class="feeds"></ul>
+  </section>
+
+  <p class="foot" id="foot"></p>
+</main>
+
+<dialog id="ficha" aria-labelledby="ficha-t"><div id="ficha-body"></div></dialog>
+
+<script>
+"use strict";
+const BRIDGE = (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.radar) || null;
+const post = m => { try { if (BRIDGE) BRIDGE.postMessage(m); } catch (e) {} };
+const BOOT = window.__RADAR__ || {};
+let CAT = BOOT.catalogo && Array.isArray(BOOT.catalogo.sensores) ? BOOT.catalogo : {sensores: [], propios: {}, fuentes: []};
+let DATA = [];
+
+
+const SECTORS = [
+  {id:"salud",n:"Salud"},{id:"domotica",n:"Domótica"},{id:"robotica",n:"Robótica"},{id:"agro",n:"Hidroponía y agro"},
+  {id:"ambiente",n:"Aire y ambiente"},{id:"energia",n:"Energía"},{id:"wearables",n:"Wearables"},{id:"seguridad",n:"Seguridad"}
+];
+const SECLABEL = Object.fromEntries(SECTORS.map(s => [s.id, s.n]));
+const FAM = {bio:"Biomédico",radar:"Presencia y radar",imu:"Movimiento",dist:"Distancia",vision:"Visión y térmico",aire:"Aire y gases",clima:"Clima",luz:"Luz y color",fuerza:"Fuerza y presión",agua:"Agua y suelo",sonido:"Sonido",energia:"Energía y medición",hmi:"Interacción",pos:"Posición",ident:"Identificación"};
+const BUSES = ["I2C","SPI","UART","Analógico","Digital","I2S","1-Wire","Interno"];
+const PRICES = [["0","Gratis"],["1","€"],["2","€€"],["3","€€€"],["4","€€€€"]];
+const PRICE_T = {0:"No necesita hardware adicional",1:"Menos de 5 €",2:"De 5 a 15 €",3:"De 15 a 40 €",4:"Más de 40 €"};
+const LEVEL_T = {1:"Fácil: conectar y leer",2:"Medio: pide calibrar o procesar la señal",3:"Avanzado: señal o protocolo exigente"};
+const FLAGS = [["nuevo","Novedades"],["joya","Poco conocidos"],["falta","Solo lo que no tengo"],["plug","Sin soldar (Qwiic o Grove)"],["esphome","Con ESPHome"]];
+const TRY = ["persona quieta","caídas","CO₂","nivel del tanque","fuerza de agarre","respiración sin contacto","nutrientes hidroponía","consumo eléctrico","gestos","posición en interiores"];
+
+// Inventory read from the Notion database "Inventario de sensores" on 2026-11-17.
+// "si" = confirmed in hand; "kit" = listed in the SunFounder kit, not verified one by one.
+let OWN = {};
+
+const viaGoogle = site => "https://www.google.com/search?q=site%3A" + site + "+{q}";
+const GROUPS = [
+  {id:"ue",n:"Con envío desde la UE",d:"Sin aduana y con entrega rápida a Finlandia."},
+  {id:"maker",n:"Fabricantes maker",d:"Catálogo propio, guías y librerías. Envían desde fuera de la UE: suma IVA y aduana, o busca la misma placa en DigiKey o Mouser."},
+  {id:"eco",n:"Económicas",d:"Precios bajos y envío lento. Revisa qué chip trae de verdad la placa."},
+  {id:"comp",n:"Comparador",d:"Una búsqueda consulta decenas de distribuidores."},
+  {id:"lista",n:"Compatibilidad, librerías y proyectos",d:"Para confirmar que funciona con ESP32 y ver qué construyó otra gente."},
+  {id:"3d",n:"Modelos 3D y carcasas",d:"Archivos STEP para importar a Fusion 360 y carcasas ya diseñadas."}
+];
+const STORES = [
+  {id:"digikey",g:"ue",n:"DigiKey.fi",u:"https://www.digikey.fi/en/products/result?keywords={q}",h:"https://www.digikey.fi/",d:"Envío gratis a Finlandia desde 50 €. Distribuye Adafruit, SparkFun, Seeed y DFRobot."},
+  {id:"mouser",g:"ue",n:"Mouser.fi",u:"https://www.mouser.fi/c/?q={q}",h:"https://www.mouser.fi/",d:"Marca los productos nuevos. Distribuye Adafruit, SparkFun, Seeed, DFRobot y M5Stack."},
+  {id:"partco",g:"ue",n:"Partco",u:viaGoogle("partco.fi"),h:"https://www.partco.fi/",d:"Tienda de electrónica en Helsinki. Búsqueda a través de Google."},
+  {id:"electrokit",g:"ue",n:"Electrokit",u:viaGoogle("electrokit.com"),h:"https://www.electrokit.com/",d:"Suecia. Búsqueda a través de Google."},
+  {id:"berrybase",g:"ue",n:"BerryBase",u:viaGoogle("berrybase.de"),h:"https://www.berrybase.de/",d:"Alemania. Búsqueda a través de Google."},
+  {id:"botland",g:"ue",n:"Botland",u:viaGoogle("botland.store"),h:"https://botland.store/",d:"Polonia. Búsqueda a través de Google."},
+  {id:"amazon",g:"ue",n:"Amazon.de",u:"https://www.amazon.de/s?k={q}",h:"https://www.amazon.de/",d:"Rápido para módulos genéricos; confirma el chip en la descripción."},
+  {id:"adafruit",g:"maker",n:"Adafruit",u:"https://www.adafruit.com/search?q={q}",h:"https://www.adafruit.com/",d:"Las guías y librerías mejor documentadas. Conector STEMMA QT."},
+  {id:"sparkfun",g:"maker",n:"SparkFun",u:"https://www.sparkfun.com/catalogsearch/result/?q={q}",h:"https://www.sparkfun.com/",d:"Ecosistema Qwiic y tutoriales de conexión."},
+  {id:"seeed",g:"maker",n:"Seeed Studio",u:"https://www.seeedstudio.com/catalogsearch/result/?q={q}",h:"https://www.seeedstudio.com/",d:"Radares mmWave, placas XIAO y módulos Grove."},
+  {id:"dfrobot",g:"maker",n:"DFRobot",u:"https://www.dfrobot.com/search-{q}.html",h:"https://www.dfrobot.com/",d:"Línea Gravity: sondas de agua, gases y radares."},
+  {id:"pimoroni",g:"maker",n:"Pimoroni",u:"https://shop.pimoroni.com/search?q={q}",h:"https://shop.pimoroni.com/",d:"Reino Unido. Breakouts compactos."},
+  {id:"m5",g:"maker",n:"M5Stack",u:"https://shop.m5stack.com/search?q={q}",h:"https://shop.m5stack.com/",d:"Unidades con carcasa y conector Grove."},
+  {id:"aliexpress",g:"eco",n:"AliExpress",u:"https://www.aliexpress.com/wholesale?SearchText={q}",h:"https://www.aliexpress.com/"},
+  {id:"lcsc",g:"eco",n:"LCSC",u:"https://www.lcsc.com/search?q={q}",h:"https://www.lcsc.com/",d:"Chips sueltos, para cuando diseñes tu propia placa."},
+  {id:"octopart",g:"comp",n:"Octopart",u:"https://octopart.com/search?q={q}",h:"https://octopart.com/",d:"Precio y existencias por distribuidor, más hoja de datos."},
+  {id:"esphome",g:"lista",n:"ESPHome",u:viaGoogle("esphome.io"),h:"https://esphome.io/components/",d:"Si el sensor aparece aquí, funciona con ESP32 sin escribir el driver."},
+  {id:"pio",g:"lista",n:"PlatformIO Registry",u:"https://registry.platformio.org/search?q={q}",h:"https://registry.platformio.org/",d:"Librerías para Arduino y ESP-IDF."},
+  {id:"github",g:"lista",n:"GitHub",u:"https://github.com/search?q={q}+esp32&type=repositories",h:"https://github.com/"},
+  {id:"hackaday",g:"lista",n:"Hackaday.io",u:"https://hackaday.io/search?term={q}",h:"https://hackaday.io/",d:"Proyectos documentados paso a paso."},
+  {id:"hackster",g:"lista",n:"Hackster.io",u:"https://www.hackster.io/search?q={q}",h:"https://www.hackster.io/"},
+  {id:"grabcad",g:"3d",n:"GrabCAD",u:"https://grabcad.com/library?query={q}",h:"https://grabcad.com/library",d:"Modelos STEP de módulos y conectores."},
+  {id:"printables",g:"3d",n:"Printables",u:"https://www.printables.com/search/models?q={q}",h:"https://www.printables.com/",d:"Carcasas listas para imprimir o adaptar."},
+  {id:"adacad",g:"3d",n:"Adafruit CAD Parts",u:"",h:"https://github.com/adafruit/Adafruit_CAD_Parts",d:"Repositorio con el modelo 3D de casi todas las placas de Adafruit."}
+];
+const QUICK = ["digikey","mouser","amazon","aliexpress","adafruit","octopart","github"];
+const FEEDS = [
+  ["Adafruit: productos nuevos","https://www.adafruit.com/new","Lanzamientos cada semana, casi siempre con librería lista."],
+  ["SparkFun: lanzamientos","https://news.sparkfun.com/tags/new-product","Resumen de cada producto nuevo del ecosistema Qwiic."],
+  ["CNX Software: sensores","https://www.cnx-software.com/news/sensors/","La mejor fuente para módulos asiáticos y chips recién anunciados."],
+  ["Mouser: herramientas de sensores más nuevas","https://www.mouser.com/en/c/n/embedded-solutions/engineering-tools/sensor-development-tools/","Kits de evaluación y breakouts con su fecha de alta."],
+  ["Seeed: familia de radares mmWave","https://wiki.seeedstudio.com/mmwave_radar_Intro","Tabla comparativa de sus radares de presencia, caídas y signos vitales."],
+  ["Sensirion: comunicados","https://sensirion.com/company/news/press-releases-and-news","CO₂, partículas, formaldehído y flujo."],
+  ["Bosch Sensortec: productos","https://www.bosch-sensortec.com/products/","IMU, presión y gas; los chips llegan aquí meses antes que a los breakouts."],
+  ["Hackster: noticias","https://www.hackster.io/news","Qué construye la gente con los sensores recién salidos."],
+  ["ESPHome: componentes","https://esphome.io/components/","La lista crece con cada versión mensual."]
+];
+const STOP = new Set("de la el los las un una unos unas que si mi mis en con para por al del se es y o a lo su sus como cuando quiero quisiera saber medir detectar sensor sensores algo alguien hay esta este mas muy sin the of".split(" "));
+
+/* ---------- helpers ---------- */
+const $ = (sel, root) => (root || document).querySelector(sel);
+const esc = v => String(v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm = v => String(v).toLowerCase().replace(/₂/g,"2").normalize("NFD").replace(/[̀-ͯ]/g,"");
+const str = (v, max) => typeof v === "string" ? v.trim().slice(0, max) : "";
+const has = (s, tag) => s.t.includes(tag);
+const termOf = s => s.q || s.pn.split(" / ")[0].replace(/\s*\(.*\)\s*/," ").trim();
+const priceLabel = s => s.p === 0 ? "Gratis" : s.p == null ? "precio n/d" : "€".repeat(s.p);
+const priceTitle = s => s.p == null ? "Precio por confirmar" : PRICE_T[s.p];
+function link(store, q){
+  const href = store.u && q ? store.u.replace("{q}", encodeURIComponent(q)) : store.h;
+  return `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(store.n)}</a>`;
+}
+
+const byId = new Map();
+const validSensor = s => s && typeof s.id === "string" && typeof s.pn === "string" && typeof s.n === "string" && FAM[s.f]
+  && [s.s, s.b, s.t, s.i, s.c].every(Array.isArray);
+function indexCatalog(cat){
+  if (cat && Array.isArray(cat.sensores)) CAT = cat;
+  DATA = CAT.sensores.filter(validSensor);
+  OWN = CAT.propios && typeof CAT.propios === "object" ? CAT.propios : {};
+  byId.clear();
+  for (const s of DATA) {
+    byId.set(s.id, s);
+    s.own = OWN[s.id] || "";
+    s._pn = norm(s.pn + " " + (s.q || ""));
+    s._n = norm(s.n);
+    s._hay = norm([s.d || "", s.i.join(" "), s.k || "", FAM[s.f], s.s.map(x => SECLABEL[x] || x).join(" "), s.b.join(" "), s.a || "", s.t.join(" ")].join(" "));
+  }
+  buildPnKeys();
+}
+
+const state = {q:"", sector:"", fam:"", bus:new Set(), price:new Set(), flags:new Set(), sort:"sug", radar:[], seed:0};
+const LS = "radar-sensores-v1";
+
+/* ---------- filtering ---------- */
+function tokens(q){ return norm(q).split(/[^a-z0-9.]+/).filter(t => t.length > 1 && !STOP.has(t)); }
+function scoreOf(s, toks){
+  let sc = 0, hit = 0;
+  for (const t of toks) {
+    const st = t.length > 4 ? t.replace(/(es|s)$/, "") : t;
+    let w = 0;
+    if (s._pn.includes(t)) w = 5;
+    else if (s._n.includes(t) || s._n.includes(st)) w = 3;
+    else if (s._hay.includes(t) || s._hay.includes(st)) w = 1;
+    if (w) { sc += w; hit++; }
+  }
+  return {sc, hit};
+}
+const suggested = s => (has(s,"joya") ? 3 : 0) + (has(s,"nuevo") ? 2 : 0) + (s.own ? 0 : 2);
+function visible(){
+  const toks = tokens(state.q);
+  const need = toks.length ? Math.max(1, Math.ceil(toks.length * 0.6)) : 0;
+  const out = [];
+  DATA.forEach((s, idx) => {
+    if (state.sector && !s.s.includes(state.sector)) return;
+    if (state.fam && s.f !== state.fam) return;
+    if (state.bus.size && !s.b.some(b => state.bus.has(b))) return;
+    if (state.price.size && !state.price.has(String(s.p))) return;
+    if (state.flags.has("nuevo") && !has(s,"nuevo")) return;
+    if (state.flags.has("joya") && !has(s,"joya")) return;
+    if (state.flags.has("falta") && s.own) return;
+    if (state.flags.has("plug") && !(has(s,"qwiic") || has(s,"grove"))) return;
+    if (state.flags.has("esphome") && !has(s,"esphome")) return;
+    let rel = 0;
+    if (toks.length) { const r = scoreOf(s, toks); if (r.hit < need) return; rel = r.hit * 100 + r.sc; }
+    out.push({s, rel, idx});
+  });
+  const pv = s => s.p == null ? 9 : s.p;
+  out.sort((a, b) => {
+    if (toks.length && a.rel !== b.rel) return b.rel - a.rel;
+    if (state.sort === "precio") return pv(a.s) - pv(b.s) || a.idx - b.idx;
+    if (state.sort === "nivel") return a.s.l - b.s.l || a.idx - b.idx;
+    if (state.sort === "nombre") return a.s.pn.localeCompare(b.s.pn, "es");
+    return suggested(b.s) - suggested(a.s) || a.idx - b.idx;
+  });
+  return out.map(x => x.s);
+}
+const anyFilter = () => state.q || state.sector || state.fam || state.bus.size || state.price.size || state.flags.size;
+
+/* ---------- rendering: catalog ---------- */
+function flagsHTML(s){
+  let h = "";
+  if (s.own === "si") h += `<span class="flag own">Lo tienes</span>`;
+  else if (s.own === "kit") h += `<span class="flag kit" title="Aparece en tu kit SunFounder, sin verificar una por una">En tu kit</span>`;
+  if (has(s,"nuevo")) h += `<span class="flag new">Nuevo ${esc(s.y || "")}</span>`;
+  if (has(s,"joya")) h += `<span class="flag gem">Poco conocido</span>`;
+  return h;
+}
+function busHTML(s){
+  if (!s.b.length) return `<span class="chip">interfaz: ver hoja de datos</span>`;
+  return s.b.map(b => `<span class="chip">${esc(b)}${b === "I2C" && s.a ? ` <b>${esc(s.a)}</b>` : ""}</span>`).join("");
+}
+const inRadar = id => state.radar.some(r => r.id === id);
+function cardHTML(s){
+  const on = inRadar(s.id);
+  return `<article class="card">
+    <p class="meta"><span>${esc(FAM[s.f])}</span><span class="price" title="${esc(priceTitle(s))}">${esc(priceLabel(s))}</span></p>
+    <h3><button type="button" class="pn" data-open="${s.id}">${esc(s.pn)}</button></h3>
+    <p class="what">${esc(s.n)}</p>
+    <p class="chips">${busHTML(s)}${flagsHTML(s)}</p>
+    <div class="acts"><button type="button" class="link" data-open="${s.id}">Ver ficha</button><button type="button" class="radar-btn" data-radar="${s.id}" aria-pressed="${on}">${on ? "En tu radar" : "+ Radar"}</button></div>
+  </article>`;
+}
+function renderGrid(){
+  const list = visible();
+  $("#grid").innerHTML = list.length ? list.map(cardHTML).join("") :
+    `<p class="empty">Ningún sensor del catálogo coincide. Prueba con otra palabra o quita algún filtro. Si buscas un número de parte, rastréalo directamente en las tiendas.</p>`;
+  $("#count").innerHTML = `${list.length} de ${DATA.length} sensores` + (anyFilter() ? ` · <button type="button" class="link" data-act="clear">Quitar filtros</button>` : "");
+  renderOutside();
+  renderDir();
+  renderNov();
+}
+function renderSectors(){
+  const all = `<button type="button" data-sector="" aria-current="${state.sector === ""}">Todos<i>${DATA.length}</i></button>`;
+  $("#sectors").innerHTML = all + SECTORS.map(x => {
+    const n = DATA.filter(s => s.s.includes(x.id)).length;
+    return `<button type="button" data-sector="${x.id}" aria-current="${state.sector === x.id}">${esc(x.n)}<i>${n}</i></button>`;
+  }).join("");
+}
+function renderFilters(){
+  $("#f-flags").innerHTML = `<span class="lab">Mostrar</span>` + FLAGS.map(([id, n]) => `<button type="button" class="pill" data-flag="${id}" aria-pressed="${state.flags.has(id)}">${esc(n)}</button>`).join("");
+  $("#f-bus").innerHTML = `<span class="lab">Interfaz</span>` + BUSES.map(b => `<button type="button" class="pill" data-bus="${esc(b)}" aria-pressed="${state.bus.has(b)}">${esc(b)}</button>`).join("");
+  $("#f-price").innerHTML = `<span class="lab">Precio</span>` + PRICES.map(([id, n]) => `<button type="button" class="pill" data-price="${id}" aria-pressed="${state.price.has(id)}" title="${esc(PRICE_T[id])}">${esc(n)}</button>`).join("") +
+    `<span class="hint" style="font-size:.8rem">€ menos de 5 · €€ 5 a 15 · €€€ 15 a 40 · €€€€ más de 40</span>`;
+}
+function renderOutside(){
+  const box = $("#outside"), q = state.q.trim();
+  if (!q) { box.hidden = true; return; }
+  const quick = QUICK.map(id => link(STORES.find(x => x.id === id), q)).join("");
+  box.innerHTML = `<span>Rastrear «${esc(q)}» fuera del catálogo:</span>${quick}<button type="button" class="link" data-act="todir">todas las tiendas y listas</button>`;
+  box.hidden = false;
+}
+function storeGroupsHTML(q, only){
+  return GROUPS.filter(g => !only || only.includes(g.id)).map(g => {
+    const items = STORES.filter(x => x.g === g.id);
+    return `<p><span>${esc(g.n)}</span>${items.map(x => link(x, q)).join("")}</p>`;
+  }).join("");
+}
+function renderDir(){
+  const q = state.q.trim();
+  $("#dir-hint").textContent = q
+    ? `Los enlaces buscan «${q}» en cada sitio. Este radar no lee precios ni existencias: te deja en la página de resultados de cada tienda.`
+    : "Escribe un término en el buscador de arriba (por ejemplo LD2450) y estos enlaces lo buscarán en cada sitio. Sin término, abren la portada.";
+  $("#dir").innerHTML = GROUPS.map(g => `<div class="dir-g"><h3>${esc(g.n)}</h3><p>${esc(g.d)}</p><ul>${
+    STORES.filter(x => x.g === g.id).map(x => `<li>${link(x, q)}${x.d ? `<span>${esc(x.d)}</span>` : ""}</li>`).join("")
+  }</ul></div>`).join("");
+}
+
+/* ---------- rendering: discover ---------- */
+function rng(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function renderDiscover(){
+  const rnd = rng(state.seed), pick = arr => arr[Math.floor(rnd() * arr.length)];
+  const unlock = [];
+  for (const s of DATA) { if (s.own) continue; for (const cid of s.c) { const o = byId.get(cid); if (o && o.own === "si") unlock.push([s, o]); } }
+  if (!unlock.length) { $("#discover").innerHTML = ""; return; }
+  const [a, mine] = pick(unlock);
+  const news = DATA.filter(s => has(s,"nuevo") && s !== a);
+  const b = pick(news.length ? news : DATA.filter(s => s !== a));
+  const gems = DATA.filter(s => has(s,"joya") && !s.own && s !== a && s !== b);
+  const c = pick(gems.length ? gems : DATA.filter(s => s !== a && s !== b));
+  const low = t => t.charAt(0).toLowerCase() + t.slice(1);
+  const short = t => t.replace(/\s*\(.*\)\s*/, "").trim();
+  $("#discover").innerHTML =
+    `<article class="disc"><span class="k">Con lo que ya tienes</span><b>${esc(short(mine.pn))} + ${esc(short(a.pn))}</b><p>Ya tienes el ${esc(short(mine.pn))}. Con ${esc(short(a.pn))} (${esc(low(a.n))}) podrías armar esto: ${esc(low(a.i[0]))}.</p><button type="button" class="link" data-open="${a.id}">Ver ficha de ${esc(a.pn)}</button></article>` +
+    `<article class="disc gold"><span class="k">Novedad ${esc(b.y || "")}</span><b>${esc(b.pn)}</b><p>${esc(b.n)}. ${esc(b.d)}</p><button type="button" class="link" data-open="${b.id}">Ver ficha</button></article>` +
+    `<article class="disc"><span class="k">Poco conocido</span><b>${esc(c.pn)}</b><p>${esc(c.n)}. Idea: ${esc(low(c.i[0]))}.</p><button type="button" class="link" data-open="${c.id}">Ver ficha</button></article>`;
+}
+
+/* ---------- ficha ---------- */
+function fichaHTML(s){
+  const on = inRadar(s.id), internal = has(s,"interno"), q = termOf(s);
+  const plug = [has(s,"qwiic") ? "Qwiic / STEMMA QT" : "", has(s,"grove") ? "Grove" : ""].filter(Boolean).join(", ");
+  const combos = s.c.map(id => byId.get(id)).filter(Boolean);
+  const specs = [
+    ["Interfaz", s.b.length ? esc(s.b.join(", ")) : "Ver hoja de datos"],
+    s.a ? ["Dirección I2C por defecto", `<code>${esc(s.a)}</code>`] : null,
+    ["Precio orientativo", `${esc(priceLabel(s))} · ${esc(priceTitle(s))}`],
+    ["Dificultad", esc(LEVEL_T[s.l])],
+    plug ? ["Conexión sin soldar", esc(plug)] : null,
+    has(s,"esphome") ? ["ESPHome", "Tiene componente: funciona sin escribir el driver"] : null,
+    ["Sectores", esc(s.s.map(x => SECLABEL[x]).join(", "))]
+  ].filter(Boolean);
+  return `<div class="ficha">
+    <div class="ficha-top">
+      <p class="meta"><span>${esc(FAM[s.f])}</span>${flagsHTML(s)}</p>
+      <button type="button" class="x" data-act="close">Cerrar</button>
+      <h2 id="ficha-t">${esc(s.pn)}</h2>
+      <p class="what">${esc(s.n)}</p>
+    </div>
+    <p>${esc(s.d)}</p>
+    ${s.w ? `<p class="alert"><strong>Antes de conectar:</strong> ${esc(s.w)}</p>` : ""}
+    <dl class="specs">${specs.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
+    <div><h3>Ideas de proyecto</h3><ul class="ideas">${s.i.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
+    ${combos.length ? `<div><h3>Combínalo con</h3><p class="combo">${combos.map(o => `<button type="button" class="pill" data-open="${o.id}">${esc(o.pn)}${o.own === "si" ? " · lo tienes" : o.own === "kit" ? " · en tu kit" : ""}</button>`).join("")}</p></div>` : ""}
+    <div><h3>${internal ? "Dónde aprender a usarlo" : "Buscar «" + esc(q) + "» en"}</h3><div class="buy">${storeGroupsHTML(q, internal ? ["lista"] : null)}</div></div>
+    <p><button type="button" class="radar-btn" data-radar="${s.id}" aria-pressed="${on}">${on ? "En tu radar" : "+ Agregar a mi radar"}</button></p>
+  </div>`;
+}
+let openId = "";
+function openFicha(id){
+  const s = byId.get(id); if (!s) return;
+  openId = id;
+  const dlg = $("#ficha");
+  $("#ficha-body").innerHTML = fichaHTML(s);
+  if (!dlg.open) { try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); } }
+  dlg.scrollTop = 0;
+}
+function closeFicha(){ const dlg = $("#ficha"); openId = ""; try { dlg.close(); } catch (e) { dlg.removeAttribute("open"); } }
+
+/* ---------- radar (personal list) ---------- */
+/* ---------- radar (personal list, saved in the data folder) ---------- */
+let copyText = "";
+function cleanItems(arr){
+  const seen = new Set(), out = [];
+  for (const x of arr) {
+    if (!x || typeof x.id !== "string" || seen.has(x.id)) continue;
+    seen.add(x.id);
+    const it = {id: x.id.slice(0, 80)};
+    if (!byId.has(it.id)) {
+      it.pn = str(x.pn, 80); it.n = str(x.n, 160); it.q = str(x.q, 80);
+      const u = str(x.url, 600); if (/^https?:\/\//.test(u)) it.url = u;
+      if (!it.pn) continue;
+    }
+    out.push(it);
+    if (out.length >= 200) break;
+  }
+  return out;
+}
+function loadLocal(){
+  if (Array.isArray(BOOT.radar)) { state.radar = cleanItems(BOOT.radar); return; }
+  try { const raw = localStorage.getItem(LS); if (raw) { const v = JSON.parse(raw); if (v && Array.isArray(v.items)) state.radar = cleanItems(v.items); } } catch (e) {}
+}
+function saveLocal(){
+  if (BRIDGE) post({cmd: "guardar", nombre: "radar", datos: state.radar});
+  else try { localStorage.setItem(LS, JSON.stringify({items: state.radar})); } catch (e) {}
+}
+function radarChanged(){ saveLocal(); renderRadar(); renderGrid(); if (openId) $("#ficha-body").innerHTML = fichaHTML(byId.get(openId)); }
+function toggleRadar(id){
+  if (inRadar(id)) state.radar = state.radar.filter(r => r.id !== id);
+  else if (byId.has(id)) state.radar.push({id});
+  radarChanged();
+}
+function addCustom(x){
+  const id = x.id || "x-" + norm(x.pn).replace(/[^a-z0-9]+/g, "-").slice(0, 60);
+  if (!inRadar(id)) { const it = {id, pn: x.pn, n: x.n, q: x.q || x.pn}; if (x.url) it.url = x.url; state.radar.push(it); }
+  radarChanged();
+}
+function conflicts(){
+  const pool = [];
+  for (const r of state.radar) { const s = byId.get(r.id); if (s && s.a && s.b.includes("I2C")) pool.push([s, s.own === "si" ? "lo tienes" : "radar"]); }
+  for (const s of DATA) if (s.own === "si" && s.a && s.b.includes("I2C") && !pool.some(p => p[0] === s)) pool.push([s, "lo tienes"]);
+  const groups = new Map();
+  for (const p of pool) { if (!groups.has(p[0].a)) groups.set(p[0].a, []); groups.get(p[0].a).push(p); }
+  return [...groups].filter(([, g]) => g.length > 1);
+}
+function radarText(){
+  const lines = state.radar.map(r => {
+    const s = byId.get(r.id);
+    return s ? `- ${s.pn}: ${s.n} (${s.b.join("/") || "interfaz n/d"}${s.a ? " " + s.a : ""}, ${priceLabel(s)})` : `- ${r.pn}: ${r.n || "fuera del catálogo"}${r.url ? " " + r.url : ""}`;
+  });
+  return "Mi radar de sensores (" + new Date().toLocaleDateString("es") + ")\n" + lines.join("\n");
+}
+function renderRadar(){
+  $("#radar-n").textContent = String(state.radar.length);
+  const octo = STORES.find(x => x.id === "octopart");
+  const items = state.radar.map(r => {
+    const s = byId.get(r.id);
+    const title = s ? `<button type="button" class="pn" data-open="${s.id}">${esc(s.pn)}</button>` : `<span class="pn">${esc(r.pn)}</span>`;
+    const extra = r.url ? link({n: "Ver noticia", u: "", h: r.url}) : link(STORES[0], r.q);
+    const sub = s ? `${esc(s.n)} · ${esc(priceLabel(s))}` : `${esc(r.n || "Fuera del catálogo")} · ${extra} · ${link(octo, r.q)}`;
+    return `<li>${title}<small>${sub}</small><button type="button" class="rm" data-radar-rm="${esc(r.id)}">Quitar</button></li>`;
+  }).join("");
+  const conf = conflicts();
+  const confHTML = conf.length
+    ? `<div class="i2c"><strong>Direcciones I2C repetidas</strong>${conf.map(([a, g]) => `<span><b>${esc(a)}</b> ${g.map(([s, src]) => `${esc(s.pn)} (${src})`).join(", ")}</span>`).join("")}<span>Dos sensores con la misma dirección no pueden compartir bus. Cambia la dirección con el pin ADDR si existe, usa el segundo bus I2C del ESP32 o un multiplexor TCA9548A.</span></div>`
+    : `<div class="i2c ok">Sin direcciones I2C repetidas entre tu radar y lo que ya tienes.</div>`;
+  $("#radar-body").innerHTML =
+    (state.radar.length ? `<ul class="rlist">${items}</ul>` : `<p class="hint">Marca con «+ Radar» los sensores y novedades que quieras seguir o comprar. Aquí verás la lista y si sus direcciones I2C chocan con lo que ya tienes.</p>`) +
+    confHTML +
+    (state.radar.length ? `<p><button type="button" class="btn small" data-act="copy">Copiar lista</button></p>` : "") +
+    (copyText ? `<textarea id="copy-out" readonly aria-label="Lista para copiar">${esc(copyText)}</textarea>` : "") +
+    `<p class="sync">${BRIDGE ? "Guardado en tu Mac." : "Guardado en este navegador."}</p>`;
+}
+async function copyRadar(btn){
+  const text = radarText();
+  if (BRIDGE) { post({cmd: "copiar", texto: text}); btn.textContent = "Lista copiada"; return; }
+  try { await navigator.clipboard.writeText(text); copyText = ""; btn.textContent = "Lista copiada"; }
+  catch (e) { copyText = text; renderRadar(); const ta = $("#copy-out"); if (ta) { ta.focus(); ta.select(); } }
+}
+
+/* ---------- market news (RSS scan on demand) ---------- */
+let NOV = Array.isArray(BOOT.novedades) ? BOOT.novedades.filter(n => n && typeof n.id === "string" && typeof n.t === "string" && /^https?:\/\//.test(n.l || "")) : [];
+let META = BOOT.meta && typeof BOOT.meta === "object" && !Array.isArray(BOOT.meta) ? BOOT.meta : {};
+if (!Array.isArray(META.descartados)) META.descartados = [];
+let busy = false, busyTimer = 0, novSolo = false, novMax = 8;
+
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const wordRx = list => new RegExp("(^|[^a-z0-9])(" + list.map(reEsc).join("|") + ")(?=$|[^a-z0-9])");
+const KW_STRONG = wordRx(["sensor","sensors","sensing","radar","mmwave","lidar","tof","time-of-flight","time of flight","imu","accelerometer","gyroscope","magnetometer","barometer","barometric","hygrometer","thermometer","co2","voc","nox","pm2.5","particulate","air quality","formaldehyde","spectral","spectrometer","multispectral","ecg","ekg","ppg","spo2","heart rate","emg","eeg","biosensor","load cell","gesture","proximity","lux","geiger","lightning detector","gnss","uwb","fingerprint","thermal camera","thermal imaging","microphone","hall effect","encoder","anemometer","sensor kit","sensores","acelerometro"]);
+const KW_WEAK = wordRx(["temperature","humidity","pressure","gas","light","uv","camera","thermal","gps","rtk","rfid","nfc","flow","force","strain","current","power monitor","soil","moisture","water","ph","tds","vibration","tilt","distance","ultrasonic","color","motion","presence","occupancy","weight","scale","audio","health","tracker","wearable"]);
+const KW_SKIP = /product pick|giveaway|podcast|livestream|live show|ask an engineer|show and tell|deal of the day|sale|discount/;
+const FAMRX = [
+  ["bio", /ecg|ekg|ppg|spo2|heart rate|pulse ox|emg|eeg|biosens|blood|glucose|health track/],
+  ["radar", /radar|mmwave|presence|occupancy|wi-?fi sensing|csi/],
+  ["dist", /lidar|time.of.flight|(^|[^a-z])tof([^a-z]|$)|distance|ultrasonic|rangefinder/],
+  ["imu", /imu|accelerometer|gyro|magnetometer|inertial|[69].?axis|[69] ?dof/],
+  ["vision", /camera|thermal|infrared array|vision|image sensor/],
+  ["aire", /co2|(^|[^a-z])gas([^a-z]|$)|voc|air quality|particulate|pm2\.5|formaldehyde|nox/],
+  ["clima", /humidity|temperature|barometric|pressure sensor|weather|lightning|thermometer/],
+  ["luz", /(^|[^a-z])lux|light sensor|spectral|(^|[^a-z])uv([^a-z]|$)|color sensor|ambient light/],
+  ["fuerza", /load cell|force|strain|weight|(^|[^a-z])scale/],
+  ["agua", /soil|(^|[^a-z])ph([^a-z]|$)|tds|water|moisture|(^|[^a-z])flow/],
+  ["pos", /gnss|gps|uwb|rtk|positioning|hall effect|magnetic sensor/],
+  ["sonido", /microphone|audio|acoustic|sound sensor/],
+  ["energia", /current sens|power monitor|energy|battery|voltage|power meter/],
+  ["hmi", /gesture|touch|button|encoder|joystick|knob/],
+  ["ident", /rfid|nfc|fingerprint|barcode|qr code/]
+];
+const SECRX = {
+  salud: /health|medical|ecg|ekg|heart|spo2|sleep|fall det|breathing|respirat|glucose|patient|elder|vital/,
+  domotica: /home assistant|smart home|esphome|matter|zigbee|presence|occupancy|thread|room/,
+  robotica: /robot|lidar|motor|drone|rover|slam|navigation|imu|servo/,
+  agro: /soil|plant|hydropon|garden|greenhouse|agri|irrigation|(^|[^a-z])ph([^a-z]|$)|tds|aquarium/,
+  ambiente: /air quality|co2|pm2\.5|particulate|weather|humidity|voc|formaldehyde|pollution/,
+  energia: /current|power monitor|energy|battery|solar|voltage|power meter/,
+  wearables: /wearable|smartwatch|wristwatch|wrist|smart ring|wristband|earbud|smart glasses|fitness tracker|health tracker/,
+  seguridad: /security|alarm|intrusion|door|fingerprint|lock|surveillance|fall det/
+};
+function plain(html){
+  const ta = document.createElement("textarea");
+  let s = String(html || "");
+  for (let i = 0; i < 2; i++) { ta.innerHTML = s.replace(/<[^>]*>/g, " "); s = ta.value; }
+  return s.replace(/<[^>]*>/g, " ").replace(/[_=\-–—*]{4,}/g, " ").replace(/\s+/g, " ").trim();
+}
+function hash(s){ let h = 5381; for (let i = 0; i < s.length; i++) h = (h * 33 ^ s.charCodeAt(i)) >>> 0; return h.toString(36); }
+function relevant(t, s, tema){
+  const nt = norm(t), ns = norm(s);
+  if (KW_SKIP.test(nt)) return false;
+  const st = KW_STRONG.test(nt), wt = KW_WEAK.test(nt), ss = KW_STRONG.test(ns);
+  if (tema === "sensores") return st || wt || (ss && guessFam(t) !== "");
+  if (tema === "productos") return st || wt;
+  return st || (wt && ss);
+}
+const guessFam = text => { const n = norm(text); const hit = FAMRX.find(([, rx]) => rx.test(n)); return hit ? hit[0] : ""; };
+const guessSec = text => { const n = norm(text); return Object.keys(SECRX).filter(k => SECRX[k].test(n)); };
+let PNKEYS = [];
+function buildPnKeys(){
+  const keys = new Map();
+  for (const s of DATA) for (const tok of s.pn.split(/[\s\/(),+·]+/)) {
+    const k = tok.toUpperCase().replace(/[^A-Z0-9-]/g, "");
+    if (k.length >= 4 && /[A-Z]/.test(k) && /[0-9]/.test(k) && !/^ESP32(-[SC]\d+)?$/.test(k) && !keys.has(k)) keys.set(k, s.id);
+  }
+  PNKEYS = [...keys].map(([k, id]) => [new RegExp("(^|[^A-Z0-9])" + reEsc(k) + "(?=$|[^A-Z0-9])"), id]);
+}
+function related(title){
+  const up = String(title).toUpperCase().replace(/([A-Z])-(?=\d)/g, "$1"), out = [];
+  for (const [rx, id] of PNKEYS) if (rx.test(up) && !out.includes(id)) out.push(id);
+  return out.slice(0, 3);
+}
+function processFeeds(fuentes){
+  const now = new Date().toISOString();
+  const seen = new Set(NOV.map(n => n.id)), gone = new Set(META.descartados), titles = new Set(NOV.map(n => norm(n.t)));
+  for (const n of NOV) n.nuevo = false;
+  let nuevas = 0;
+  const rep = [];
+  for (const f of fuentes) {
+    const items = Array.isArray(f && f.items) ? f.items : [];
+    let rel = 0;
+    for (const it of items) {
+      const t = plain(str(it && it.t, 400)).slice(0, 300), l = str(it && it.l, 600);
+      if (!t || !/^https?:\/\//.test(l)) continue;
+      const s = plain(it.s || "").slice(0, 420);
+      if (!relevant(t, s, f.tema)) continue;
+      rel++;
+      const fam = guessFam(t) || guessFam(s);
+      if (!fam && f.tema !== "productos") continue;
+      const id = "n" + hash(l), nt = norm(t);
+      if (seen.has(id) || gone.has(id) || titles.has(nt)) continue;
+      const d = Date.parse(it.d || "");
+      NOV.push({id, t, l, s: s.slice(0, 300), f: str(f.n, 80), d: isNaN(d) ? now : new Date(d).toISOString(), visto: now, nuevo: true, fam, sec: guessSec(t + " " + s)});
+      seen.add(id); titles.add(nt); nuevas++;
+    }
+    rep.push({n: str(f && f.n, 80) || "Fuente", ok: !!(f && f.ok), error: str(f && f.error, 160), rel, total: items.length});
+  }
+  NOV.sort((a, b) => b.d.localeCompare(a.d));
+  NOV = NOV.slice(0, 300);
+  META.ultimaBusqueda = now;
+  post({cmd: "guardar", nombre: "novedades", datos: NOV});
+  post({cmd: "guardar", nombre: "meta", datos: META});
+  return {nuevas, rep};
+}
+function novVisible(){
+  const toks = tokens(state.q), need = toks.length ? Math.max(1, Math.ceil(toks.length * 0.6)) : 0;
+  return NOV.filter(n => {
+    if (novSolo && !n.nuevo) return false;
+    if (state.sector && !(n.sec || []).includes(state.sector)) return false;
+    if (state.fam && n.fam !== state.fam) return false;
+    if (toks.length) { const hay = norm(n.t + " " + (n.s || "") + " " + (FAM[n.fam] || "")); if (toks.filter(t => hay.includes(t)).length < need) return false; }
+    return true;
+  });
+}
+function renderNov(){
+  const box = $("#novedades");
+  const fresh = NOV.filter(n => n.nuevo).length;
+  $("#nov-n").textContent = fresh ? `${fresh} nuevas` : "";
+  $("#nov-n").hidden = !fresh;
+  if (!NOV.length) {
+    box.innerHTML = `<p class="empty">${META.ultimaBusqueda ? "La última búsqueda no encontró productos ni noticias de sensores." : "Todavía no has buscado novedades."} Presiona <button type="button" class="link" data-act="upd">Actualizar</button> para revisar ${(CAT.fuentes || []).length} fuentes de productos nuevos.</p>`;
+    return;
+  }
+  const list = novVisible();
+  const shown = list.slice(0, novMax);
+  const items = shown.map(n => {
+    const on = inRadar("nv-" + n.id);
+    const rel = related(n.t).map(id => byId.get(id)).filter(Boolean);
+    return `<li class="nov${n.nuevo ? " fresh" : ""}">
+      <p class="nov-meta"><span>${esc(n.f || "")}</span><span>${esc(relTime(n.d))}</span>${n.fam ? `<span>${esc(FAM[n.fam])}</span>` : ""}</p>
+      <a class="nov-t" href="${esc(n.l)}" target="_blank" rel="noopener noreferrer">${esc(n.t)}</a>
+      ${n.s ? `<p class="nov-s">${esc(n.s.length > 210 ? n.s.slice(0, 207).replace(/\s+\S*$/, "") + "…" : n.s)}</p>` : ""}
+      <p class="chips">${n.nuevo ? `<span class="flag new">Nueva</span>` : ""}${(n.sec || []).map(x => `<span class="chip">${esc(SECLABEL[x] || x)}</span>`).join("")}${rel.map(s => `<button type="button" class="pill" data-open="${s.id}">Ficha: ${esc(s.pn)}</button>`).join("")}</p>
+      <div class="acts"><button type="button" class="link" data-nov-rm="${esc(n.id)}">Descartar</button><button type="button" class="radar-btn" data-nov-radar="${esc(n.id)}" aria-pressed="${on}">${on ? "En tu radar" : "+ Radar"}</button></div>
+    </li>`;
+  }).join("");
+  box.innerHTML =
+    `<div class="nov-bar"><button type="button" class="pill" data-act="nov-solo" aria-pressed="${novSolo}">Solo nuevas</button><span class="count">${list.length} de ${NOV.length} novedades${state.q || state.sector || state.fam ? " con tus filtros" : ""}</span></div>` +
+    (shown.length ? `<ul class="novs">${items}</ul>` : `<p class="empty">Ninguna novedad coincide con tus filtros.</p>`) +
+    (list.length > novMax ? `<p><button type="button" class="btn small" data-act="nov-more">Mostrar ${Math.min(8, list.length - novMax)} más</button></p>` : "");
+}
+function novToggleRadar(id){
+  const n = NOV.find(x => x.id === id); if (!n) return;
+  const rid = "nv-" + id;
+  if (inRadar(rid)) { state.radar = state.radar.filter(r => r.id !== rid); radarChanged(); }
+  else {
+    const rel = related(n.t).map(x => byId.get(x)).filter(Boolean);
+    addCustom({id: rid, pn: n.t.length > 80 ? n.t.slice(0, 77) + "…" : n.t, n: (n.f || "Novedad") + (n.fam ? " · " + FAM[n.fam] : ""), q: rel.length ? termOf(rel[0]) : n.t.split(/[:–—|-]/)[0].slice(0, 60), url: n.l});
+  }
+  renderNov();
+}
+function novDiscard(id){
+  NOV = NOV.filter(n => n.id !== id);
+  META.descartados = [id, ...META.descartados.filter(x => x !== id)].slice(0, 1500);
+  post({cmd: "guardar", nombre: "novedades", datos: NOV});
+  post({cmd: "guardar", nombre: "meta", datos: META});
+  renderNov();
+}
+
+/* ---------- update button ---------- */
+function fmtDate(v){
+  if (!v) return "fecha desconocida";
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
+  const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(v);
+  return isNaN(d) ? v : d.toLocaleDateString("es", {day: "numeric", month: "short", year: "numeric"});
+}
+function relTime(iso){
+  const d = new Date(iso); if (isNaN(d)) return "";
+  const days = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(d).setHours(0, 0, 0, 0)) / 864e5);
+  if (days <= 0) return "hoy, " + d.toLocaleTimeString("es", {hour: "2-digit", minute: "2-digit"});
+  if (days === 1) return "ayer";
+  if (days < 30) return `hace ${days} días`;
+  return d.toLocaleDateString("es", {day: "numeric", month: "short", year: "numeric"});
+}
+function renderMeta(){
+  $("#eyebrow").textContent = `ESP32 · catálogo del ${fmtDate(CAT.actualizado)} · ${DATA.length} sensores`;
+  const b = $("#upd");
+  b.disabled = busy; b.setAttribute("aria-busy", String(busy));
+  b.lastChild.textContent = busy ? "Buscando novedades…" : "Actualizar";
+  document.querySelector(".hero").classList.toggle("busy", busy);
+  let st = "Todavía no has buscado novedades.";
+  if (META.ultimaBusqueda) {
+    const days = (Date.now() - Date.parse(META.ultimaBusqueda)) / 864e5;
+    st = `Última búsqueda de novedades: ${relTime(META.ultimaBusqueda)}` + (days > 7 ? ". Conviene actualizar." : ".");
+  }
+  $("#upd-status").textContent = busy ? `Revisando ${(CAT.fuentes || []).length} fuentes y el catálogo de tu Mac…` : st;
+  const last = Array.isArray(CAT.cambios) && CAT.cambios[0];
+  $("#foot").innerHTML = `Los precios son rangos orientativos de la placa más común: confirma precio y existencias en cada tienda. Las marcas «Lo tienes» y «En tu kit» vienen del inventario de Notion guardado en el catálogo. ` +
+    (last ? `Último cambio del catálogo (${esc(fmtDate(last.fecha))}): ${esc(str(last.texto, 300))} ` : "") +
+    `Las novedades se clasifican de forma automática por palabras clave: revisa la hoja de datos antes de comprar. Los proyectos de salud son prototipos de aprendizaje, no dispositivos médicos.` +
+    (BRIDGE ? ` <button type="button" class="link" data-act="carpeta">Abrir la carpeta de datos</button>` : "");
+}
+function showInforme(r, catMsg, err){
+  const box = $("#answer");
+  let body;
+  if (err) body = `<p class="sum">${esc(err)}</p>`;
+  else {
+    const okN = r.rep.filter(x => x.ok).length;
+    body = `<p class="sum">${r.nuevas ? `${r.nuevas} ${r.nuevas === 1 ? "novedad nueva" : "novedades nuevas"}` : "Sin novedades nuevas"} · ${okN} de ${r.rep.length} fuentes respondieron.</p>` +
+      `<p>${esc(catMsg || "El catálogo curado no cambió. Lo amplía la actualización mensual; las novedades de abajo son lo detectado hoy en las fuentes.")}</p>` +
+      `<ul class="rep">${r.rep.map(x => `<li><span class="st ${x.ok ? "ok" : "fail"}">${x.ok ? "OK" : "Falló"}</span><span>${esc(x.n)}: ${x.ok ? `${x.rel} de ${x.total} entradas hablan de sensores` : esc(x.error || "sin respuesta")}</span></li>`).join("")}</ul>`;
+  }
+  box.innerHTML = `<div class="answer-in"><h3>Resultado de la actualización</h3>${body}<p class="row-btns">${!err && NOV.length ? `<button type="button" class="btn small" data-act="nov-ver">Ver novedades</button>` : ""}<button type="button" class="btn small" data-act="ans-close">Cerrar</button></p></div>`;
+  box.hidden = false;
+}
+function actualizar(){
+  if (busy) return;
+  if (!BRIDGE) { showInforme(null, "", "El botón Actualizar funciona dentro de la app de Mac."); return; }
+  busy = true; renderMeta();
+  post({cmd: "actualizar", fuentes: (CAT.fuentes || []).filter(f => f && /^https:\/\//.test(f.u || ""))});
+  busyTimer = setTimeout(() => { busy = false; renderMeta(); showInforme(null, "", "No llegó respuesta en 60 segundos. Revisa tu conexión a internet e intenta de nuevo."); }, 60000);
+}
+window.radarActualizar = actualizar;
+window.radarRecibir = function(p){
+  clearTimeout(busyTimer);
+  busy = false;
+  let catMsg = "";
+  if (p && p.catalogo && Array.isArray(p.catalogo.sensores) && (p.catalogo.actualizado !== CAT.actualizado || p.catalogo.version !== CAT.version)) {
+    const before = DATA.length;
+    indexCatalog(p.catalogo);
+    state.radar = cleanItems(state.radar);
+    const diff = DATA.length - before;
+    catMsg = `Catálogo actualizado a la versión del ${fmtDate(CAT.actualizado)}: ${DATA.length} sensores${diff > 0 ? ` (${diff} ${diff === 1 ? "nuevo" : "nuevos"})` : ""}.`;
+  }
+  const r = processFeeds(Array.isArray(p && p.fuentes) ? p.fuentes : []);
+  novMax = 8;
+  renderAll();
+  showInforme(r, catMsg);
+};
+function renderAll(){
+  renderMeta(); renderSectors(); renderFilters(); renderDiscover(); renderRadar(); renderGrid();
+  if (openId && byId.has(openId)) $("#ficha-body").innerHTML = fichaHTML(byId.get(openId)); else if (openId) closeFicha();
+}
+
+/* ---------- events ---------- */
+function setSector(id){ state.sector = id; renderSectors(); renderGrid(); }
+function readHash(){ const h = location.hash.replace("#", ""); return SECTORS.some(x => x.id === h) ? h : ""; }
+function toggleIn(set, v){ if (set.has(v)) set.delete(v); else set.add(v); }
+let qTimer = 0;
+function setQuery(v){ state.q = v; renderGrid(); }
+
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[href]");
+  if (a && BRIDGE && /^https?:/.test(a.href)) { e.preventDefault(); post({cmd: "abrir", url: a.href}); return; }
+  const t = e.target.closest("button,[data-open]");
+  if (!t) return;
+  const d = t.dataset;
+  if ("open" in d) { openFicha(d.open); }
+  else if ("radar" in d) { toggleRadar(d.radar); }
+  else if ("radarRm" in d) { state.radar = state.radar.filter(r => r.id !== d.radarRm); radarChanged(); renderNov(); }
+  else if ("novRadar" in d) { novToggleRadar(d.novRadar); }
+  else if ("novRm" in d) { novDiscard(d.novRm); }
+  else if ("sector" in d) { try { location.hash = d.sector || "todos"; } catch (err) {} setSector(d.sector); }
+  else if ("bus" in d) { toggleIn(state.bus, d.bus); renderFilters(); renderGrid(); }
+  else if ("price" in d) { toggleIn(state.price, d.price); renderFilters(); renderGrid(); }
+  else if ("flag" in d) { toggleIn(state.flags, d.flag); renderFilters(); renderGrid(); }
+  else if ("try" in d) { $("#q").value = d.try; setQuery(d.try); $("#resultados").scrollIntoView({behavior: "smooth", block: "start"}); }
+  else if (d.act === "upd") { actualizar(); }
+  else if (d.act === "shuffle") { state.seed += 7919; renderDiscover(); }
+  else if (d.act === "nov-solo") { novSolo = !novSolo; novMax = 8; renderNov(); }
+  else if (d.act === "nov-more") { novMax += 8; renderNov(); }
+  else if (d.act === "nov-ver") { $("#answer").hidden = true; $("#nov-sec").scrollIntoView({behavior: "smooth", block: "start"}); }
+  else if (d.act === "carpeta") { post({cmd: "carpeta"}); }
+  else if (d.act === "clear") {
+    state.q = ""; $("#q").value = ""; state.fam = ""; $("#fam").value = ""; state.bus.clear(); state.price.clear(); state.flags.clear();
+    try { location.hash = "todos"; } catch (err) {}
+    renderFilters(); setSector("");
+  }
+  else if (d.act === "todir") { $("#tiendas").scrollIntoView({behavior: "smooth", block: "start"}); }
+  else if (d.act === "close") { closeFicha(); }
+  else if (d.act === "copy") { copyRadar(t); }
+  else if (d.act === "ans-close") { $("#answer").hidden = true; }
+});
+$("#ficha").addEventListener("click", e => { if (e.target === e.currentTarget) closeFicha(); });
+$("#ficha").addEventListener("close", () => { openId = ""; });
+$("#ask").addEventListener("submit", e => { e.preventDefault(); clearTimeout(qTimer); setQuery($("#q").value); $("#resultados").scrollIntoView({behavior: "smooth", block: "start"}); });
+$("#q").addEventListener("input", e => { clearTimeout(qTimer); const v = e.target.value; qTimer = setTimeout(() => setQuery(v), 140); });
+$("#fam").addEventListener("change", e => { state.fam = e.target.value; renderGrid(); });
+$("#sort").addEventListener("change", e => { state.sort = e.target.value; renderGrid(); });
+window.addEventListener("hashchange", () => { const h = readHash(); if (h !== state.sector) setSector(h); });
+
+/* ---------- boot ---------- */
+(function boot(){
+  indexCatalog(CAT);
+  const now = new Date();
+  state.seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+  state.sector = readHash();
+  loadLocal();
+  $("#fam").insertAdjacentHTML("beforeend", Object.entries(FAM).map(([id, n]) => `<option value="${id}">${esc(n)}</option>`).join(""));
+  $("#try").insertAdjacentHTML("beforeend", TRY.map(t => `<button type="button" class="pill" data-try="${esc(t)}">${esc(t)}</button>`).join(""));
+  $("#feeds").innerHTML = FEEDS.map(([n, u, d]) => `<li><a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(n)}</a><span>${esc(d)}</span></li>`).join("");
+  if (window.matchMedia && window.matchMedia("(max-width: 980px)").matches) $("#railbox").removeAttribute("open");
+  renderAll();
+})();
+</script>
+</body>
+</html>

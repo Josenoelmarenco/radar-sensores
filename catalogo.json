@@ -1,0 +1,3740 @@
+{
+ "esquema": 1,
+ "version": 1,
+ "actualizado": "2026-11-17",
+ "nota": "Catálogo curado del Radar de sensores. Lo actualiza la tarea mensual de Claude. Esquema en LEEME.md.",
+ "cambios": [
+  {
+   "fecha": "2026-11-17",
+   "texto": "Catálogo inicial: 124 sensores, inventario leído de Notion."
+  }
+ ],
+ "propios": {
+  "max30102": "si",
+  "ad8232": "si",
+  "mlx90614": "si",
+  "mpu6050": "si",
+  "ccs811": "si",
+  "sht30": "si",
+  "ds18b20": "si",
+  "esp32cam": "si",
+  "pir": "kit",
+  "hcsr04": "kit",
+  "ldr": "kit",
+  "mic": "kit",
+  "joystick": "kit",
+  "ky040": "kit",
+  "dht22": "kit",
+  "rc522": "kit",
+  "flama": "kit",
+  "mq": "kit",
+  "suelo": "kit",
+  "nivel": "kit",
+  "tcrt5000": "kit",
+  "irrx": "kit",
+  "tilt": "kit",
+  "ttp223": "kit",
+  "hall": "kit",
+  "bme280": "kit"
+ },
+ "fuentes": [
+  {
+   "n": "Adafruit · productos nuevos",
+   "u": "https://blog.adafruit.com/category/new-products/feed/",
+   "tema": "productos"
+  },
+  {
+   "n": "CNX Software · sensores",
+   "u": "https://www.cnx-software.com/news/sensors/feed/",
+   "tema": "sensores"
+  },
+  {
+   "n": "Hackster · noticias",
+   "u": "https://www.hackster.io/news.atom",
+   "tema": "general"
+  },
+  {
+   "n": "Hackaday",
+   "u": "https://hackaday.com/feed/",
+   "tema": "general"
+  }
+ ],
+ "sensores": [
+  {
+   "id": "max30102",
+   "pn": "MAX30102",
+   "n": "Pulso y oxígeno en sangre (PPG)",
+   "f": "bio",
+   "s": [
+    "salud",
+    "wearables"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x57",
+   "p": 1,
+   "l": 2,
+   "t": [],
+   "d": "Dos LED (rojo e infrarrojo) y un fotodiodo leen el pulso en el dedo. La señal cruda sirve para practicar filtrado y detección de picos.",
+   "i": [
+    "Pulsera que registra ritmo cardíaco y su variabilidad (HRV)",
+    "Monitor de recuperación después del ejercicio"
+   ],
+   "c": [
+    "max30205",
+    "mpu6050",
+    "gsr"
+   ],
+   "k": "corazon latidos saturacion oximetro spo2 hrv"
+  },
+  {
+   "id": "ad8232",
+   "pn": "AD8232",
+   "n": "Electrocardiograma (ECG) de una derivación",
+   "f": "bio",
+   "s": [
+    "salud"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 2,
+   "l": 2,
+   "t": [],
+   "d": "Amplifica la señal eléctrica del corazón con tres electrodos. Muestrea a 250 Hz o más y filtra el ruido de 50 Hz de la red.",
+   "i": [
+    "Graficar tu ECG en vivo en una página web",
+    "Detectar picos R y calcular la frecuencia cardíaca"
+   ],
+   "c": [
+    "max30102",
+    "ads1115"
+   ],
+   "w": "Con electrodos puestos, alimenta el circuito con batería y no con un USB conectado a la red.",
+   "k": "corazon electrodos ekg arritmia"
+  },
+  {
+   "id": "max30205",
+   "pn": "MAX30205",
+   "n": "Temperatura corporal de contacto (±0.1 °C)",
+   "f": "bio",
+   "s": [
+    "salud",
+    "wearables"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x48",
+   "p": 2,
+   "l": 1,
+   "t": [],
+   "d": "Termómetro digital pensado para la piel: su mejor precisión está justo entre 37 y 39 °C.",
+   "i": [
+    "Parche que registra la temperatura durante la noche",
+    "Detección temprana de fiebre en un wearable"
+   ],
+   "c": [
+    "max30102",
+    "tmp117"
+   ],
+   "k": "fiebre piel termometro"
+  },
+  {
+   "id": "tmp117",
+   "pn": "TMP117",
+   "n": "Temperatura de alta precisión (±0.1 °C)",
+   "f": "bio",
+   "s": [
+    "salud",
+    "wearables",
+    "ambiente"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x48",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "qwiic",
+    "esphome"
+   ],
+   "d": "Precisión de laboratorio sin calibrar. Sirve como referencia para comparar tus otros sensores de temperatura.",
+   "i": [
+    "Termómetro patrón para calibrar el DS18B20 y el SHT30",
+    "Registro de temperatura de la piel en reposo"
+   ],
+   "c": [
+    "max30205",
+    "sht45"
+   ],
+   "k": "termometro referencia calibracion"
+  },
+  {
+   "id": "myoware",
+   "pn": "MyoWare 2.0",
+   "n": "Actividad muscular (EMG)",
+   "f": "bio",
+   "s": [
+    "salud",
+    "wearables",
+    "robotica"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 4,
+   "l": 2,
+   "t": [],
+   "d": "Mide la señal eléctrica de un músculo y entrega la envolvente lista para leer con el ADC.",
+   "i": [
+    "Controlar una mano robótica con el antebrazo",
+    "Biofeedback para rehabilitación o postura"
+   ],
+   "c": [
+    "flex",
+    "mpu6050",
+    "ads1115"
+   ],
+   "q": "MyoWare 2.0 muscle sensor",
+   "k": "musculo protesis electromiografia brazo"
+  },
+  {
+   "id": "gsr",
+   "pn": "Grove GSR",
+   "n": "Conductancia de la piel (sudoración)",
+   "f": "bio",
+   "s": [
+    "salud",
+    "wearables"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 2,
+   "l": 1,
+   "t": [
+    "grove"
+   ],
+   "d": "Dos electrodos en los dedos miden cuánto conduce la piel, que cambia con el estrés y la activación emocional.",
+   "i": [
+    "Medidor de estrés que acompaña ejercicios de respiración",
+    "Registrar tus reacciones mientras ves una película"
+   ],
+   "c": [
+    "max30102",
+    "max30205"
+   ],
+   "q": "Grove GSR sensor",
+   "k": "estres emociones eda galvanica"
+  },
+  {
+   "id": "max86150",
+   "pn": "MAX86150",
+   "n": "PPG y ECG en un solo chip",
+   "f": "bio",
+   "s": [
+    "salud",
+    "wearables"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x5E",
+   "p": 3,
+   "l": 3,
+   "t": [],
+   "d": "Con pulso óptico y ECG sincronizados puedes calcular el tiempo de tránsito del pulso, que se relaciona con la presión arterial.",
+   "i": [
+    "Estimar la tendencia de la presión arterial sin brazalete",
+    "Reloj con ECG de un toque"
+   ],
+   "c": [
+    "max30205",
+    "bmi270"
+   ],
+   "k": "presion arterial ptt corazon"
+  },
+  {
+   "id": "ads1292r",
+   "pn": "ADS1292R",
+   "n": "ECG y respiración por impedancia",
+   "f": "bio",
+   "s": [
+    "salud"
+   ],
+   "b": [
+    "SPI"
+   ],
+   "p": 4,
+   "l": 3,
+   "t": [],
+   "d": "Front-end de 24 bits usado en equipos clínicos: obtiene el ECG y la frecuencia respiratoria con los mismos electrodos.",
+   "i": [
+    "Holter casero con registro en tarjeta SD",
+    "Monitor de respiración durante el sueño"
+   ],
+   "c": [
+    "max30102",
+    "mpu6050"
+   ],
+   "q": "ADS1292R breakout",
+   "k": "respiracion corazon holter apnea"
+  },
+  {
+   "id": "ad5933",
+   "pn": "AD5933",
+   "n": "Bioimpedancia (analizador de impedancia)",
+   "f": "bio",
+   "s": [
+    "salud",
+    "agro"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x0D",
+   "p": 3,
+   "l": 3,
+   "t": [],
+   "d": "Mide la impedancia de un tejido o de un líquido a distintas frecuencias. Es el principio de las básculas de composición corporal.",
+   "i": [
+    "Estimar hidratación o composición corporal",
+    "Medir la madurez de una fruta o la calidad de un líquido"
+   ],
+   "c": [
+    "hx711",
+    "tds"
+   ],
+   "k": "grasa corporal bia eis hidratacion"
+  },
+  {
+   "id": "mlx90614",
+   "pn": "MLX90614",
+   "n": "Temperatura infrarroja sin contacto",
+   "f": "bio",
+   "s": [
+    "salud",
+    "domotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x5A",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Lee la temperatura de una superficie a distancia. Apunta a la frente, a una taza o a un motor.",
+   "i": [
+    "Termómetro de frente sin contacto",
+    "Alarma de sobrecalentamiento para la impresora 3D"
+   ],
+   "c": [
+    "vl53l0x",
+    "mlx90640"
+   ],
+   "k": "fiebre termometro pistola"
+  },
+  {
+   "id": "stretch",
+   "pn": "Cuerda de caucho conductivo",
+   "n": "Estiramiento (banda de respiración)",
+   "f": "bio",
+   "s": [
+    "salud",
+    "wearables"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 2,
+   "l": 2,
+   "t": [
+    "joya"
+   ],
+   "d": "Su resistencia sube cuando se estira. Alrededor del pecho se convierte en un sensor de respiración muy barato.",
+   "i": [
+    "Banda que guía ejercicios de respiración",
+    "Detectar postura encorvada en la espalda"
+   ],
+   "c": [
+    "ads1115",
+    "max30102"
+   ],
+   "q": "conductive rubber cord stretch sensor",
+   "k": "respiracion pecho postura elastico"
+  },
+  {
+   "id": "sdp810",
+   "pn": "SDP810",
+   "n": "Presión diferencial (flujo de aire, espirometría)",
+   "f": "bio",
+   "s": [
+    "salud",
+    "ambiente"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x25",
+   "p": 3,
+   "l": 3,
+   "t": [],
+   "d": "Detecta diferencias de presión de fracciones de pascal. Con un tubo Venturi impreso en 3D mide el flujo de aire al soplar.",
+   "i": [
+    "Espirómetro casero con boquilla impresa en 3D",
+    "Medir si un filtro de aire ya está tapado"
+   ],
+   "c": [
+    "bmp581",
+    "sht45",
+    "mprls"
+   ],
+   "k": "pulmones soplar flujo espirometro filtro"
+  },
+  {
+   "id": "ld2410",
+   "pn": "HLK-LD2410C",
+   "n": "Presencia por radar de 24 GHz",
+   "f": "radar",
+   "s": [
+    "domotica",
+    "seguridad",
+    "salud"
+   ],
+   "b": [
+    "UART",
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome",
+    "joya"
+   ],
+   "d": "Detecta a una persona aunque esté quieta, por sus micromovimientos. Funciona detrás de una carcasa de plástico y se configura por Bluetooth.",
+   "i": [
+    "Luces que no se apagan mientras lees inmóvil",
+    "Saber si alguien sigue en la cama o en el baño"
+   ],
+   "c": [
+    "bh1750",
+    "sht45",
+    "ld2450"
+   ],
+   "w": "Alimenta a 5 V; la señal serial ya es de 3.3 V.",
+   "q": "LD2410C",
+   "k": "persona quieta ocupacion habitacion mmwave inmovil"
+  },
+  {
+   "id": "ld2450",
+   "pn": "HLK-LD2450",
+   "n": "Radar que rastrea hasta 3 personas (X, Y)",
+   "f": "radar",
+   "s": [
+    "domotica",
+    "seguridad",
+    "robotica"
+   ],
+   "b": [
+    "UART"
+   ],
+   "p": 2,
+   "l": 2,
+   "t": [
+    "esphome",
+    "joya"
+   ],
+   "d": "Entrega la posición en centímetros y la velocidad de cada persona. Permite definir zonas dentro de una habitación.",
+   "i": [
+    "Zonas inteligentes: sofá, escritorio y puerta",
+    "Mapa de calor de por dónde se camina en casa"
+   ],
+   "c": [
+    "ld2410",
+    "vl53l5cx"
+   ],
+   "w": "Alimenta a 5 V.",
+   "q": "LD2450",
+   "k": "personas posicion zonas trayectoria mmwave seguimiento contar"
+  },
+  {
+   "id": "mr60bha2",
+   "pn": "Seeed MR60BHA2",
+   "n": "Respiración y ritmo cardíaco sin contacto (60 GHz)",
+   "f": "radar",
+   "s": [
+    "salud",
+    "domotica"
+   ],
+   "b": [
+    "UART"
+   ],
+   "p": 3,
+   "l": 2,
+   "t": [
+    "esphome",
+    "joya"
+   ],
+   "d": "Kit con un XIAO ESP32-C6 incluido. Mide respiración y pulso a 1.5 m de distancia, sin cables, sin cámara y sin nada pegado al cuerpo.",
+   "i": [
+    "Monitor de sueño en la mesa de noche",
+    "Vigilar la respiración de un bebé o de un adulto mayor"
+   ],
+   "c": [
+    "bh1750",
+    "scd41",
+    "mr60fda2"
+   ],
+   "q": "MR60BHA2",
+   "k": "sueño apnea bebe corazon signos vitales mmwave dormir respiracion sin contacto"
+  },
+  {
+   "id": "mr60fda2",
+   "pn": "Seeed MR60FDA2",
+   "n": "Detección de caídas sin cámara (60 GHz)",
+   "f": "radar",
+   "s": [
+    "salud",
+    "seguridad",
+    "domotica"
+   ],
+   "b": [
+    "UART"
+   ],
+   "p": 3,
+   "l": 2,
+   "t": [
+    "esphome",
+    "joya"
+   ],
+   "d": "Kit con XIAO ESP32-C6. Se monta en el techo, cubre unos 3 × 3 m y avisa si alguien cae al piso.",
+   "i": [
+    "Alerta de caídas en el baño de un adulto mayor",
+    "Aviso al celular si alguien lleva mucho tiempo en el piso"
+   ],
+   "c": [
+    "mr60bha2",
+    "ld2410",
+    "bmp581"
+   ],
+   "q": "MR60FDA2",
+   "k": "caida caidas caer cayo cae adulto mayor anciano abuela baño mmwave"
+  },
+  {
+   "id": "c4002",
+   "pn": "DFRobot C4002",
+   "n": "Radar de presencia con datos micro-Doppler",
+   "f": "radar",
+   "s": [
+    "domotica",
+    "salud"
+   ],
+   "b": [],
+   "p": null,
+   "l": 3,
+   "t": [
+    "nuevo"
+   ],
+   "y": "2026",
+   "d": "Además de presencia estática, su modo de acceso completo entrega la telemetría micro-Doppler ya procesada para que escribas tu propia lógica.",
+   "i": [
+    "Distinguir a una persona de un ventilador o una cortina",
+    "Experimentar con detección de respiración por radar"
+   ],
+   "c": [
+    "ld2410",
+    "mr60bha2"
+   ],
+   "q": "C4002 mmWave",
+   "k": "mmwave presencia doppler"
+  },
+  {
+   "id": "ak5816",
+   "pn": "AKM AK5816AIM",
+   "n": "Radar 4×4 con antena integrada (caídas, postura, signos vitales)",
+   "f": "radar",
+   "s": [
+    "salud",
+    "seguridad"
+   ],
+   "b": [],
+   "p": null,
+   "l": 3,
+   "t": [
+    "nuevo"
+   ],
+   "y": "2026",
+   "d": "Módulo de 23 × 23 mm en producción desde julio de 2026. Está dirigido a fabricantes: se prueba con su kit de evaluación, no con una placa de aficionado.",
+   "i": [
+    "Seguirle la pista: muestra hacia dónde va el monitoreo sin cámara",
+    "Referencia técnica para una tesis de salud en el hogar"
+   ],
+   "c": [
+    "mr60fda2",
+    "mr60bha2"
+   ],
+   "q": "AK5816AIM",
+   "k": "mmwave caidas postura privacidad"
+  },
+  {
+   "id": "rcwl0516",
+   "pn": "RCWL-0516",
+   "n": "Movimiento por microondas (Doppler)",
+   "f": "radar",
+   "s": [
+    "domotica",
+    "seguridad"
+   ],
+   "b": [
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "Alternativa al PIR que ve a través de plástico, madera delgada o vidrio, así que puede ir escondido dentro de la carcasa.",
+   "i": [
+    "Sensor de paso oculto detrás de un cuadro",
+    "Encender la luz del pasillo sin un lente visible"
+   ],
+   "c": [
+    "pir",
+    "ld2410"
+   ],
+   "k": "movimiento oculto pared"
+  },
+  {
+   "id": "pir",
+   "pn": "HC-SR501 (PIR)",
+   "n": "Movimiento por infrarrojo pasivo",
+   "f": "radar",
+   "s": [
+    "domotica",
+    "seguridad"
+   ],
+   "b": [
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Detecta el calor de un cuerpo que se mueve. Consume muy poco, pero deja de ver a quien se queda quieto.",
+   "i": [
+    "Luz automática para el clóset",
+    "Despertar al ESP32 de deep sleep cuando entra alguien"
+   ],
+   "c": [
+    "ld2410",
+    "bh1750"
+   ],
+   "q": "HC-SR501",
+   "k": "movimiento alarma"
+  },
+  {
+   "id": "csi",
+   "pn": "Wi-Fi CSI del ESP32",
+   "n": "Presencia usando solo la señal Wi-Fi",
+   "f": "radar",
+   "s": [
+    "domotica",
+    "seguridad"
+   ],
+   "b": [
+    "Interno"
+   ],
+   "p": 0,
+   "l": 3,
+   "t": [
+    "interno",
+    "joya"
+   ],
+   "d": "El ESP32 puede leer cómo se deforma la señal Wi-Fi (Channel State Information). Un cuerpo que se mueve la altera: detección sin sensor adicional.",
+   "i": [
+    "Detectar movimiento en una habitación con dos ESP32",
+    "Entrenar un modelo TinyML que reconozca actividad"
+   ],
+   "c": [
+    "ld2410",
+    "pir"
+   ],
+   "q": "ESP32 CSI",
+   "k": "wifi sin hardware deteccion gratis movimiento"
+  },
+  {
+   "id": "mpu6050",
+   "pn": "MPU6050 (GY-521)",
+   "n": "Acelerómetro y giroscopio de 6 ejes",
+   "f": "imu",
+   "s": [
+    "robotica",
+    "wearables",
+    "salud"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x68",
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "El clásico para empezar con movimiento: inclinación, vibración, golpes y pasos.",
+   "i": [
+    "Detector de caídas en el cinturón",
+    "Aviso cuando la lavadora termina de centrifugar"
+   ],
+   "c": [
+    "bmp581",
+    "max30102",
+    "qmc5883l"
+   ],
+   "q": "MPU6050",
+   "k": "inclinacion vibracion pasos caida caidas caer cayo giroscopio"
+  },
+  {
+   "id": "bno085",
+   "pn": "BNO085 / BNO086",
+   "n": "Orientación absoluta con fusión integrada",
+   "f": "imu",
+   "s": [
+    "robotica",
+    "wearables"
+   ],
+   "b": [
+    "I2C",
+    "SPI",
+    "UART"
+   ],
+   "a": "0x4A",
+   "p": 3,
+   "l": 2,
+   "t": [
+    "qwiic"
+   ],
+   "d": "Entrega cuaterniones estables sin que programes filtros. SparkFun lo vende como «VR IMU» porque nació para realidad virtual.",
+   "i": [
+    "Seguimiento de la postura o de una articulación",
+    "Robot que mantiene el rumbo sin deriva"
+   ],
+   "c": [
+    "vl53l5cx",
+    "as5600",
+    "bmp581"
+   ],
+   "q": "BNO085",
+   "k": "orientacion cuaternion postura vr rumbo"
+  },
+  {
+   "id": "bno055",
+   "pn": "BNO055",
+   "n": "Orientación absoluta de 9 ejes",
+   "f": "imu",
+   "s": [
+    "robotica",
+    "wearables"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x28",
+   "p": 3,
+   "l": 1,
+   "t": [
+    "qwiic"
+   ],
+   "d": "La fusión de sensores ocurre dentro del chip: lees directamente ángulos de Euler. Más simple que el BNO085 y algo menos preciso.",
+   "i": [
+    "Nivel digital o inclinómetro",
+    "Estabilizador de cámara (gimbal) de un eje"
+   ],
+   "c": [
+    "bmp581",
+    "gps"
+   ],
+   "k": "orientacion euler brujula gimbal"
+  },
+  {
+   "id": "lsm6dsox",
+   "pn": "LSM6DSOX",
+   "n": "IMU con aprendizaje automático integrado",
+   "f": "imu",
+   "s": [
+    "wearables",
+    "robotica",
+    "salud"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x6A",
+   "p": 2,
+   "l": 3,
+   "t": [
+    "qwiic"
+   ],
+   "d": "Su núcleo de machine learning clasifica actividades (caminar, correr, quieto) dentro del sensor y despierta al ESP32 solo cuando hace falta.",
+   "i": [
+    "Reconocer ejercicios sin gastar batería",
+    "Contador de repeticiones en el gimnasio"
+   ],
+   "c": [
+    "max17048",
+    "max30102"
+   ],
+   "k": "actividad pasos ml tinyml clasificar ejercicio"
+  },
+  {
+   "id": "lsm6dsv16x",
+   "pn": "LSM6DSV16X",
+   "n": "IMU con fusión y canal electrostático (Qvar)",
+   "f": "imu",
+   "s": [
+    "wearables",
+    "robotica"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x6B",
+   "p": 3,
+   "l": 3,
+   "t": [
+    "qwiic"
+   ],
+   "d": "Además de movimiento, su entrada Qvar mide cambios de carga eléctrica: detecta toques, deslizamientos y hasta una mano que se acerca.",
+   "i": [
+    "Audífonos que reconocen gestos de toque",
+    "Detectar que alguien acerca la mano sin tocar"
+   ],
+   "c": [
+    "bmi270",
+    "max17048"
+   ],
+   "k": "gestos toque electrostatico qvar"
+  },
+  {
+   "id": "bmi270",
+   "pn": "BMI270",
+   "n": "IMU de ultra bajo consumo para wearables",
+   "f": "imu",
+   "s": [
+    "wearables",
+    "salud"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x68",
+   "p": 2,
+   "l": 2,
+   "t": [
+    "qwiic"
+   ],
+   "d": "Trae contador de pasos y detección de gestos de muñeca dentro del chip. Está pensado para relojes y audífonos.",
+   "i": [
+    "Reloj que enciende la pantalla al girar la muñeca",
+    "Podómetro que dura semanas con una batería pequeña"
+   ],
+   "c": [
+    "max30102",
+    "max17048",
+    "bmp581"
+   ],
+   "k": "pasos muñeca reloj gestos podometro"
+  },
+  {
+   "id": "bmi323",
+   "pn": "BMI323",
+   "n": "IMU de nueva generación de Bosch",
+   "f": "imu",
+   "s": [
+    "wearables",
+    "robotica"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x68",
+   "p": null,
+   "l": 2,
+   "t": [
+    "nuevo"
+   ],
+   "y": "2026",
+   "d": "DFRobot lo lanzó en octubre de 2026 en módulos Gravity: solo (6 ejes) o junto al magnetómetro BMM350 y el barómetro BMP581 (10 ejes).",
+   "i": [
+    "Unidad inercial de 10 ejes para un dron o un robot",
+    "Punto de partida actual si empiezas un wearable hoy"
+   ],
+   "c": [
+    "bmp581",
+    "gps"
+   ],
+   "q": "BMI323",
+   "k": "gravity 10dof dfrobot"
+  },
+  {
+   "id": "lis3dh",
+   "pn": "LIS3DH",
+   "n": "Acelerómetro de 3 ejes con detección de toques",
+   "f": "imu",
+   "s": [
+    "domotica",
+    "wearables",
+    "seguridad"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x18",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "qwiic"
+   ],
+   "d": "Barato y de muy bajo consumo. Genera interrupciones por golpe, doble toque o caída libre para despertar al ESP32.",
+   "i": [
+    "Cubo que cambia la escena de luces según la cara de arriba",
+    "Alarma si alguien mueve tu bicicleta"
+   ],
+   "c": [
+    "max17048",
+    "ld2410"
+   ],
+   "k": "golpe toque movimiento alarma cubo"
+  },
+  {
+   "id": "qmc5883l",
+   "pn": "QMC5883L",
+   "n": "Brújula digital (magnetómetro)",
+   "f": "imu",
+   "s": [
+    "robotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x0D",
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Mide el campo magnético en tres ejes. También detecta imanes y objetos metálicos cercanos.",
+   "i": [
+    "Rumbo para un robot o un velero a escala",
+    "Detector de paso de autos o de apertura de una puerta"
+   ],
+   "c": [
+    "mpu6050",
+    "gps"
+   ],
+   "k": "rumbo norte iman metal"
+  },
+  {
+   "id": "sw420",
+   "pn": "SW-420",
+   "n": "Vibración (interruptor)",
+   "f": "imu",
+   "s": [
+    "domotica",
+    "seguridad"
+   ],
+   "b": [
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "Un resorte interno cierra el circuito cuando hay vibración. Sin librerías: es una entrada digital.",
+   "i": [
+    "Aviso al celular cuando termina la lavadora",
+    "Alarma de vibración en una ventana"
+   ],
+   "c": [
+    "mpu6050",
+    "lis3dh"
+   ],
+   "k": "lavadora golpe vibra"
+  },
+  {
+   "id": "tilt",
+   "pn": "Interruptor de inclinación",
+   "n": "Inclinado o no inclinado",
+   "f": "imu",
+   "s": [
+    "domotica",
+    "seguridad"
+   ],
+   "b": [
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "Una bolita metálica cierra el circuito según la posición. No consume nada en reposo.",
+   "i": [
+    "Saber si una ventana abatible quedó abierta",
+    "Dado electrónico que se activa al agitarlo"
+   ],
+   "c": [
+    "lis3dh",
+    "sw420"
+   ],
+   "q": "tilt switch SW-520D",
+   "k": "inclinacion posicion agitar"
+  },
+  {
+   "id": "hcsr04",
+   "pn": "HC-SR04",
+   "n": "Distancia por ultrasonido",
+   "f": "dist",
+   "s": [
+    "robotica",
+    "domotica"
+   ],
+   "b": [
+    "Trigger/Echo"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Mide de 2 cm a 4 m con el eco de un pulso de sonido. Ideal para aprender; falla con superficies blandas o inclinadas.",
+   "i": [
+    "Robot que esquiva obstáculos",
+    "Medidor de qué tan lleno está un bote de basura"
+   ],
+   "c": [
+    "vl53l0x",
+    "mpu6050"
+   ],
+   "w": "La señal Echo sale a 5 V: bájala con un divisor resistivo antes del ESP32.",
+   "k": "obstaculos sonar nivel"
+  },
+  {
+   "id": "vl53l0x",
+   "pn": "VL53L0X",
+   "n": "Distancia láser (ToF) hasta 2 m",
+   "f": "dist",
+   "s": [
+    "robotica",
+    "domotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x29",
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Mide el tiempo de vuelo de un láser invisible. Más preciso y compacto que el ultrasonido, con un haz angosto.",
+   "i": [
+    "Detectar la mano para abrir un dispensador",
+    "Contar personas que cruzan una puerta"
+   ],
+   "c": [
+    "vl53l5cx",
+    "apds9960"
+   ],
+   "k": "laser tof proximidad mano"
+  },
+  {
+   "id": "vl53l1x",
+   "pn": "VL53L1X",
+   "n": "Distancia láser (ToF) hasta 4 m",
+   "f": "dist",
+   "s": [
+    "robotica",
+    "domotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x29",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "qwiic"
+   ],
+   "d": "El doble de alcance que el VL53L0X y con una zona de detección programable.",
+   "i": [
+    "Sensor de estacionamiento para el garaje",
+    "Altímetro de baja altura para un dron"
+   ],
+   "c": [
+    "pmw3901",
+    "bno085"
+   ],
+   "k": "laser tof garaje altura"
+  },
+  {
+   "id": "vl53l5cx",
+   "pn": "VL53L5CX",
+   "n": "Distancia multizona 8×8 (mapa de profundidad)",
+   "f": "dist",
+   "s": [
+    "robotica",
+    "domotica",
+    "seguridad"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x29",
+   "p": 3,
+   "l": 3,
+   "t": [
+    "qwiic",
+    "joya"
+   ],
+   "d": "Entrega 64 distancias a la vez, hasta 4 m. Es una cámara de profundidad mínima que no capta la imagen de nadie.",
+   "i": [
+    "Reconocer gestos de la mano en el aire",
+    "Contar personas y su dirección sin usar cámara"
+   ],
+   "c": [
+    "ld2450",
+    "bno085"
+   ],
+   "k": "profundidad gestos 3d contar personas matriz"
+  },
+  {
+   "id": "tmf8806",
+   "pn": "TMF8806",
+   "n": "Distancia láser de 1 cm a 5 m",
+   "f": "dist",
+   "s": [
+    "robotica",
+    "domotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x41",
+   "p": 2,
+   "l": 2,
+   "t": [
+    "nuevo",
+    "qwiic"
+   ],
+   "y": "2026",
+   "d": "Sensor ToF de ams OSRAM que Adafruit sumó a su catálogo en 2026. Cubre desde muy cerca hasta 5 m con un solo chip.",
+   "i": [
+    "Nivel de un tanque angosto",
+    "Detectar a alguien frente a una pantalla"
+   ],
+   "c": [
+    "vl53l5cx",
+    "tcs3448"
+   ],
+   "k": "laser tof adafruit"
+  },
+  {
+   "id": "tfluna",
+   "pn": "TF-Luna",
+   "n": "LiDAR de un punto hasta 8 m",
+   "f": "dist",
+   "s": [
+    "robotica"
+   ],
+   "b": [
+    "UART",
+    "I2C"
+   ],
+   "p": 3,
+   "l": 2,
+   "t": [],
+   "d": "Largo alcance y lectura rápida (hasta 250 Hz) en un módulo del tamaño de una moneda.",
+   "i": [
+    "Radar de reversa para una bicicleta de carga",
+    "Escáner 2D casero girándolo con un servo"
+   ],
+   "c": [
+    "ld19",
+    "as5600"
+   ],
+   "w": "Alimenta a 5 V.",
+   "k": "lidar largo alcance escaner"
+  },
+  {
+   "id": "ld19",
+   "pn": "LDROBOT LD19 / LD06",
+   "n": "LiDAR 2D de 360°",
+   "f": "dist",
+   "s": [
+    "robotica"
+   ],
+   "b": [
+    "UART"
+   ],
+   "p": 4,
+   "l": 3,
+   "t": [],
+   "d": "Gira y entrega miles de puntos por segundo alrededor del robot. Es la entrada habitual para construir mapas (SLAM).",
+   "i": [
+    "Robot que dibuja el plano de tu apartamento",
+    "Zona de seguridad alrededor de una máquina"
+   ],
+   "c": [
+    "bno085",
+    "pmw3901"
+   ],
+   "q": "LD19 lidar",
+   "k": "slam mapa 360 navegacion"
+  },
+  {
+   "id": "jsnsr04t",
+   "pn": "JSN-SR04T / A02YYUW",
+   "n": "Ultrasonido impermeable",
+   "f": "dist",
+   "s": [
+    "agro",
+    "domotica"
+   ],
+   "b": [
+    "Trigger/Echo",
+    "UART"
+   ],
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Sonda sellada que aguanta humedad y exteriores. Mide desde arriba cuánta agua queda en un tanque.",
+   "i": [
+    "Nivel del depósito de nutrientes en hidroponía",
+    "Aviso cuando el tanque de lluvia está por rebosar"
+   ],
+   "c": [
+    "yfs201",
+    "ds18b20",
+    "tds"
+   ],
+   "q": "JSN-SR04T",
+   "k": "nivel tanque agua deposito exterior"
+  },
+  {
+   "id": "tcrt5000",
+   "pn": "TCRT5000",
+   "n": "Reflexión infrarroja (línea y obstáculos)",
+   "f": "dist",
+   "s": [
+    "robotica"
+   ],
+   "b": [
+    "Analógico",
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "Un LED infrarrojo y un fototransistor: distingue negro de blanco a pocos milímetros.",
+   "i": [
+    "Robot seguidor de línea",
+    "Contar las vueltas de una rueda con una marca"
+   ],
+   "c": [
+    "as5600",
+    "hcsr04"
+   ],
+   "k": "linea seguidor contador"
+  },
+  {
+   "id": "esp32cam",
+   "pn": "ESP32-CAM (OV2640)",
+   "n": "Cámara de 2 MP con Wi-Fi",
+   "f": "vision",
+   "s": [
+    "seguridad",
+    "domotica",
+    "robotica",
+    "agro"
+   ],
+   "b": [
+    "Placa propia"
+   ],
+   "p": 2,
+   "l": 2,
+   "t": [
+    "esphome"
+   ],
+   "d": "Un ESP32 con cámara: transmite video, toma fotos por intervalos y corre detección de rostros básica.",
+   "i": [
+    "Time-lapse del crecimiento de tus plantas",
+    "Leer un medidor analógico con visión"
+   ],
+   "c": [
+    "pir",
+    "ld2410",
+    "gvision"
+   ],
+   "q": "ESP32-CAM",
+   "k": "camara video foto timelapse"
+  },
+  {
+   "id": "mlx90640",
+   "pn": "MLX90640",
+   "n": "Cámara térmica de 32×24 píxeles",
+   "f": "vision",
+   "s": [
+    "salud",
+    "domotica",
+    "seguridad",
+    "energia"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x33",
+   "p": 4,
+   "l": 3,
+   "t": [
+    "qwiic"
+   ],
+   "d": "768 puntos de temperatura por cuadro. Ve personas en la oscuridad y puntos calientes en un circuito.",
+   "i": [
+    "Detectar fiebre o inflamación en una zona del cuerpo",
+    "Encontrar fugas de calor en una ventana"
+   ],
+   "c": [
+    "mlx90614",
+    "vl53l5cx"
+   ],
+   "k": "termica calor termografia fiebre"
+  },
+  {
+   "id": "amg8833",
+   "pn": "AMG8833",
+   "n": "Matriz térmica de 8×8",
+   "f": "vision",
+   "s": [
+    "domotica",
+    "seguridad",
+    "salud"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x69",
+   "p": 3,
+   "l": 2,
+   "t": [
+    "qwiic"
+   ],
+   "d": "La versión económica de la cámara térmica: suficiente para detectar personas por su calor sin identificar a nadie.",
+   "i": [
+    "Contar personas en una sala respetando su privacidad",
+    "Detectar una hornilla que quedó encendida"
+   ],
+   "c": [
+    "ld2410",
+    "mlx90640"
+   ],
+   "k": "termica personas calor estufa"
+  },
+  {
+   "id": "gvision",
+   "pn": "Grove Vision AI V2",
+   "n": "Cámara con inteligencia artificial integrada",
+   "f": "vision",
+   "s": [
+    "seguridad",
+    "robotica",
+    "agro",
+    "domotica"
+   ],
+   "b": [
+    "I2C",
+    "UART"
+   ],
+   "p": 3,
+   "l": 2,
+   "t": [
+    "grove",
+    "joya"
+   ],
+   "d": "Corre modelos de visión (personas, poses, objetos) en su propio chip y le entrega al ESP32 solo el resultado.",
+   "i": [
+    "Contar aves o mascotas en el balcón",
+    "Detectar plagas u hojas enfermas en un cultivo"
+   ],
+   "c": [
+    "esp32cam",
+    "ld2450"
+   ],
+   "q": "Grove Vision AI V2",
+   "k": "ia camara deteccion objetos poses tinyml"
+  },
+  {
+   "id": "person",
+   "pn": "Person Sensor",
+   "n": "Detector de rostros listo para usar",
+   "f": "vision",
+   "s": [
+    "domotica",
+    "seguridad"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x62",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "qwiic"
+   ],
+   "d": "Módulo de Useful Sensors que indica cuántas caras ve y dónde están. No guarda ni transmite imágenes.",
+   "i": [
+    "Pantalla que se enciende solo cuando la miras",
+    "Espejo que saluda cuando te reconoce"
+   ],
+   "c": [
+    "ld2410",
+    "bh1750"
+   ],
+   "q": "Useful Sensors Person Sensor",
+   "w": "Comparte la dirección 0x62 con los SCD4x.",
+   "k": "cara rostro mirar privacidad"
+  },
+  {
+   "id": "ccs811",
+   "pn": "CCS811",
+   "n": "eCO₂ y compuestos volátiles (TVOC)",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "domotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x5A",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Estima el CO₂ a partir de los gases volátiles; no lo mide directamente. El chip está descontinuado y su relevo es el ENS160.",
+   "i": [
+    "Semáforo de ventilación para tu cuarto",
+    "Comparar su estimación contra un SCD41 real"
+   ],
+   "c": [
+    "sht30",
+    "scd41",
+    "ens160"
+   ],
+   "w": "Usa 0x5A, igual que el MLX90614. Lleva su pin ADDR a 3.3 V para pasarlo a 0x5B.",
+   "k": "aire ventilacion voc"
+  },
+  {
+   "id": "scd41",
+   "pn": "SCD40 / SCD41",
+   "n": "CO₂ real (fotoacústico)",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "domotica",
+    "salud",
+    "agro"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x62",
+   "p": 3,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Mide CO₂ de verdad, además de temperatura y humedad, en un cubo de 1 cm. El CO₂ alto baja la concentración y empeora el sueño.",
+   "i": [
+    "Avisar cuándo abrir la ventana mientras estudias",
+    "Controlar el CO₂ de un cultivo interior"
+   ],
+   "c": [
+    "sen55",
+    "sht45",
+    "ld2410"
+   ],
+   "q": "SCD41",
+   "k": "dioxido carbono ventilacion aire concentracion co2"
+  },
+  {
+   "id": "scd43",
+   "pn": "SCD43",
+   "n": "CO₂ real de mayor exactitud",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "domotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x62",
+   "p": null,
+   "l": 1,
+   "t": [
+    "nuevo",
+    "qwiic"
+   ],
+   "y": "2026",
+   "d": "Evolución del SCD41 orientada a cumplir normas de edificios. Adafruit ya lo vende en placa STEMMA QT. Sensirion anunció además el SCD53 para finales de 2026.",
+   "i": [
+    "Monitor de aula u oficina con mejor exactitud",
+    "Comparar SCD41 y SCD43 como práctica de metrología"
+   ],
+   "c": [
+    "scd41",
+    "sen55"
+   ],
+   "k": "dioxido carbono edificios adafruit co2"
+  },
+  {
+   "id": "stcc4",
+   "pn": "STCC4",
+   "n": "CO₂ miniatura por conductividad térmica",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "wearables"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "p": null,
+   "l": 2,
+   "t": [
+    "nuevo"
+   ],
+   "y": "2025",
+   "d": "Sensor de CO₂ de pocos milímetros, pensado para dispositivos pequeños y de batería. Sensirion ya ofrece su kit de evaluación.",
+   "i": [
+    "Medidor de CO₂ de bolsillo",
+    "Llavero que avisa cuando el aire del aula está cargado"
+   ],
+   "c": [
+    "sht45",
+    "max17048"
+   ],
+   "q": "STCC4",
+   "k": "dioxido carbono pequeño portatil co2"
+  },
+  {
+   "id": "mhz19",
+   "pn": "MH-Z19",
+   "n": "CO₂ por infrarrojo (NDIR) económico",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "domotica",
+    "agro"
+   ],
+   "b": [
+    "UART"
+   ],
+   "p": 3,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "El medidor de CO₂ real más usado en proyectos caseros. Más grande que un SCD41, pero robusto.",
+   "i": [
+    "Monitor de CO₂ para la sala",
+    "Controlar el extractor de un invernadero"
+   ],
+   "c": [
+    "sht45",
+    "pms5003"
+   ],
+   "w": "Alimenta a 5 V.",
+   "q": "MH-Z19C",
+   "k": "dioxido carbono ndir co2"
+  },
+  {
+   "id": "sen55",
+   "pn": "SEN55",
+   "n": "Partículas, VOC, NOx, temperatura y humedad",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "domotica",
+    "salud"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x69",
+   "p": 3,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Estación de calidad del aire en un solo módulo con ventilador. Solo le falta el CO₂.",
+   "i": [
+    "Monitor de aire interior como los comerciales",
+    "Encender el purificador cuando suben las partículas"
+   ],
+   "c": [
+    "scd41",
+    "bme680"
+   ],
+   "w": "Alimenta a 5 V; el bus I2C trabaja a 3.3 V.",
+   "k": "pm2.5 polvo humo particulas purificador"
+  },
+  {
+   "id": "sen66",
+   "pn": "SEN66",
+   "n": "Calidad del aire todo en uno, con CO₂",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "domotica",
+    "salud"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x6B",
+   "p": 4,
+   "l": 1,
+   "t": [
+    "nuevo"
+   ],
+   "y": "2025",
+   "d": "Suma CO₂ real a todo lo que mide el SEN55. En 2026 apareció el kit de evaluación del SEN69C, la variante más completa de la familia.",
+   "i": [
+    "Un solo módulo para un monitor de aire completo",
+    "Estación de aire para una tesis de salud ambiental"
+   ],
+   "c": [
+    "sfa30",
+    "ld2410"
+   ],
+   "k": "pm2.5 co2 voc nox todo particulas"
+  },
+  {
+   "id": "pms5003",
+   "pn": "PMS5003",
+   "n": "Partículas PM1, PM2.5 y PM10 (láser)",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "domotica",
+    "salud"
+   ],
+   "b": [
+    "UART"
+   ],
+   "p": 3,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Cuenta partículas de humo y polvo con un láser y un ventilador. Es el sensor típico de las estaciones ciudadanas de aire.",
+   "i": [
+    "Medir el humo al cocinar o el de una chimenea",
+    "Sumarte a una red abierta de calidad del aire"
+   ],
+   "c": [
+    "sht45",
+    "scd41"
+   ],
+   "w": "Alimenta a 5 V; los datos salen a 3.3 V.",
+   "k": "pm2.5 polvo humo contaminacion"
+  },
+  {
+   "id": "bmv080",
+   "pn": "BMV080",
+   "n": "Partículas PM2.5 sin ventilador",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "wearables",
+    "salud"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "p": 4,
+   "l": 3,
+   "t": [
+    "nuevo",
+    "qwiic",
+    "joya"
+   ],
+   "y": "2025",
+   "d": "Bosch metió un medidor de partículas en un chip de unos 4 mm: sin ventilador, sin ruido y sin mantenimiento.",
+   "i": [
+    "Medidor de exposición al humo que cabe en un clip",
+    "Monitor de aire silencioso para el dormitorio"
+   ],
+   "c": [
+    "scd41",
+    "sht45"
+   ],
+   "k": "pm2.5 polvo miniatura silencioso"
+  },
+  {
+   "id": "bme680",
+   "pn": "BME680 / BME688",
+   "n": "Gas (VOC), temperatura, humedad y presión",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "domotica",
+    "agro"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x77",
+   "p": 3,
+   "l": 2,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Cuatro mediciones en un chip. El BME688 además se entrena con IA para reconocer olores concretos.",
+   "i": [
+    "Nariz electrónica: distinguir café, alcohol o fruta madura",
+    "Índice de calidad del aire para el baño o la cocina"
+   ],
+   "c": [
+    "scd41",
+    "sgp41"
+   ],
+   "q": "BME688",
+   "k": "olor nariz voc gas iaq"
+  },
+  {
+   "id": "bme690",
+   "pn": "BME690",
+   "n": "Nueva generación del sensor de gas de Bosch",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "domotica"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "p": null,
+   "l": 3,
+   "t": [
+    "nuevo"
+   ],
+   "y": "2025",
+   "d": "Sigue la línea del BME688. Por ahora se consigue sobre todo como placa de evaluación (shuttle board).",
+   "i": [
+    "Nariz electrónica con el chip vigente",
+    "Base para un diseño nuevo de calidad del aire"
+   ],
+   "c": [
+    "bme680",
+    "scd43"
+   ],
+   "k": "olor nariz voc gas bosch"
+  },
+  {
+   "id": "sgp41",
+   "pn": "SGP40 / SGP41",
+   "n": "Índice de VOC (y de NOx en el SGP41)",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "domotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x59",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Entrega un índice de 1 a 500 que sube con olores, solventes y humo. El SGP41 también reacciona a gases de combustión.",
+   "i": [
+    "Encender el extractor al cocinar o pintar",
+    "Detectar cuándo alguien fuma en un espacio"
+   ],
+   "c": [
+    "sht45",
+    "scd41"
+   ],
+   "q": "SGP41",
+   "k": "olor voc cocina extractor humo"
+  },
+  {
+   "id": "ens160",
+   "pn": "ENS160",
+   "n": "Calidad del aire (eCO₂, TVOC, índice AQI)",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "domotica"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x53",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Reemplazo moderno del CCS811, con cuatro elementos sensores y mejor estabilidad.",
+   "i": [
+    "Actualizar tu proyecto con CCS811",
+    "Indicador de aire con un LED de tres colores"
+   ],
+   "c": [
+    "sht45",
+    "ccs811"
+   ],
+   "k": "aire voc ventilacion"
+  },
+  {
+   "id": "sfa30",
+   "pn": "SFA30 / SFA40",
+   "n": "Formaldehído",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "salud",
+    "domotica"
+   ],
+   "b": [
+    "I2C",
+    "UART"
+   ],
+   "a": "0x5D",
+   "p": 3,
+   "l": 2,
+   "t": [
+    "esphome",
+    "nuevo"
+   ],
+   "y": "2026",
+   "d": "Mide el gas que sueltan muebles nuevos, pinturas y resinas. El SFA40, con disponibilidad global desde agosto de 2026, es la versión más reciente.",
+   "i": [
+    "Revisar el aire de un cuarto recién amueblado",
+    "Vigilar vapores junto a una impresora 3D de resina"
+   ],
+   "c": [
+    "sen66",
+    "sgp41"
+   ],
+   "q": "SFA30",
+   "k": "formaldehido muebles resina impresora hcho"
+  },
+  {
+   "id": "mq",
+   "pn": "Serie MQ (MQ-2, MQ-7, MQ-135)",
+   "n": "Gases combustibles, CO y humo",
+   "f": "aire",
+   "s": [
+    "seguridad",
+    "domotica"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "Sensores calefactados muy baratos. Sirven para notar que algo cambió, no para dar una concentración confiable.",
+   "i": [
+    "Alarma de fuga de gas en la cocina",
+    "Detector de humo de soldadura en tu mesa"
+   ],
+   "c": [
+    "flama",
+    "sgp41"
+   ],
+   "w": "El calefactor va a 5 V, consume unos 150 mA y necesita varios minutos de precalentamiento.",
+   "q": "MQ-2",
+   "k": "gas humo fuga butano monoxido"
+  },
+  {
+   "id": "geiger",
+   "pn": "Contador Geiger (tubo J305)",
+   "n": "Radiación ionizante",
+   "f": "aire",
+   "s": [
+    "ambiente",
+    "seguridad"
+   ],
+   "b": [
+    "Digital"
+   ],
+   "p": 3,
+   "l": 2,
+   "t": [
+    "joya"
+   ],
+   "d": "Cada partícula que cruza el tubo produce un pulso que el ESP32 cuenta. Verás la radiación natural de fondo.",
+   "i": [
+    "Estación de radiación de fondo con registro continuo",
+    "Comparar granito, bananas y cerámica antigua"
+   ],
+   "c": [
+    "bmp581",
+    "gps"
+   ],
+   "w": "El módulo genera unos 400 V para el tubo: no toques la placa encendida.",
+   "q": "Geiger counter kit J305",
+   "k": "radiacion nuclear radioactividad pulsos"
+  },
+  {
+   "id": "as3935",
+   "pn": "AS3935",
+   "n": "Detector de rayos (hasta 40 km)",
+   "f": "clima",
+   "s": [
+    "ambiente",
+    "seguridad"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x03",
+   "p": 3,
+   "l": 2,
+   "t": [
+    "esphome",
+    "qwiic",
+    "joya"
+   ],
+   "d": "Capta la firma de radio de los relámpagos y estima a qué distancia está la tormenta.",
+   "i": [
+    "Aviso de tormenta antes de salir a navegar o acampar",
+    "Apagar equipos sensibles cuando se acerca un rayo"
+   ],
+   "c": [
+    "bmp581",
+    "meteo"
+   ],
+   "k": "tormenta relampago rayo"
+  },
+  {
+   "id": "dht22",
+   "pn": "DHT11 / DHT22",
+   "n": "Temperatura y humedad básicas",
+   "f": "clima",
+   "s": [
+    "domotica",
+    "ambiente",
+    "agro"
+   ],
+   "b": [
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "El primero que usa casi todo el mundo. El DHT22 es aceptable y el DHT11 es impreciso; los SHT son mejores por poco más.",
+   "i": [
+    "Termómetro de habitación con pantalla OLED",
+    "Tu primer registro de datos en una hoja de cálculo"
+   ],
+   "c": [
+    "sht45",
+    "bme280"
+   ],
+   "q": "DHT22",
+   "k": "temperatura humedad basico"
+  },
+  {
+   "id": "sht30",
+   "pn": "SHT30 (sonda impermeable)",
+   "n": "Temperatura y humedad en ambientes húmedos",
+   "f": "clima",
+   "s": [
+    "agro",
+    "ambiente",
+    "domotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x44",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Un SHT30 dentro de una cápsula con filtro: aguanta condensación, invernaderos y exteriores.",
+   "i": [
+    "Clima dentro de un invernadero o un terrario",
+    "Humedad del baño para encender el extractor"
+   ],
+   "c": [
+    "scd41",
+    "bh1750",
+    "suelo"
+   ],
+   "q": "SHT30 waterproof probe",
+   "k": "invernadero humedad exterior terrario"
+  },
+  {
+   "id": "sht45",
+   "pn": "SHT40 / SHT41 / SHT45",
+   "n": "Temperatura y humedad de precisión",
+   "f": "clima",
+   "s": [
+    "ambiente",
+    "domotica",
+    "agro",
+    "salud"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x44",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "La generación actual de Sensirion. El SHT45 llega a ±0.1 °C y ±1 % de humedad relativa.",
+   "i": [
+    "Compensar por temperatura tus sensores de gas",
+    "Controlar la humedad en una caja de filamento"
+   ],
+   "c": [
+    "scd41",
+    "sgp41",
+    "bmp581"
+   ],
+   "q": "SHT45",
+   "k": "temperatura humedad precision filamento"
+  },
+  {
+   "id": "bme280",
+   "pn": "BME280",
+   "n": "Temperatura, humedad y presión",
+   "f": "clima",
+   "s": [
+    "ambiente",
+    "domotica"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x76",
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Tres mediciones en un chip barato: la base de casi toda estación meteorológica casera.",
+   "i": [
+    "Estación de clima para el balcón",
+    "Anticipar lluvia con la tendencia de la presión"
+   ],
+   "c": [
+    "bh1750",
+    "ltr390",
+    "meteo"
+   ],
+   "w": "Hay placas BMP280 vendidas como BME280: el BMP no mide humedad.",
+   "k": "clima presion estacion meteorologica"
+  },
+  {
+   "id": "bmp581",
+   "pn": "BMP581",
+   "n": "Presión barométrica que distingue centímetros",
+   "f": "clima",
+   "s": [
+    "wearables",
+    "robotica",
+    "salud",
+    "domotica"
+   ],
+   "b": [
+    "I2C",
+    "SPI"
+   ],
+   "a": "0x47",
+   "p": 2,
+   "l": 2,
+   "t": [
+    "esphome",
+    "qwiic",
+    "joya"
+   ],
+   "d": "Tan sensible que nota el cambio de altura entre la mesa y el piso, o el golpe de presión al abrir una puerta.",
+   "i": [
+    "Confirmar una caída combinándolo con un acelerómetro",
+    "Contar los pisos que subes en un wearable"
+   ],
+   "c": [
+    "mpu6050",
+    "bmi270",
+    "gps"
+   ],
+   "k": "altitud altura pisos caida caidas caer cayo barometro puerta"
+  },
+  {
+   "id": "ds18b20",
+   "pn": "DS18B20 (sonda impermeable)",
+   "n": "Temperatura de líquidos y suelo",
+   "f": "clima",
+   "s": [
+    "agro",
+    "domotica",
+    "ambiente"
+   ],
+   "b": [
+    "1-Wire"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Sonda sellada en acero. Puedes colgar muchas del mismo cable porque cada una tiene un identificador único.",
+   "i": [
+    "Temperatura de la solución nutritiva en hidroponía",
+    "Varias sondas en un tanque para ver cómo se estratifica"
+   ],
+   "c": [
+    "tds",
+    "ph",
+    "jsnsr04t"
+   ],
+   "w": "Necesita una resistencia de 4.7 kΩ entre la línea de datos y 3.3 V.",
+   "q": "DS18B20 waterproof",
+   "k": "agua liquido acuario temperatura sonda"
+  },
+  {
+   "id": "max31855",
+   "pn": "MAX31855 + termopar K",
+   "n": "Temperaturas extremas (1000 °C y más)",
+   "f": "clima",
+   "s": [
+    "domotica",
+    "energia"
+   ],
+   "b": [
+    "SPI"
+   ],
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Lee un termopar tipo K: hornos, cautines, extrusores y escapes, donde ningún chip sobrevive.",
+   "i": [
+    "Curva de temperatura de un horno de reflujo casero",
+    "Termómetro para un horno de pizza o de cerámica"
+   ],
+   "c": [
+    "ina219",
+    "mlx90614"
+   ],
+   "q": "MAX31855 thermocouple",
+   "k": "horno alta temperatura termocupla soldadura"
+  },
+  {
+   "id": "meteo",
+   "pn": "Kit meteorológico (viento y lluvia)",
+   "n": "Anemómetro, veleta y pluviómetro",
+   "f": "clima",
+   "s": [
+    "ambiente",
+    "agro"
+   ],
+   "b": [
+    "Digital",
+    "Analógico"
+   ],
+   "p": 4,
+   "l": 2,
+   "t": [
+    "joya"
+   ],
+   "d": "Tres instrumentos mecánicos: un pulso por cada vuelta del anemómetro y por cada volcada del pluviómetro.",
+   "i": [
+    "Estación meteorológica completa para una terraza",
+    "Riego que se cancela si ya llovió"
+   ],
+   "c": [
+    "bme280",
+    "as3935",
+    "ltr390"
+   ],
+   "q": "weather meter kit anemometer rain gauge",
+   "k": "viento lluvia estacion pluviometro"
+  },
+  {
+   "id": "ldr",
+   "pn": "LDR (fotorresistor)",
+   "n": "Nivel de luz básico",
+   "f": "luz",
+   "s": [
+    "domotica"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "Una resistencia que baja con la luz. Suficiente para saber si es de día o de noche.",
+   "i": [
+    "Lámpara que se enciende al anochecer",
+    "Seguidor solar con dos LDR y un servo"
+   ],
+   "c": [
+    "bh1750",
+    "pir"
+   ],
+   "q": "LDR photoresistor",
+   "k": "luz dia noche"
+  },
+  {
+   "id": "bh1750",
+   "pn": "BH1750",
+   "n": "Luz ambiente en lux",
+   "f": "luz",
+   "s": [
+    "domotica",
+    "agro",
+    "ambiente"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x23",
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Entrega lux directamente, sin calibrar. Es el complemento natural de cualquier sensor de presencia.",
+   "i": [
+    "Ajustar el brillo de las luces según la luz natural",
+    "Registrar cuántas horas de luz recibe una planta"
+   ],
+   "c": [
+    "ld2410",
+    "as7341",
+    "sht45"
+   ],
+   "k": "lux iluminacion brillo"
+  },
+  {
+   "id": "veml7700",
+   "pn": "VEML7700",
+   "n": "Luz ambiente de alto rango",
+   "f": "luz",
+   "s": [
+    "domotica",
+    "agro",
+    "ambiente"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x10",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Mide desde penumbra hasta sol directo (unos 120 000 lux) sin saturarse.",
+   "i": [
+    "Medidor de luz para fotografía",
+    "Sensor exterior para persianas automáticas"
+   ],
+   "c": [
+    "ltr390",
+    "bh1750"
+   ],
+   "k": "lux sol exterior fotografia"
+  },
+  {
+   "id": "ltr390",
+   "pn": "LTR390",
+   "n": "Radiación ultravioleta (índice UV)",
+   "f": "luz",
+   "s": [
+    "salud",
+    "ambiente",
+    "wearables"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x53",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Mide UVA y luz ambiente, y con eso se calcula el índice UV.",
+   "i": [
+    "Clip que avisa cuándo volver a ponerte bloqueador",
+    "Probar cuánto UV filtran unas gafas o una tela"
+   ],
+   "c": [
+    "veml7700",
+    "bme280"
+   ],
+   "w": "Comparte la dirección 0x53 con el ENS160.",
+   "k": "sol uv bloqueador piel"
+  },
+  {
+   "id": "as7341",
+   "pn": "AS7341",
+   "n": "Espectrómetro de 11 canales",
+   "f": "luz",
+   "s": [
+    "agro",
+    "salud",
+    "ambiente"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x39",
+   "p": 3,
+   "l": 2,
+   "t": [
+    "esphome",
+    "qwiic",
+    "joya"
+   ],
+   "d": "Separa la luz en bandas de color, más infrarrojo cercano y detección de parpadeo. Un espectrómetro por el precio de una pizza.",
+   "i": [
+    "Evaluar si una lámpara de cultivo da el espectro correcto",
+    "Colorímetro para medir la concentración de un líquido"
+   ],
+   "c": [
+    "bh1750",
+    "tds",
+    "ph"
+   ],
+   "k": "espectro color cultivo lampara colorimetro par"
+  },
+  {
+   "id": "tcs3448",
+   "pn": "TCS3448",
+   "n": "Sensor multiespectral de 14 canales",
+   "f": "luz",
+   "s": [
+    "agro",
+    "ambiente"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "p": 3,
+   "l": 2,
+   "t": [
+    "nuevo",
+    "qwiic"
+   ],
+   "y": "2026",
+   "d": "Sensor de luz y color de 14 canales de ams OSRAM. Adafruit lo lanzó en placa en septiembre de 2026. Una alternativa actual al AS7341.",
+   "i": [
+    "Comparar el espectro de distintas lámparas LED",
+    "Medir el color real de pinturas o filamentos"
+   ],
+   "c": [
+    "as7341",
+    "veml7700"
+   ],
+   "k": "espectro color adafruit"
+  },
+  {
+   "id": "tcs34725",
+   "pn": "TCS34725",
+   "n": "Color RGB",
+   "f": "luz",
+   "s": [
+    "robotica",
+    "domotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x29",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Lee el color de una superficie con su propio LED blanco y un filtro infrarrojo.",
+   "i": [
+    "Clasificador de piezas o dulces por color",
+    "Lámpara que copia el color del objeto que le acerques"
+   ],
+   "c": [
+    "apds9960",
+    "vl53l0x"
+   ],
+   "k": "color rgb clasificar"
+  },
+  {
+   "id": "as7331",
+   "pn": "AS7331",
+   "n": "Ultravioleta por bandas (UVA, UVB, UVC)",
+   "f": "luz",
+   "s": [
+    "salud",
+    "ambiente"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x74",
+   "p": 3,
+   "l": 2,
+   "t": [
+    "qwiic"
+   ],
+   "d": "Separa las tres bandas de ultravioleta con alta sensibilidad. Sirve para comprobar si una lámpara germicida de verdad emite UVC.",
+   "i": [
+    "Verificar una caja de desinfección UV",
+    "Dosímetro de sol que distingue UVA de UVB"
+   ],
+   "c": [
+    "ltr390",
+    "veml7700"
+   ],
+   "k": "uv germicida uvc desinfeccion"
+  },
+  {
+   "id": "flama",
+   "pn": "Sensor de flama IR",
+   "n": "Presencia de fuego",
+   "f": "luz",
+   "s": [
+    "seguridad"
+   ],
+   "b": [
+    "Analógico",
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "Un fotodiodo sensible al infrarrojo que emite una llama. También reacciona al sol directo.",
+   "i": [
+    "Corte de emergencia para un experimento con fuego",
+    "Robot apagavelas"
+   ],
+   "c": [
+    "mq",
+    "mlx90614"
+   ],
+   "q": "flame sensor module",
+   "k": "fuego llama incendio"
+  },
+  {
+   "id": "hx711",
+   "pn": "Celda de carga + HX711",
+   "n": "Peso y fuerza",
+   "f": "fuerza",
+   "s": [
+    "domotica",
+    "agro",
+    "salud",
+    "robotica"
+   ],
+   "b": [
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Una barra metálica que se deforma y un amplificador de 24 bits. Pesa desde gramos hasta cientos de kilos, según la celda.",
+   "i": [
+    "Saber cuánta agua tomó tu planta por su peso",
+    "Báscula bajo la cama que detecta si alguien se levantó"
+   ],
+   "c": [
+    "nau7802",
+    "ds18b20"
+   ],
+   "q": "HX711 load cell",
+   "k": "peso bascula balanza gramos"
+  },
+  {
+   "id": "nau7802",
+   "pn": "NAU7802",
+   "n": "Amplificador de celdas de carga por I2C",
+   "f": "fuerza",
+   "s": [
+    "domotica",
+    "agro",
+    "robotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x2A",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Hace lo mismo que el HX711 con menos ruido y por I2C, así que se encadena con otros sensores Qwiic.",
+   "i": [
+    "Báscula de café con temporizador",
+    "Medir el empuje de un motor o una hélice"
+   ],
+   "c": [
+    "hx711",
+    "ina219"
+   ],
+   "k": "peso bascula celda empuje"
+  },
+  {
+   "id": "fsr",
+   "pn": "FSR 402",
+   "n": "Fuerza de presión (resistivo)",
+   "f": "fuerza",
+   "s": [
+    "salud",
+    "wearables",
+    "robotica"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 2,
+   "l": 1,
+   "t": [],
+   "d": "Una almohadilla que baja su resistencia al apretarla. No da newtons exactos, pero sí cuánto y dónde se presiona.",
+   "i": [
+    "Medir la fuerza de agarre en rehabilitación",
+    "Plantilla que muestra cómo apoyas el pie"
+   ],
+   "c": [
+    "velostat",
+    "ads1115",
+    "flex"
+   ],
+   "q": "FSR 402",
+   "k": "presion agarre pie apretar tacto fuerza mano"
+  },
+  {
+   "id": "flex",
+   "pn": "Sensor flex",
+   "n": "Flexión (doblado)",
+   "f": "fuerza",
+   "s": [
+    "wearables",
+    "robotica",
+    "salud"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 2,
+   "l": 1,
+   "t": [],
+   "d": "Una tira que cambia de resistencia al doblarse. Con una por dedo tienes un guante que captura la mano.",
+   "i": [
+    "Guante que controla una mano robótica",
+    "Medir el rango de movimiento de una rodilla"
+   ],
+   "c": [
+    "bno085",
+    "fsr",
+    "myoware"
+   ],
+   "q": "flex sensor 2.2",
+   "k": "guante dedos doblar articulacion"
+  },
+  {
+   "id": "velostat",
+   "pn": "Velostat",
+   "n": "Lámina sensible a la presión para fabricar tus propios sensores",
+   "f": "fuerza",
+   "s": [
+    "salud",
+    "wearables",
+    "domotica"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 2,
+   "l": 2,
+   "t": [
+    "joya"
+   ],
+   "d": "Plástico conductor que baja su resistencia al presionarlo. Con cinta de cobre haces sensores del tamaño y la forma que quieras.",
+   "i": [
+    "Tapete que sabe dónde estás parado",
+    "Matriz de presión para estudiar la postura al sentarse"
+   ],
+   "c": [
+    "ads1115",
+    "fsr"
+   ],
+   "k": "presion tapete postura asiento matriz diy"
+  },
+  {
+   "id": "piezo",
+   "pn": "Disco piezoeléctrico",
+   "n": "Golpes y vibraciones",
+   "f": "fuerza",
+   "s": [
+    "domotica",
+    "seguridad"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "Genera un voltaje cuando lo golpean o vibra. Pegado a una superficie, la convierte en un sensor de toques.",
+   "i": [
+    "Cerradura que se abre con un ritmo secreto de golpes",
+    "Batería electrónica casera"
+   ],
+   "c": [
+    "lis3dh",
+    "inmp441"
+   ],
+   "w": "Ponle una resistencia de 1 MΩ en paralelo y un diodo de protección.",
+   "q": "piezo disc 27mm",
+   "k": "golpe knock tambor vibracion"
+  },
+  {
+   "id": "mprls",
+   "pn": "MPRLS",
+   "n": "Presión de aire o líquido (0 a 25 PSI)",
+   "f": "fuerza",
+   "s": [
+    "salud",
+    "robotica",
+    "agro"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x18",
+   "p": 3,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Sensor con puerto para manguera y gel protector. Mide presión absoluta en tubos, bolsas de aire o líquidos.",
+   "i": [
+    "Medir la presión de un brazalete inflable",
+    "Pinza neumática blanda con control de fuerza"
+   ],
+   "c": [
+    "sdp810",
+    "bmp581"
+   ],
+   "w": "Comparte la dirección 0x18 con el LIS3DH.",
+   "k": "presion manguera neumatica brazalete tubo"
+  },
+  {
+   "id": "suelo",
+   "pn": "Humedad de suelo capacitiva",
+   "n": "Humedad del sustrato",
+   "f": "agua",
+   "s": [
+    "agro",
+    "domotica"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "La versión capacitiva no se corroe como las sondas de dos puntas. Calíbrala en seco y sumergida en agua.",
+   "i": [
+    "Riego automático por maceta",
+    "Aviso al celular cuando una planta tiene sed"
+   ],
+   "c": [
+    "sht30",
+    "bh1750",
+    "ds18b20"
+   ],
+   "q": "capacitive soil moisture sensor v2.0",
+   "k": "planta riego maceta tierra"
+  },
+  {
+   "id": "ph",
+   "pn": "Sonda de pH (Gravity o Atlas EZO)",
+   "n": "Acidez del agua",
+   "f": "agua",
+   "s": [
+    "agro"
+   ],
+   "b": [
+    "Analógico",
+    "I2C"
+   ],
+   "p": 4,
+   "l": 2,
+   "t": [],
+   "d": "En hidroponía el pH decide qué nutrientes puede absorber la planta. Necesita calibración con soluciones patrón.",
+   "i": [
+    "Dosificar corrector de pH automáticamente",
+    "Registro de pH de un acuario o de kombucha"
+   ],
+   "c": [
+    "tds",
+    "ds18b20",
+    "jsnsr04t"
+   ],
+   "w": "Las sondas económicas se desgastan si quedan sumergidas de forma permanente; para eso existen las de grado industrial.",
+   "q": "Gravity analog pH sensor",
+   "k": "hidroponia acidez nutrientes acuario"
+  },
+  {
+   "id": "tds",
+   "pn": "Sensor TDS / EC",
+   "n": "Conductividad del agua (nutrientes disueltos)",
+   "f": "agua",
+   "s": [
+    "agro"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 2,
+   "l": 1,
+   "t": [
+    "joya"
+   ],
+   "d": "Mide cuántas sales hay disueltas. En hidroponía es el indicador directo de cuánto fertilizante queda.",
+   "i": [
+    "Saber cuándo reponer nutrientes en el depósito",
+    "Comparar agua de la llave, filtrada y de lluvia"
+   ],
+   "c": [
+    "ph",
+    "ds18b20",
+    "jsnsr04t"
+   ],
+   "q": "Gravity TDS sensor",
+   "k": "hidroponia nutrientes fertilizante sales ec"
+  },
+  {
+   "id": "do",
+   "pn": "Oxígeno disuelto (Gravity DO)",
+   "n": "Oxígeno en el agua",
+   "f": "agua",
+   "s": [
+    "agro"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 4,
+   "l": 3,
+   "t": [],
+   "d": "Las raíces y los peces necesitan oxígeno disuelto. La sonda galvánica pide mantenimiento de membrana y calibración.",
+   "i": [
+    "Controlar el aireador de un sistema de acuaponía",
+    "Estudiar cómo cambia el oxígeno con la temperatura"
+   ],
+   "c": [
+    "ds18b20",
+    "ph"
+   ],
+   "q": "Gravity dissolved oxygen sensor",
+   "k": "acuaponia peces raices aireador"
+  },
+  {
+   "id": "turbidez",
+   "pn": "Sensor de turbidez",
+   "n": "Qué tan turbia está el agua",
+   "f": "agua",
+   "s": [
+    "agro",
+    "ambiente",
+    "domotica"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 2,
+   "l": 1,
+   "t": [],
+   "d": "Mide cuánta luz dispersan las partículas en suspensión. Es el mismo principio que usan lavadoras y lavavajillas.",
+   "i": [
+    "Avisar cuándo cambiar el agua de un acuario",
+    "Detectar algas en un depósito de nutrientes"
+   ],
+   "c": [
+    "tds",
+    "ph"
+   ],
+   "q": "Gravity turbidity sensor",
+   "k": "agua sucia algas acuario"
+  },
+  {
+   "id": "nivel",
+   "pn": "Sensor de nivel por tiras",
+   "n": "Presencia de agua (derrames y nivel)",
+   "f": "agua",
+   "s": [
+    "domotica",
+    "seguridad"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "Pistas expuestas que conducen cuando se mojan. Útil como detector de fugas; se corroe si queda sumergido.",
+   "i": [
+    "Alarma de fuga bajo el lavaplatos",
+    "Aviso de bandeja de goteo llena"
+   ],
+   "c": [
+    "xkc",
+    "yfs201"
+   ],
+   "q": "water level sensor module",
+   "k": "fuga inundacion derrame"
+  },
+  {
+   "id": "xkc",
+   "pn": "XKC-Y25",
+   "n": "Nivel de líquido sin contacto",
+   "f": "agua",
+   "s": [
+    "agro",
+    "domotica"
+   ],
+   "b": [
+    "Digital"
+   ],
+   "p": 2,
+   "l": 1,
+   "t": [
+    "joya"
+   ],
+   "d": "Se pega por fuera de un tanque no metálico y detecta si hay líquido al otro lado de la pared. Nada toca el agua.",
+   "i": [
+    "Aviso de depósito de nutrientes casi vacío",
+    "Nivel mínimo en el tanque de un humidificador"
+   ],
+   "c": [
+    "jsnsr04t",
+    "tds"
+   ],
+   "w": "Hay versiones de 5 a 24 V con salida NPN o PNP: revisa cuál compras y adapta la señal a 3.3 V.",
+   "k": "tanque deposito nivel sin tocar"
+  },
+  {
+   "id": "yfs201",
+   "pn": "YF-S201",
+   "n": "Caudal de agua",
+   "f": "agua",
+   "s": [
+    "agro",
+    "domotica",
+    "energia"
+   ],
+   "b": [
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Una turbina con sensor Hall: cada pulso equivale a un volumen fijo de agua.",
+   "i": [
+    "Medir cuántos litros gasta cada ducha",
+    "Confirmar que la bomba de riego de verdad mueve agua"
+   ],
+   "c": [
+    "jsnsr04t",
+    "ds18b20"
+   ],
+   "w": "Alimenta a 5 V y baja la señal a 3.3 V con un divisor.",
+   "k": "flujo litros consumo ducha bomba"
+  },
+  {
+   "id": "ms5837",
+   "pn": "MS5837-30BA",
+   "n": "Presión y profundidad bajo el agua",
+   "f": "agua",
+   "s": [
+    "robotica",
+    "ambiente"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x76",
+   "p": 3,
+   "l": 3,
+   "t": [],
+   "d": "Sensor encapsulado en gel que resiste hasta 30 bar. Da la profundidad con resolución de milímetros.",
+   "i": [
+    "Profundímetro para un ROV casero",
+    "Nivel de un pozo o un tanque por presión hidrostática"
+   ],
+   "c": [
+    "bno085",
+    "ds18b20"
+   ],
+   "k": "profundidad submarino rov pozo"
+  },
+  {
+   "id": "rs485",
+   "pn": "Sonda de suelo RS485 (Modbus)",
+   "n": "Humedad, temperatura y conductividad del suelo",
+   "f": "agua",
+   "s": [
+    "agro"
+   ],
+   "b": [
+    "RS485"
+   ],
+   "p": 3,
+   "l": 3,
+   "t": [],
+   "d": "Sondas industriales de acero que se entierran de forma permanente. Abren la puerta a todo el mundo de sensores Modbus.",
+   "i": [
+    "Monitoreo de un huerto comunitario a largo plazo",
+    "Aprender Modbus, el protocolo de la industria"
+   ],
+   "c": [
+    "sht30",
+    "bh1750"
+   ],
+   "w": "Necesitas un adaptador MAX485. Desconfía de las versiones que prometen medir NPK: su exactitud es dudosa.",
+   "q": "RS485 soil sensor EC temperature humidity",
+   "k": "huerto industrial npk modbus tierra"
+  },
+  {
+   "id": "inmp441",
+   "pn": "INMP441",
+   "n": "Micrófono digital I2S",
+   "f": "sonido",
+   "s": [
+    "domotica",
+    "seguridad",
+    "ambiente"
+   ],
+   "b": [
+    "I2S"
+   ],
+   "p": 1,
+   "l": 2,
+   "t": [
+    "esphome"
+   ],
+   "d": "Audio digital limpio, sin el ruido del ADC. Es la base de los asistentes de voz hechos con ESP32. Alternativa reciente: ICS-43434.",
+   "i": [
+    "Asistente de voz local con Home Assistant",
+    "Reconocer sonidos (timbre, llanto, vidrio roto) con TinyML"
+   ],
+   "c": [
+    "ld2410",
+    "bh1750"
+   ],
+   "k": "voz audio microfono asistente ruido tinyml"
+  },
+  {
+   "id": "mic",
+   "pn": "Micrófono analógico (KY-037, MAX9814)",
+   "n": "Nivel de sonido",
+   "f": "sonido",
+   "s": [
+    "domotica"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "Suficiente para medir volumen o detectar aplausos. Para grabar voz conviene un micrófono I2S.",
+   "i": [
+    "Luces que reaccionan a la música",
+    "Medidor de ruido para tu espacio de estudio"
+   ],
+   "c": [
+    "inmp441",
+    "ads1115"
+   ],
+   "q": "MAX9814",
+   "k": "ruido aplauso volumen decibeles"
+  },
+  {
+   "id": "ina219",
+   "pn": "INA219",
+   "n": "Corriente y voltaje en continua",
+   "f": "energia",
+   "s": [
+    "energia",
+    "robotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x40",
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Mide cuánta corriente consume tu circuito, hasta 26 V y 3.2 A. Indispensable para diseñar algo con batería.",
+   "i": [
+    "Medir el consumo real de tu ESP32 en deep sleep",
+    "Monitor de un panel solar pequeño"
+   ],
+   "c": [
+    "max17048",
+    "ina226"
+   ],
+   "k": "consumo bateria panel solar amperios"
+  },
+  {
+   "id": "ina226",
+   "pn": "INA226 / INA228",
+   "n": "Corriente y potencia de alta precisión",
+   "f": "energia",
+   "s": [
+    "energia"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x40",
+   "p": 1,
+   "l": 2,
+   "t": [
+    "esphome"
+   ],
+   "d": "Más resolución y rango que el INA219 (hasta 36 V; el INA228 llega a 85 V). Con otro shunt mide decenas de amperios.",
+   "i": [
+    "Monitor de batería para una bicicleta eléctrica",
+    "Medir la eficiencia de un convertidor"
+   ],
+   "c": [
+    "ina219",
+    "max31855"
+   ],
+   "q": "INA226",
+   "k": "potencia bateria shunt ebike"
+  },
+  {
+   "id": "acs712",
+   "pn": "ACS712",
+   "n": "Corriente por efecto Hall (aislada)",
+   "f": "energia",
+   "s": [
+    "energia",
+    "domotica"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 1,
+   "l": 2,
+   "t": [],
+   "d": "Mide corriente alterna o continua sin conexión eléctrica directa con el ESP32.",
+   "i": [
+    "Detectar si un motor se atascó por su corriente",
+    "Saber si un electrodoméstico está encendido"
+   ],
+   "c": [
+    "sct013",
+    "ads1115"
+   ],
+   "w": "Funciona a 5 V: baja su salida a 3.3 V. Mide red eléctrica solo si tienes experiencia y aislamiento adecuado.",
+   "k": "corriente motor amperios alterna"
+  },
+  {
+   "id": "pzem",
+   "pn": "PZEM-004T v3",
+   "n": "Medidor de energía de red (V, A, W, kWh)",
+   "f": "energia",
+   "s": [
+    "energia",
+    "domotica"
+   ],
+   "b": [
+    "UART"
+   ],
+   "p": 2,
+   "l": 2,
+   "t": [
+    "esphome"
+   ],
+   "d": "Mide todo sobre un circuito de corriente alterna con una bobina que abraza el cable, y lo entrega por serial.",
+   "i": [
+    "Tablero de consumo eléctrico de tu apartamento",
+    "Calcular cuánto cuesta cada ciclo de lavadora"
+   ],
+   "c": [
+    "sct013",
+    "ds18b20"
+   ],
+   "w": "Se conecta a 230 V: es trabajo para alguien con experiencia en red eléctrica y con todo desconectado.",
+   "k": "electricidad consumo kwh factura red"
+  },
+  {
+   "id": "sct013",
+   "pn": "SCT-013",
+   "n": "Pinza de corriente no invasiva",
+   "f": "energia",
+   "s": [
+    "energia",
+    "domotica"
+   ],
+   "b": [
+    "Analógico"
+   ],
+   "p": 2,
+   "l": 2,
+   "t": [
+    "esphome"
+   ],
+   "d": "Se cierra alrededor de un cable sin cortarlo ni tocar el cobre. La forma más segura de medir consumo en casa.",
+   "i": [
+    "Medir el consumo de la estufa o del calentador",
+    "Aviso cuando la secadora termina"
+   ],
+   "c": [
+    "pzem",
+    "ads1115"
+   ],
+   "k": "pinza consumo electricidad cable"
+  },
+  {
+   "id": "max17048",
+   "pn": "MAX17048",
+   "n": "Indicador de carga de batería LiPo",
+   "f": "energia",
+   "s": [
+    "wearables",
+    "energia"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x36",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Calcula el porcentaje real de batería sin resistencia shunt. Evita adivinarlo con el voltaje.",
+   "i": [
+    "Porcentaje de batería confiable en un wearable",
+    "Aviso de batería baja antes de que se apague"
+   ],
+   "c": [
+    "ina219",
+    "bmi270"
+   ],
+   "w": "Comparte la dirección 0x36 con el AS5600.",
+   "k": "bateria porcentaje lipo carga"
+  },
+  {
+   "id": "ads1115",
+   "pn": "ADS1115",
+   "n": "Conversor analógico de 16 bits",
+   "f": "energia",
+   "s": [
+    "energia",
+    "salud",
+    "agro"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x48",
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "El ADC del ESP32 es ruidoso y poco lineal. Este lo reemplaza con 16 bits y ganancia programable para tus sensores analógicos.",
+   "i": [
+    "Lecturas estables de pH, TDS o celdas de fuerza",
+    "Medir señales pequeñas en modo diferencial"
+   ],
+   "c": [
+    "ph",
+    "tds",
+    "fsr"
+   ],
+   "w": "Usa 0x48, igual que el TMP117 y el MAX30205. Se cambia con el pin ADDR.",
+   "k": "adc precision analogico medicion"
+  },
+  {
+   "id": "apds9960",
+   "pn": "APDS-9960",
+   "n": "Gestos, proximidad y color",
+   "f": "hmi",
+   "s": [
+    "domotica",
+    "robotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x39",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Reconoce deslizamientos de la mano (arriba, abajo, izquierda, derecha) a unos centímetros. También mide proximidad y color.",
+   "i": [
+    "Pasar de canción o de receta sin tocar nada",
+    "Lámpara que se regula moviendo la mano"
+   ],
+   "c": [
+    "vl53l5cx",
+    "mpr121"
+   ],
+   "w": "Comparte la dirección 0x39 con el AS7341.",
+   "k": "gestos mano sin contacto deslizar"
+  },
+  {
+   "id": "touch",
+   "pn": "Pines táctiles del ESP32",
+   "n": "Tacto capacitivo sin componentes",
+   "f": "hmi",
+   "s": [
+    "domotica"
+   ],
+   "b": [
+    "Interno"
+   ],
+   "p": 0,
+   "l": 1,
+   "t": [
+    "interno",
+    "esphome"
+   ],
+   "d": "Varios pines del ESP32 detectan el toque de un dedo sobre un cable, una lámina de cobre o hasta una fruta.",
+   "i": [
+    "Botones invisibles detrás de una tapa impresa en 3D",
+    "Lámpara que se enciende al tocar su base metálica"
+   ],
+   "c": [
+    "mpr121",
+    "apds9960"
+   ],
+   "q": "ESP32 capacitive touch",
+   "k": "tocar boton capacitivo gratis"
+  },
+  {
+   "id": "ttp223",
+   "pn": "TTP223",
+   "n": "Botón táctil capacitivo",
+   "f": "hmi",
+   "s": [
+    "domotica"
+   ],
+   "b": [
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "Un botón sin partes móviles que funciona a través de 2 o 3 mm de plástico.",
+   "i": [
+    "Interruptor sellado para un dispositivo de baño",
+    "Botón oculto bajo la superficie de un mueble"
+   ],
+   "c": [
+    "touch",
+    "mpr121"
+   ],
+   "k": "boton tactil tocar"
+  },
+  {
+   "id": "mpr121",
+   "pn": "MPR121",
+   "n": "12 canales táctiles capacitivos",
+   "f": "hmi",
+   "s": [
+    "domotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x5A",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Convierte doce objetos conductores en teclas: cinta de cobre, pintura conductiva, plantas o agua.",
+   "i": [
+    "Teclado musical con frutas o dibujos",
+    "Panel táctil a medida para una carcasa"
+   ],
+   "c": [
+    "touch",
+    "apds9960"
+   ],
+   "w": "Usa 0x5A, igual que el MLX90614 y el CCS811.",
+   "k": "teclado tactil piano tocar"
+  },
+  {
+   "id": "paj7620",
+   "pn": "PAJ7620U2",
+   "n": "Reconocimiento de 9 gestos",
+   "f": "hmi",
+   "s": [
+    "domotica",
+    "robotica"
+   ],
+   "b": [
+    "I2C"
+   ],
+   "a": "0x73",
+   "p": 2,
+   "l": 1,
+   "t": [
+    "grove"
+   ],
+   "d": "Distingue más gestos que el APDS-9960: deslizar, acercar, alejar y giros en ambos sentidos.",
+   "i": [
+    "Control de volumen girando el dedo en el aire",
+    "Menú sin contacto para la cocina"
+   ],
+   "c": [
+    "apds9960",
+    "vl53l5cx"
+   ],
+   "k": "gestos mano girar sin contacto"
+  },
+  {
+   "id": "joystick",
+   "pn": "Joystick XY",
+   "n": "Dos ejes y un botón",
+   "f": "hmi",
+   "s": [
+    "robotica"
+   ],
+   "b": [
+    "Analógico",
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "Dos potenciómetros y un pulsador. El mando más directo para mover algo.",
+   "i": [
+    "Control remoto para un robot por ESP-NOW",
+    "Mover una cámara con dos servos"
+   ],
+   "c": [
+    "ky040",
+    "mpu6050"
+   ],
+   "q": "joystick module KY-023",
+   "k": "mando control palanca"
+  },
+  {
+   "id": "ky040",
+   "pn": "KY-040",
+   "n": "Perilla giratoria (encoder)",
+   "f": "hmi",
+   "s": [
+    "domotica"
+   ],
+   "b": [
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Gira sin tope y trae un botón al presionar. La entrada clásica para navegar un menú.",
+   "i": [
+    "Perilla de volumen o de brillo con pantalla OLED",
+    "Termostato con interfaz de una sola perilla"
+   ],
+   "c": [
+    "as5600",
+    "touch"
+   ],
+   "k": "perilla menu girar volumen"
+  },
+  {
+   "id": "irrx",
+   "pn": "VS1838B (receptor IR)",
+   "n": "Señales de control remoto",
+   "f": "hmi",
+   "s": [
+    "domotica"
+   ],
+   "b": [
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Decodifica los controles remotos de 38 kHz. Con un LED infrarrojo puedes además repetir esas señales.",
+   "i": [
+    "Control universal que maneja TV y aire acondicionado",
+    "Reutilizar un control viejo para tus luces"
+   ],
+   "c": [
+    "ky040",
+    "touch"
+   ],
+   "q": "VS1838B",
+   "k": "control remoto infrarrojo tv"
+  },
+  {
+   "id": "as5600",
+   "pn": "AS5600",
+   "n": "Ángulo magnético sin contacto (12 bits)",
+   "f": "pos",
+   "s": [
+    "robotica"
+   ],
+   "b": [
+    "I2C",
+    "Analógico"
+   ],
+   "a": "0x36",
+   "p": 1,
+   "l": 2,
+   "t": [
+    "esphome",
+    "joya"
+   ],
+   "d": "Con un imán en el eje mide el ángulo exacto de giro, sin rozamiento. Convierte un motor barato en un servo preciso.",
+   "i": [
+    "Articulación de brazo robótico con realimentación",
+    "Perilla infinita de alta resolución para una interfaz"
+   ],
+   "c": [
+    "bno085",
+    "ina219"
+   ],
+   "k": "encoder angulo motor eje giro perilla"
+  },
+  {
+   "id": "pmw3901",
+   "pn": "PMW3901",
+   "n": "Flujo óptico (desplazamiento sobre el piso)",
+   "f": "pos",
+   "s": [
+    "robotica"
+   ],
+   "b": [
+    "SPI"
+   ],
+   "p": 3,
+   "l": 3,
+   "t": [],
+   "d": "Una cámara diminuta que mide cuánto se movió el suelo, igual que un mouse óptico. Da odometría sin encoders.",
+   "i": [
+    "Dron que se mantiene fijo en interiores",
+    "Robot que mide su recorrido aunque patinen las ruedas"
+   ],
+   "c": [
+    "vl53l1x",
+    "bno085"
+   ],
+   "k": "odometria dron mouse desplazamiento"
+  },
+  {
+   "id": "gps",
+   "pn": "u-blox NEO-M8N / MAX-M10S",
+   "n": "Posición por satélite (GNSS)",
+   "f": "pos",
+   "s": [
+    "robotica",
+    "wearables",
+    "agro"
+   ],
+   "b": [
+    "UART",
+    "I2C"
+   ],
+   "p": 3,
+   "l": 1,
+   "t": [
+    "esphome",
+    "qwiic"
+   ],
+   "d": "Latitud, longitud, altitud, velocidad y hora exacta. La serie M10 consume mucho menos: mejor para batería.",
+   "i": [
+    "Registrar rutas de bicicleta o de senderismo",
+    "Reloj que se pone en hora solo en cualquier lugar"
+   ],
+   "c": [
+    "bmp581",
+    "bno085"
+   ],
+   "q": "MAX-M10S",
+   "k": "ubicacion satelite ruta coordenadas hora"
+  },
+  {
+   "id": "dw3000",
+   "pn": "DW3000 (UWB)",
+   "n": "Posición en interiores con ±10 cm",
+   "f": "pos",
+   "s": [
+    "robotica",
+    "domotica",
+    "seguridad"
+   ],
+   "b": [
+    "SPI"
+   ],
+   "p": 3,
+   "l": 3,
+   "t": [
+    "joya"
+   ],
+   "d": "Radio de banda ultra ancha que mide la distancia entre módulos por tiempo de vuelo. Hace lo que el GPS no puede bajo techo.",
+   "i": [
+    "Robot que sabe en qué punto exacto de la casa está",
+    "Encontrar objetos con una etiqueta UWB"
+   ],
+   "c": [
+    "bno085",
+    "ble"
+   ],
+   "q": "DW3000 UWB ESP32",
+   "k": "interior localizacion ubicacion precisa etiqueta posicion"
+  },
+  {
+   "id": "ble",
+   "pn": "Bluetooth LE del ESP32",
+   "n": "Proximidad de teléfonos, relojes y beacons",
+   "f": "pos",
+   "s": [
+    "domotica",
+    "seguridad",
+    "wearables"
+   ],
+   "b": [
+    "Interno"
+   ],
+   "p": 0,
+   "l": 2,
+   "t": [
+    "interno",
+    "esphome"
+   ],
+   "d": "La intensidad de señal (RSSI) de un beacon o de tu reloj indica quién está cerca y en qué cuarto.",
+   "i": [
+    "Saber quién llegó a casa por su llavero BLE",
+    "Leer termómetros BLE comerciales sin abrirlos"
+   ],
+   "c": [
+    "dw3000",
+    "ld2410"
+   ],
+   "q": "ESP32 BLE beacon",
+   "k": "presencia habitacion rssi llavero"
+  },
+  {
+   "id": "hall",
+   "pn": "Sensor Hall (A3144, KY-003)",
+   "n": "Presencia de un imán",
+   "f": "pos",
+   "s": [
+    "domotica",
+    "seguridad",
+    "robotica"
+   ],
+   "b": [
+    "Digital"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [],
+   "d": "Conmuta cuando se acerca un imán. Sin contacto y sin desgaste.",
+   "i": [
+    "Sensor de puerta o de buzón",
+    "Velocímetro de bicicleta con un imán en la rueda"
+   ],
+   "c": [
+    "as5600",
+    "qmc5883l"
+   ],
+   "q": "A3144 hall sensor",
+   "k": "iman puerta velocidad rpm"
+  },
+  {
+   "id": "rc522",
+   "pn": "RC522",
+   "n": "Lector de tarjetas RFID (13.56 MHz)",
+   "f": "ident",
+   "s": [
+    "seguridad",
+    "domotica"
+   ],
+   "b": [
+    "SPI"
+   ],
+   "p": 1,
+   "l": 1,
+   "t": [
+    "esphome"
+   ],
+   "d": "Lee tarjetas y llaveros MIFARE. Barato y con muchísimos ejemplos.",
+   "i": [
+    "Abrir una cerradura con un llavero",
+    "Tocadiscos de tarjetas: cada una reproduce un álbum"
+   ],
+   "c": [
+    "pn532",
+    "r503"
+   ],
+   "k": "tarjeta llavero acceso rfid"
+  },
+  {
+   "id": "pn532",
+   "pn": "PN532",
+   "n": "NFC (tarjetas y teléfonos)",
+   "f": "ident",
+   "s": [
+    "seguridad",
+    "domotica"
+   ],
+   "b": [
+    "I2C",
+    "SPI",
+    "UART"
+   ],
+   "a": "0x24",
+   "p": 2,
+   "l": 2,
+   "t": [
+    "esphome"
+   ],
+   "d": "Además de leer tarjetas, intercambia datos con un celular y escribe etiquetas NFC.",
+   "i": [
+    "Etiquetas NFC que lanzan escenas al acercar el celular",
+    "Control de préstamo de herramientas en un taller"
+   ],
+   "c": [
+    "rc522",
+    "r503"
+   ],
+   "k": "nfc celular etiqueta acceso"
+  },
+  {
+   "id": "r503",
+   "pn": "R503",
+   "n": "Lector de huella capacitivo",
+   "f": "ident",
+   "s": [
+    "seguridad"
+   ],
+   "b": [
+    "UART"
+   ],
+   "p": 3,
+   "l": 2,
+   "t": [
+    "esphome"
+   ],
+   "d": "Guarda y compara las huellas dentro del módulo; el ESP32 solo recibe el resultado. Trae un anillo LED de estado.",
+   "i": [
+    "Cerradura de huella para un cajón o un taller",
+    "Registro de asistencia sin tarjetas"
+   ],
+   "c": [
+    "pn532",
+    "ld2410"
+   ],
+   "q": "R503 fingerprint",
+   "k": "huella dedo biometrico cerradura"
+  },
+  {
+   "id": "gm65",
+   "pn": "GM65 / GM67",
+   "n": "Lector de códigos de barras y QR",
+   "f": "ident",
+   "s": [
+    "domotica"
+   ],
+   "b": [
+    "UART"
+   ],
+   "p": 3,
+   "l": 1,
+   "t": [
+    "joya"
+   ],
+   "d": "Un escáner como el del supermercado, del tamaño de una estampilla. Entrega el texto del código por serial.",
+   "i": [
+    "Inventario de la despensa: escanea al guardar y al gastar",
+    "Catalogar tus componentes y sensores con etiquetas QR"
+   ],
+   "c": [
+    "hx711",
+    "pn532"
+   ],
+   "q": "GM65 barcode scanner module",
+   "k": "qr codigo barras inventario despensa"
+  }
+ ]
+}
