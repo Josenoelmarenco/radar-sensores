@@ -382,6 +382,16 @@ body:not([data-view="explorar"]) .v-explorar{display:none}
 .ind-list b{font:700 .92rem var(--f-display)}.ind-list span{font-size:.86rem;color:var(--muted)}
 .plain{display:grid;gap:5px;padding-left:18px;list-style:disc;font-size:.88rem}.plain.num{list-style:decimal}
 .alert.resp{margin-top:8px}
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px;margin-top:6px}
+.doc-card{display:grid;gap:3px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--mask);border-radius:8px;text-decoration:none;color:var(--ink);transition:border-color .15s,background .15s}
+.doc-card:hover{border-color:var(--mask);background:var(--mask-soft)}
+.doc-card .doc-k{font:500 .66rem/1.1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.doc-card b{font:600 .9rem/1.25 var(--f-display);color:var(--mask)}
+.doc-card small{font-size:.8rem;color:var(--muted);line-height:1.35}
+.nov-card.fresh{border-color:var(--pad)}
+.nov-desc{font-size:.84rem;color:var(--muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.orig-box{background:var(--sunk);border:1px solid var(--line);border-left:3px solid var(--pad);border-radius:8px;padding:10px 12px;font-size:.85rem;color:var(--muted);display:grid;gap:4px}
+.orig-box b{color:var(--ink)}
 @media (max-width:820px){.anat,.wiring,.two,.bench-grid{grid-template-columns:minmax(0,1fr)}.bars button{grid-template-columns:100px minmax(0,1fr) 30px}.lab-tabs{margin:0 -16px;padding:0 16px}}
 #panel-body,#cmp-body,#bench-body{display:grid;gap:34px;min-width:0}
 </style>
@@ -610,6 +620,7 @@ function indexCatalog(cat){
     }
   }
   buildPnKeys();
+  if (typeof syncNovSensors === "function") syncNovSensors();
 }
 
 const state = {q:"", sector:"", fam:"", bus:new Set(), price:new Set(), flags:new Set(), level:0, sort:"sug", radar:[], seed:0, recipe:""};
@@ -1201,6 +1212,7 @@ function cadViewerHTML(s){
 
 function cardHTML(s){
   const on = inRadar(s.id), inC = typeof cmpList !== "undefined" && cmpList.includes(s.id), p = physOf(s);
+  const docUrl = typeof sensorDocsOf === "function" ? sensorDocsOf(s).officialUrl : "";
   return `<article class="card">
     <p class="meta"><span>${esc(FAM[s.f])}</span><span class="price" title="${esc(priceTitle(s))}">${esc(priceLabel(s))}</span></p>
     <div class="card-3d" data-open="${s.id}" title="Ver figura 3D y cotas de ${esc(s.pn)}">
@@ -1211,7 +1223,7 @@ function cardHTML(s){
     <h3><button type="button" class="pn" data-open="${s.id}">${esc(s.pn)}</button></h3>
     <p class="what">${esc(s.n)}</p>
     <p class="chips">${busHTML(s)}${flagsHTML(s)}</p>
-    <div class="acts"><button type="button" class="link" data-open="${s.id}">Laboratorio</button><div style="display:flex;gap:5px;align-items:center"><button type="button" class="pill" data-cmp="${s.id}" aria-pressed="${inC}" title="Comparar lado a lado">${inC ? "Comparando" : "Comparar"}</button><button type="button" class="radar-btn" data-radar="${s.id}" aria-pressed="${on}">${on ? "En tu radar" : "+ Radar"}</button></div></div>
+    <div class="acts"><div style="display:flex;gap:10px;align-items:center"><button type="button" class="link" data-open="${s.id}">Laboratorio</button>${docUrl ? `<a class="link" href="${esc(docUrl)}" target="_blank" rel="noopener noreferrer" title="Abrir página oficial o documentación de ${esc(s.pn)}">Oficial ↗</a>` : ""}</div><div style="display:flex;gap:5px;align-items:center"><button type="button" class="pill" data-cmp="${s.id}" aria-pressed="${inC}" title="Comparar lado a lado">${inC ? "Comparando" : "Comparar"}</button><button type="button" class="radar-btn" data-radar="${s.id}" aria-pressed="${on}">${on ? "En tu radar" : "+ Radar"}</button></div></div>
   </article>`;
 }
 function renderGrid(){
@@ -1510,23 +1522,24 @@ const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const wordRx = list => new RegExp("(^|[^a-z0-9])(" + list.map(reEsc).join("|") + ")(?=$|[^a-z0-9])");
 const KW_STRONG = wordRx(["sensor","sensors","sensing","radar","mmwave","lidar","tof","time-of-flight","time of flight","imu","accelerometer","gyroscope","magnetometer","barometer","barometric","hygrometer","thermometer","co2","voc","nox","pm2.5","particulate","air quality","formaldehyde","spectral","spectrometer","multispectral","ecg","ekg","ppg","spo2","heart rate","emg","eeg","biosensor","load cell","gesture","proximity","lux","geiger","lightning detector","gnss","uwb","fingerprint","thermal camera","thermal imaging","microphone","hall effect","encoder","anemometer","sensor kit","sensores","acelerometro"]);
 const KW_WEAK = wordRx(["temperature","humidity","pressure","gas","light","uv","camera","thermal","gps","rtk","rfid","nfc","flow","force","strain","current","power monitor","soil","moisture","water","ph","tds","vibration","tilt","distance","ultrasonic","color","motion","presence","occupancy","weight","scale","audio","health","tracker","wearable"]);
-const KW_SKIP = /product pick|giveaway|podcast|livestream|live show|ask an engineer|show and tell|deal of the day|sale|discount/;
+const KW_SKIP = /product pick|giveaway|podcast|livestream|live show|ask an engineer|show and tell|deal of the day|sale|discount|neopixel|led strip|led matrix|fairy light|keycap|plush|sticker|t-shirt|enclosure only|usb cable|extension cable|gift guide|holiday/;
 const FAMRX = [
-  ["bio", /ecg|ekg|ppg|spo2|heart rate|pulse ox|emg|eeg|biosens|blood|glucose|health track/],
-  ["radar", /radar|mmwave|presence|occupancy|wi-?fi sensing|csi/],
-  ["dist", /lidar|time.of.flight|(^|[^a-z])tof([^a-z]|$)|distance|ultrasonic|rangefinder/],
-  ["imu", /imu|accelerometer|gyro|magnetometer|inertial|[69].?axis|[69] ?dof/],
-  ["vision", /camera|thermal|infrared array|vision|image sensor/],
-  ["aire", /co2|(^|[^a-z])gas([^a-z]|$)|voc|air quality|particulate|pm2\.5|formaldehyde|nox/],
-  ["clima", /humidity|temperature|barometric|pressure sensor|weather|lightning|thermometer/],
-  ["luz", /(^|[^a-z])lux|light sensor|spectral|(^|[^a-z])uv([^a-z]|$)|color sensor|ambient light/],
-  ["fuerza", /load cell|force|strain|weight|(^|[^a-z])scale/],
-  ["agua", /soil|(^|[^a-z])ph([^a-z]|$)|tds|water|moisture|(^|[^a-z])flow/],
-  ["pos", /gnss|gps|uwb|rtk|positioning|hall effect|magnetic sensor/],
-  ["sonido", /microphone|audio|acoustic|sound sensor/],
-  ["energia", /current sens|power monitor|energy|battery|voltage|power meter/],
-  ["hmi", /gesture|touch|button|encoder|joystick|knob/],
-  ["ident", /rfid|nfc|fingerprint|barcode|qr code/]
+  ["bio", /\b(ecg|ekg|ppg|spo2|heart rate|pulse ox|emg|eeg|biosens|blood|glucose|health track)\b/],
+  ["radar", /\b(radar|mmwave|presence|occupancy|wi-?fi sensing|csi)\b/],
+  ["dist", /\b(lidar|time.of.flight|tof|distance|ultrasonic|rangefinder)\b/],
+  ["luz", /\b(lux|light sensor|spectral|spectrometer|tristimulus|uv|ultraviolet|color sensor|ambient light|photodiode|als)\b/],
+  ["imu", /\b(imu|accelerometer|gyro|gyroscope|magnetometer|inertial|[69].?axis|[69] ?dof)\b/],
+  ["vision", /\b(camera|thermal|infrared array|vision|image sensor)\b/],
+  ["aire", /\b(co2|gas|voc|tvoc|air quality|particulate|pm2\.5|formaldehyde|nox)\b/],
+  ["clima", /\b(humidity|temperature|barometric|barometer|pressure sensor|weather|lightning|thermometer)\b/],
+  ["fuerza", /\b(load cell|force|strain|weight|scale)\b/],
+  ["agua", /\b(soil|ph|tds|water|moisture|flow)\b/],
+  ["pos", /\b(gnss|gps|uwb|rtk|positioning|hall effect|magnetic sensor|optical flow)\b/],
+  ["sonido", /\b(microphone|audio|acoustic|sound sensor|mems mic)\b/],
+  ["energia", /\b(current sens|current monitor|power monitor|energy|battery|fuel gauge|voltage|power meter)\b/],
+  ["hmi", /\b(gesture|touch|button|encoder|joystick|knob)\b/],
+  ["ident", /\b(rfid|nfc|fingerprint|barcode|qr code)\b/],
+  ["com", /\b(lora|lorawan|meshtastic|can bus|transceiver|sub-ghz|sx126)\b/]
 ];
 const SECRX = {
   salud: /health|medical|ecg|ekg|heart|spo2|sleep|fall det|breathing|respirat|glucose|patient|elder|vital/,
@@ -1536,7 +1549,8 @@ const SECRX = {
   ambiente: /air quality|co2|pm2\.5|particulate|weather|humidity|voc|formaldehyde|pollution/,
   energia: /current|power monitor|energy|battery|solar|voltage|power meter/,
   wearables: /wearable|smartwatch|wristwatch|wrist|smart ring|wristband|earbud|smart glasses|fitness tracker|health tracker/,
-  seguridad: /security|alarm|intrusion|door|fingerprint|lock|surveillance|fall det/
+  seguridad: /security|alarm|intrusion|door|fingerprint|lock|surveillance|fall det/,
+  defensa: /rtk|uwb|geophone|seismic|radiation|geiger|thermal camera|flir|drone|uas|lora|can bus/
 };
 function plain(html){
   const ta = document.createElement("textarea");
@@ -1549,9 +1563,10 @@ function relevant(t, s, tema){
   const nt = norm(t), ns = norm(s);
   if (KW_SKIP.test(nt)) return false;
   const st = KW_STRONG.test(nt), wt = KW_WEAK.test(nt), ss = KW_STRONG.test(ns);
-  if (tema === "sensores") return st || wt || (ss && guessFam(t) !== "");
-  if (tema === "productos") return st || wt;
-  return st || (wt && ss);
+  const hasFam = (guessFam(t) || guessFam(s)) !== "";
+  if (tema === "sensores") return (st || wt || ss) && hasFam;
+  if (tema === "productos") return (st || (wt && ss)) && hasFam;
+  return (st || (wt && ss)) && hasFam;
 }
 const guessFam = text => { const n = norm(text); const hit = FAMRX.find(([, rx]) => rx.test(n)); return hit ? hit[0] : ""; };
 const guessSec = text => { const n = norm(text); return Object.keys(SECRX).filter(k => SECRX[k].test(n)); };
@@ -1569,6 +1584,233 @@ function related(title){
   for (const [rx, id] of PNKEYS) if (rx.test(up) && !out.includes(id)) out.push(id);
   return out.slice(0, 3);
 }
+
+/* ---------- Novedades -> Full Spanish Sensor Synthesizer & 3D Profile ---------- */
+const EN_ES_PHRASES = [
+  [/\bnew product\b\s*[:–—-]?\s*/gi, ""],
+  [/\bbreakout board\b/gi, "placa breakout"],
+  [/\bbreakout\b/gi, "placa breakout"],
+  [/\btime[- ]of[- ]flight\b/gi, "tiempo de vuelo (ToF)"],
+  [/\btristimulus\s+xyz\s+color\s+and\s+lux\s+sensor\b/gi, "sensor triestímulo CIE XYZ de color e iluminancia (lux)"],
+  [/\bcolor\s+and\s+lux\s+sensor\b/gi, "sensor de color e iluminancia (lux)"],
+  [/\btristimulus\b/gi, "triestímulo"],
+  [/\bhigh[- ]speed\b/gi, "alta velocidad"],
+  [/\bhigh[- ]precision\b/gi, "alta precisión"],
+  [/\bmulti[- ]zone\b/gi, "multizona"],
+  [/\bdistance sensor\b/gi, "sensor de distancia"],
+  [/\branging sensor\b/gi, "sensor de medición de distancia"],
+  [/\bair quality sensor\b/gi, "sensor de calidad del aire"],
+  [/\bparticulate matter\b/gi, "material particulado (PM)"],
+  [/\btemperature and humidity sensor\b/gi, "sensor de temperatura y humedad"],
+  [/\btemperature\s*(?:&|and)\s*humidity\b/gi, "temperatura y humedad"],
+  [/\bbarometric pressure and altitude sensor\b/gi, "sensor de presión barométrica y altitud"],
+  [/\bbarometric pressure\b/gi, "presión barométrica"],
+  [/\baltitude\b/gi, "altitud"],
+  [/\bpressure sensor\b/gi, "sensor de presión"],
+  [/\bhumidity sensor\b/gi, "sensor de humedad"],
+  [/\btemperature sensor\b/gi, "sensor de temperatura"],
+  [/\bthermocouple amplifier\b/gi, "amplificador de termopar"],
+  [/\bcurrent and power monitor\b/gi, "monitor de corriente y potencia"],
+  [/\bcurrent sensor\b/gi, "sensor de corriente"],
+  [/\bpower monitor\b/gi, "monitor de potencia"],
+  [/\bfuel gauge\b/gi, "medidor de carga de batería"],
+  [/\bambient light sensor\b/gi, "sensor de luz ambiental"],
+  [/\blight sensor\b/gi, "sensor de luz"],
+  [/\bcolor sensor\b/gi, "sensor de color"],
+  [/\bspectral sensor\b/gi, "sensor espectral"],
+  [/\buv sensor\b/gi, "sensor de radiación UV"],
+  [/\bthermal camera\b/gi, "cámara térmica"],
+  [/\binfrared thermometer\b/gi, "termómetro infrarrojo sin contacto"],
+  [/\bmmwave radar\b/gi, "radar milimétrico (mmWave)"],
+  [/\bhuman presence\b/gi, "presencia humana"],
+  [/\bfall detection\b/gi, "detección de caídas"],
+  [/\bheart rate\b/gi, "ritmo cardíaco"],
+  [/\bpulse oximeter\b/gi, "oxímetro de pulso (SpO₂)"],
+  [/\bsoil moisture\b/gi, "humedad de suelo"],
+  [/\bload cell\b/gi, "celda de carga"],
+  [/\bstrain gauge\b/gi, "galga extensiométrica"],
+  [/\baccelerometer\b/gi, "acelerómetro"],
+  [/\bgyroscope\b/gi, "giroscopio"],
+  [/\bmagnetometer\b/gi, "magnetómetro"],
+  [/\b6-axis\b|\b6-dof\b|\b6 dof\b/gi, "IMU de 6 ejes"],
+  [/\b9-axis\b|\b9-dof\b|\b9 dof\b/gi, "IMU de 9 ejes"],
+  [/\bultrasonic\b/gi, "ultrasónico"],
+  [/\brotary encoder\b/gi, "codificador rotatorio"],
+  [/\bfingerprint\b/gi, "lector de huella dactilar"],
+  [/\bbarcode\b/gi, "lector de código de barras"],
+  [/\bmicrophone\b/gi, "micrófono"],
+  [/\bhigh accuracy\b|\bhigh-accuracy\b/gi, "alta precisión"],
+  [/\blow power\b|\blow-power\b/gi, "bajo consumo"],
+  [/\bindoor navigation\b/gi, "navegación en interiores"],
+  [/\binterface\b/gi, "interfaz"],
+  [/\bconnectors\b/gi, "conectores"],
+  [/\bconnector\b/gi, "conector"],
+  [/\bmodule\b/gi, "módulo"],
+  [/\bsensor\b/gi, "sensor"],
+  [/\bwaterproof\b/gi, "impermeable"],
+  [/\bno soldering required\b|\bno soldering\b/gi, "sin necesidad de soldar"],
+  [/\bwith\b/gi, "con"],
+  [/\band\b/gi, "y"],
+  [/\bfor\b/gi, "para"],
+  [/\bthe\b/gi, "el"],
+  [/\bis a\b/gi, "es un"],
+  [/\bmeasures\b/gi, "mide"],
+  [/\bprovides\b/gi, "entrega"],
+  [/\bsupports\b/gi, "soporta"],
+  [/\bfeatures\b/gi, "incorpora"],
+  [/\bdesigned para\b|\bdesigned for\b/gi, "diseñado para"]
+];
+function translateEnSnippet(txt){
+  let out = String(txt || "").trim();
+  for (const [rx, rep] of EN_ES_PHRASES) out = out.replace(rx, rep);
+  return out.replace(/\s+/g, " ").trim();
+}
+function extractChipCode(t, s){
+  const text = `${t} ${s || ""}`;
+  const ignore = new Set(["ESP32", "ESP8266", "STEMMA", "QWIIC", "GROVE", "RP2040", "RP2350", "STM32", "USB-C", "I2C", "UART", "GPIO", "OLED", "HDMI", "WIFI", "LORA"]);
+  const m = text.match(/\b([A-Z]{2,6}-?\d{2,5}[A-Z0-9-]{0,5})\b/g) || [];
+  for (const tok of m) {
+    const clean = tok.toUpperCase();
+    if (!ignore.has(clean) && !/^ESP32/.test(clean) && /[A-Z]/.test(clean) && /\d/.test(clean)) return clean;
+  }
+  return "";
+}
+function detectMaker(t, f){
+  const all = `${t} ${f || ""}`;
+  if (/adafruit/i.test(all)) return "Adafruit";
+  if (/sparkfun/i.test(all)) return "SparkFun";
+  if (/seeed|xiao|grove/i.test(all)) return "Seeed Studio";
+  if (/dfrobot|gravity/i.test(all)) return "DFRobot";
+  if (/m5stack/i.test(all)) return "M5Stack";
+  if (/waveshare/i.test(all)) return "Waveshare";
+  if (/lilygo/i.test(all)) return "LilyGO";
+  if (/pololu/i.test(all)) return "Pololu";
+  if (/pimoroni/i.test(all)) return "Pimoroni";
+  return (f || "Novedad").split(/[·–—-]/)[0].trim();
+}
+const FAM_DESC_ES = {
+  bio: ["Sensor biomédico y de bioseñales", ["Prototipo de monitoreo fisiológico con ESP32", "Registro portátil de signos vitales en tarjeta o Wi-Fi", " Laboratorio de instrumentación biomédica"]],
+  radar: ["Radar milimétrico / detector de presencia", ["Detección de presencia humana estática para domótica con ESPHome", "Alerta de movimiento u ocupación a través de carcasas plásticas", "Monitoreo sin cámaras respetando la privacidad"]],
+  imu: ["Sensor inercial de movimiento y orientación (IMU)", ["Estabilización y odometría para robots o rovers con ESP32", "Detección de vibraciones, impactos o gestos por interrupción", "Navegación estimada (dead-reckoning) y nivel digital"]],
+  dist: ["Sensor de distancia y tiempo de vuelo (ToF / LiDAR)", ["Evasión de obstáculos y mapeo de entorno en robótica", "Medición de nivel sin contacto en tanques o depósitos", "Contador de paso o activación por proximidad exacta"]],
+  vision: ["Sensor óptico de visión o matriz térmica", ["Termografía sin contacto e inspección de puntos calientes", "Detección local de objetos o personas en el borde (Edge AI)", "Vigilancia nocturna o conteo inteligente con ESP32"]],
+  aire: ["Sensor ambiental de calidad del aire y gases", ["Monitor de ventilación interior (CO₂, COV o partículas PM2.5)", "Alerta temprana de gases o humo conectada a Home Assistant", "Estación de salud ambiental para estudio o dormitorio"]],
+  clima: ["Sensor meteorológico de temperatura, humedad o presión", ["Estación meteorológica exterior/interior de bajo consumo", "Control climático para invernadero o cámara de cultivo", "Altímetro barométrico y compensación ambiental"]],
+  luz: ["Sensor óptico de iluminación, color o espectro UV", ["Ajuste automático de brillo e iluminación circadiana", "Índice UV y radiación solar para exterior o agricultura", "Clasificación óptica de color y espectro en laboratorio"]],
+  fuerza: ["Sensor de fuerza, peso o deformación", ["Báscula digital de precisión o control de inventario por peso", "Medición de fuerza de agarre o presión de contacto", "Detección de impacto o vibración mecánica en máquinas"]],
+  agua: ["Sensor de calidad de agua, caudal o humedad de suelo", ["Automatización de riego y monitoreo de sustrato agrícola", "Control de solución nutritiva en hidroponía (pH, EC, nivel)", "Detección de fugas y medición de consumo de agua"]],
+  sonido: ["Micrófono o transductor acústico / ultrasónico", ["Clasificación de eventos sonoros o nivel de ruido dB", "Captura de audio digital para comandos de voz en ESP32", "Detección de vibraciones acústicas en estructuras"]],
+  energia: ["Monitor de corriente, tensión y potencia eléctrica", ["Telemetría de batería LiPo/solar y consumo del nodo ESP32", "Medición de carga y eficiencia en motores o fuentes DC", "Alerta de subtensión o sobrecorriente por hardware"]],
+  hmi: ["Módulo de interacción humana, tacto o gestos", ["Panel de control sin contacto o botonera capacitiva", "Interfaz de usuario con encoder o joystick para bancada", "Control por gestos o mando infrarrojo"]],
+  pos: ["Módulo de posicionamiento, GNSS o ángulo magnético", ["Geolocalización y sincronización horaria para nodos de campo", "Medición de ángulo absoluto en articulaciones o ejes", "Localización en interiores por radio o flujo óptico"]],
+  ident: ["Lector de identificación (RFID, NFC, biometría o QR)", ["Control de acceso inteligente con registro en ESP32", "Inventario automatizado mediante etiquetas NFC/RFID", "Autenticación física en cajas o talleres"]],
+  com: ["Módulo de comunicación de campo y telemetría", ["Enlace de largo alcance LoRa / Sub-GHz entre nodos remotos", "Integración con bus automotriz o industrial CAN / RS485", "Telemetría autónoma sin depender de cobertura Wi-Fi"]]
+};
+function synthesizeNovSensor(n){
+  const vid = "nv-" + n.id;
+  const rawText = `${n.t || ""} ${n.s || ""}`;
+  const fam = guessFam(rawText) || (n.fam && FAM[n.fam] ? n.fam : "clima");
+  n.fam = fam;
+  const secs = Array.isArray(n.sec) && n.sec.length ? n.sec : (guessSec(rawText).length ? guessSec(rawText) : ["domotica"]);
+  n.sec = secs;
+  const relIds = related(rawText);
+  const base = relIds.length ? byId.get(relIds[0]) : null;
+  const chip = extractChipCode(n.t, n.s);
+  const maker = detectMaker(n.t, n.f);
+  // Detect buses
+  const buses = [];
+  if (/\b(i2c|i²c|qwiic|stemma\s*qt|twi)\b/i.test(rawText)) buses.push("I2C");
+  if (/\bspi\b/i.test(rawText)) buses.push("SPI");
+  if (/\b(uart|serial|tx\/rx|rs232|nmea)\b/i.test(rawText)) buses.push("UART");
+  if (/\b(analog|adc|aout)\b/i.test(rawText)) buses.push("Analógico");
+  if (/\b(i2s|pdm)\b/i.test(rawText)) buses.push("I2S");
+  if (/\b(1-wire|onewire)\b/i.test(rawText)) buses.push("1-Wire");
+  if (/\brs-?485|modbus\b/i.test(rawText)) buses.push("RS485");
+  if (/\bcan\s*bus|twai\b/i.test(rawText)) buses.push("CAN");
+  if (!buses.length) {
+    if (base && base.b.length) buses.push(...base.b);
+    else if (["radar", "pos"].includes(fam)) buses.push("UART", "I2C");
+    else if (["agua", "fuerza"].includes(fam)) buses.push("Analógico", "I2C");
+    else buses.push("I2C");
+  }
+  // Flags
+  const flags = ["nuevo"];
+  if (/\b(stemma\s*qt|qwiic)\b/i.test(rawText) || (base && has(base, "qwiic"))) flags.push("qwiic");
+  if (/\bgrove\b/i.test(rawText) || (base && has(base, "grove"))) flags.push("grove");
+  if (/\b(esphome|home\s*assistant)\b/i.test(rawText) || (base && has(base, "esphome"))) flags.push("esphome");
+  // I2C address
+  const addrM = /\b(0x[0-9a-fA-F]{2})\b/.exec(rawText);
+  const addr = addrM ? addrM[1].toLowerCase() : (base && base.a ? base.a : "");
+  // Price tier
+  const priceM = /(?:\$|€|USD|EUR)\s*(\d+(?:\.\d+)?)/i.exec(rawText);
+  let pTier = base && base.p != null ? base.p : 2;
+  if (priceM) {
+    const val = Number(priceM[1]);
+    pTier = val < 5 ? 1 : val <= 15 ? 2 : val <= 40 ? 3 : 4;
+  }
+  const lvl = flags.includes("qwiic") || flags.includes("grove") ? 1 : (base ? base.l : 2);
+  // Part number & Spanish titles
+  const cleanTitle = translateEnSnippet(n.t.replace(/^new\s*product\s*[:–—-]?\s*/i, "").replace(/\s*[-–—]\s*stemma\s*qt.*$/i, "").replace(/\s*\(qwiic\)/i, ""));
+  let pn = chip ? `${chip} (${maker})` : (base ? `${base.pn} · ${maker}` : (cleanTitle.length > 48 ? cleanTitle.slice(0, 46) + "…" : cleanTitle));
+  const fInfo = FAM_DESC_ES[fam] || FAM_DESC_ES.clima;
+  const whatEs = base
+    ? `${base.n} — versión / lanzamiento de ${maker}`
+    : `${fInfo[0]} (${cleanTitle.length > 72 ? cleanTitle.slice(0, 70) + "…" : cleanTitle})`;
+  const trSummary = n.s ? translateEnSnippet(n.s) : "";
+  const shortEs = base
+    ? `Nueva placa o revisión en ${maker} basada en ${base.pn}: ${base.d}`
+    : `${fInfo[0]} detectado en ${maker} (${buses.join("/")}${flags.includes("qwiic") ? " · Qwiic/STEMMA QT" : flags.includes("grove") ? " · Grove" : ""}). ${trSummary}`;
+  const fullDescEs = `${shortEs}${n.s ? ` — Traducción / extracto del anuncio original en ${n.f}: «${n.t}»` : ""}`;
+  // Physical 3D profile
+  const basePhys = base ? physOf(base) : null;
+  const arch = basePhys ? basePhys.arch : (fam === "radar" ? "radar" : fam === "luz" || fam === "dist" ? "optical" : fam === "imu" ? "imu" : fam === "aire" || fam === "clima" ? "air" : fam === "agua" ? "probe" : fam === "vision" ? "cam" : fam === "energia" ? "power" : fam === "bio" ? "bio" : fam === "hmi" || fam === "sonido" ? "hmi" : "chip");
+  const color = maker === "Adafruit" ? "#181C24" : maker === "SparkFun" ? "#8E1F2F" : maker === "Seeed Studio" ? "#145A68" : (basePhys ? basePhys.color : "#184A78");
+  const pins = basePhys ? [...basePhys.pins] : (buses.includes("I2C") ? ["VIN", "3V3", "GND", "SCL", "SDA", "INT"] : buses.includes("UART") ? ["VCC", "GND", "TX", "RX"] : buses.includes("SPI") ? ["VIN", "GND", "SCK", "MISO", "MOSI", "CS"] : ["VCC", "GND", "OUT"]);
+  const phys = {
+    arch,
+    dim: basePhys ? [...basePhys.dim] : (flags.includes("qwiic") ? [25.4, 17.8, 4.5] : flags.includes("grove") ? [40, 20, 8] : [26, 18, 5]),
+    pkg: basePhys ? `${basePhys.pkg} (${maker})` : `Módulo ${maker}${flags.includes("qwiic") ? " STEMMA QT / Qwiic" : flags.includes("grove") ? " Grove" : ""}`,
+    mount: basePhys ? basePhys.mount : (flags.includes("qwiic") ? "4× M2.5 en esquinas" : "2× M2.5"),
+    pins,
+    pwr: basePhys ? basePhys.pwr : "3.3–5 V DC · regulador en placa (confirmar en hoja de datos)",
+    sig: basePhys ? basePhys.sig : `Datos por ${buses.join(" / ")}${addr ? ` (dir. ${addr})` : ""}`,
+    color
+  };
+  PHYS[vid] = phys;
+  const vs = {
+    id: vid,
+    pn,
+    n: whatEs,
+    f: fam,
+    s: secs,
+    b: buses,
+    p: pTier,
+    l: lvl,
+    t: flags,
+    a: addr || undefined,
+    d: fullDescEs,
+    w: base && base.w ? base.w : "Revisa el voltaje lógico (3.3 V para ESP32) y el pinout serigrafiado en la placa del fabricante antes de energizar.",
+    i: base && base.i && base.i.length ? base.i : fInfo[1],
+    c: base ? [base.id, ...(base.c || []).slice(0, 3)] : relIds,
+    q: chip || (base ? termOf(base) : pn.split(/[\s(·]/)[0]),
+    own: base ? base.own : "",
+    _combos: base ? [base.id, ...(base.c || []).slice(0, 3)] : relIds,
+    _nov: n,
+    _base: base,
+    _shortEs: shortEs,
+    _phys: phys
+  };
+  return vs;
+}
+function syncNovSensors(){
+  if (!Array.isArray(NOV)) return;
+  NOV = NOV.filter(n => n && !KW_SKIP.test(norm(n.t || "")) && (guessFam((n.t || "") + " " + (n.s || "")) || n.fam));
+  for (const k of [...byId.keys()]) if (k.startsWith("nv-")) byId.delete(k);
+  for (const n of NOV) {
+    const vs = synthesizeNovSensor(n);
+    byId.set(vs.id, vs);
+  }
+}
 function processFeeds(fuentes){
   const now = new Date().toISOString();
   const seen = new Set(NOV.map(n => n.id)), gone = new Set(META.descartados), titles = new Set(NOV.map(n => norm(n.t)));
@@ -1585,7 +1827,7 @@ function processFeeds(fuentes){
       if (!relevant(t, s, f.tema)) continue;
       rel++;
       const fam = guessFam(t) || guessFam(s);
-      if (!fam && f.tema !== "productos") continue;
+      if (!fam) continue;
       const id = "n" + hash(l), nt = norm(t);
       if (seen.has(id) || gone.has(id) || titles.has(nt)) continue;
       const d = Date.parse(it.d || "");
@@ -1596,6 +1838,7 @@ function processFeeds(fuentes){
   }
   NOV.sort((a, b) => b.d.localeCompare(a.d));
   NOV = NOV.slice(0, 300);
+  syncNovSensors();
   META.ultimaBusqueda = now;
   post({cmd: "guardar", nombre: "novedades", datos: NOV});
   post({cmd: "guardar", nombre: "meta", datos: META});
@@ -1625,8 +1868,39 @@ function novVisible(){
     return true;
   });
 }
+function novCardHTML(n){
+  const vid = "nv-" + n.id;
+  const vs = byId.get(vid) || synthesizeNovSensor(n);
+  const p = physOf(vs);
+  const on = inRadar(vid), inC = typeof cmpList !== "undefined" && cmpList.includes(vid);
+  const rel = related(n.t + " " + (n.s || "")).map(id => byId.get(id)).filter(Boolean);
+  return `<article class="card nov-card${n.nuevo ? " fresh" : ""}">
+    <p class="meta"><span>${esc(FAM[vs.f] || "Sensor")} · ${esc(n.f || "Novedad")}</span><span class="price" title="${esc(priceTitle(vs))}">${esc(relTime(n.d))} · ${esc(priceLabel(vs))}</span></p>
+    <div class="card-3d" data-open="${vid}" title="Abrir laboratorio 3D y ficha técnica de ${esc(vs.pn)}">
+      <span class="pkg-tag">${esc(p.arch === "probe" ? "Sonda" : p.arch === "radar" ? "Radar" : p.arch === "air" ? "Cámara" : "Módulo")}</span>
+      ${isoSVG(vs, true)}
+      <span class="dim-tag">${esc(dimStr(p))}</span>
+    </div>
+    <h3><button type="button" class="pn" data-open="${vid}">${esc(vs.pn)}</button></h3>
+    <p class="what">${esc(vs.n)}</p>
+    <p class="nov-desc">${esc(vs._shortEs)}</p>
+    <p class="chips">${busHTML(vs)}${flagsHTML(vs)}${rel.map(s => `<button type="button" class="pill" data-open="${s.id}">Base: ${esc(s.pn)}</button>`).join("")}</p>
+    <div class="acts">
+      <div style="display:flex;gap:10px;align-items:center">
+        <button type="button" class="link" data-open="${vid}">Laboratorio</button>
+        <a class="link" href="${esc(n.l)}" target="_blank" rel="noopener noreferrer" title="Abrir el anuncio original en ${esc(n.f || "la fuente")}">Fuente ↗</a>
+        <button type="button" class="link" data-nov-rm="${esc(n.id)}" style="color:var(--muted);font-weight:500">Descartar</button>
+      </div>
+      <div style="display:flex;gap:5px;align-items:center">
+        <button type="button" class="pill" data-cmp="${vid}" aria-pressed="${inC}">${inC ? "Comparando" : "Comparar"}</button>
+        <button type="button" class="radar-btn" data-radar="${vid}" aria-pressed="${on}">${on ? "En tu radar" : "+ Radar"}</button>
+      </div>
+    </div>
+  </article>`;
+}
 function renderNov(){
   const box = $("#novedades");
+  syncNovSensors();
   const fresh = NOV.filter(n => n.nuevo).length;
   $("#nov-n").textContent = fresh ? `${fresh} nuevas` : "";
   $("#nov-n").hidden = !fresh;
@@ -1636,34 +1910,18 @@ function renderNov(){
   }
   const list = novVisible();
   const shown = list.slice(0, novMax);
-  const items = shown.map(n => {
-    const on = inRadar("nv-" + n.id);
-    const rel = related(n.t).map(id => byId.get(id)).filter(Boolean);
-    return `<li class="nov${n.nuevo ? " fresh" : ""}">
-      <p class="nov-meta"><span>${esc(n.f || "")}</span><span>${esc(relTime(n.d))}</span>${n.fam ? `<span>${esc(FAM[n.fam])}</span>` : ""}</p>
-      <a class="nov-t" href="${esc(n.l)}" target="_blank" rel="noopener noreferrer">${esc(n.t)}</a>
-      ${n.s ? `<p class="nov-s">${esc(n.s.length > 210 ? n.s.slice(0, 207).replace(/\s+\S*$/, "") + "…" : n.s)}</p>` : ""}
-      <p class="chips">${n.nuevo ? `<span class="flag new">Nueva</span>` : ""}${(n.sec || []).map(x => `<span class="chip">${esc(SECLABEL[x] || x)}</span>`).join("")}${rel.map(s => `<button type="button" class="pill" data-open="${s.id}">Ficha: ${esc(s.pn)}</button>`).join("")}</p>
-      <div class="acts"><button type="button" class="link" data-nov-rm="${esc(n.id)}">Descartar</button><button type="button" class="radar-btn" data-nov-radar="${esc(n.id)}" aria-pressed="${on}">${on ? "En tu radar" : "+ Radar"}</button></div>
-    </li>`;
-  }).join("");
   box.innerHTML =
-    `<div class="nov-bar"><button type="button" class="pill" data-act="nov-solo" aria-pressed="${novSolo}">Solo nuevas</button><span class="count">${list.length} de ${NOV.length} novedades${state.q || state.sector || state.fam ? " con tus filtros" : ""}</span></div>` +
-    (shown.length ? `<ul class="novs">${items}</ul>` : `<p class="empty">Ninguna novedad coincide con tus filtros.</p>`) +
-    (list.length > novMax ? `<p><button type="button" class="btn small" data-act="nov-more">Mostrar ${Math.min(8, list.length - novMax)} más</button></p>` : "");
+    `<div class="nov-bar"><button type="button" class="pill" data-act="nov-solo" aria-pressed="${novSolo}">Solo nuevas</button><span class="count">${list.length} de ${NOV.length} novedades sintetizadas con figura 3D y laboratorio en español${state.q || state.sector || state.fam ? " (filtradas)" : ""}</span></div>` +
+    (shown.length ? `<div class="grid">${shown.map(novCardHTML).join("")}</div>` : `<p class="empty">Ninguna novedad coincide con tus filtros.</p>`) +
+    (list.length > novMax ? `<p style="margin-top:10px"><button type="button" class="btn small" data-act="nov-more">Mostrar ${Math.min(8, list.length - novMax)} más</button></p>` : "");
 }
 function novToggleRadar(id){
-  const n = NOV.find(x => x.id === id); if (!n) return;
-  const rid = "nv-" + id;
-  if (inRadar(rid)) { state.radar = state.radar.filter(r => r.id !== rid); radarChanged(); }
-  else {
-    const rel = related(n.t).map(x => byId.get(x)).filter(Boolean);
-    addCustom({id: rid, pn: n.t.length > 80 ? n.t.slice(0, 77) + "…" : n.t, n: (n.f || "Novedad") + (n.fam ? " · " + FAM[n.fam] : ""), q: rel.length ? termOf(rel[0]) : n.t.split(/[:–—|-]/)[0].slice(0, 60), url: n.l});
-  }
+  toggleRadar("nv-" + id);
   renderNov();
 }
 function novDiscard(id){
   NOV = NOV.filter(n => n.id !== id);
+  byId.delete("nv-" + id);
   META.descartados = [id, ...META.descartados.filter(x => x !== id)].slice(0, 1500);
   post({cmd: "guardar", nombre: "novedades", datos: NOV});
   post({cmd: "guardar", nombre: "meta", datos: META});
@@ -2814,6 +3072,381 @@ function fisTab(s){
     <section><h3>Preguntas de repaso</h3><ol class="plain num">${(fi.check || []).map(q => `<li>${esc(q)}</li>`).join("")}</ol></section>
   </div>`;
 }
+const DOCS_DB = {
+  // Confirmed in hand ("si")
+  max30102: {
+    mfg: "Analog Devices (Maxim Integrated)",
+    official: ["Página oficial MAX30102 (Analog Devices)", "https://www.analog.com/en/products/max30102.html", "Especificaciones del oxímetro de pulso y monitor de frecuencia cardíaca integrado."],
+    datasheet: ["Datasheet oficial MAX30102 (PDF)", "https://www.analog.com/media/en/technical-documentation/data-sheets/max30102.pdf", "Registros I2C, corriente de los LEDs (660/880 nm), FIFO de 18 bits y temporización."],
+    guide: ["Guía práctica ESP32 + MAX30102 (Random Nerd)", "https://randomnerdtutorials.com/esp32-max30102-pulse-oximeter-heart-rate-sensor-arduino/", "Cableado al ESP32, solución al regulador de las placas verdes y cálculo de BPM/SpO₂."],
+    lib: ["Librería SparkFun MAX3010x (GitHub)", "https://github.com/sparkfun/SparkFun_MAX3010x_Sensor_Library", "Driver C++ para Arduino y PlatformIO con algoritmos de pulso y saturación."]
+  },
+  ad8232: {
+    mfg: "Analog Devices",
+    official: ["Página oficial AD8232 (Analog Devices)", "https://www.analog.com/en/products/ad8232.html", "Acondicionador de señal de biopotenciales ECG de una derivación y bajo consumo."],
+    datasheet: ["Datasheet oficial AD8232 (PDF)", "https://www.analog.com/media/en/technical-documentation/data-sheets/ad8232.pdf", "Arquitectura de filtro paso banda de dos polos, amplificador de instrumentación y RLD."],
+    guide: ["Guía de conexión AD8232 ECG (SparkFun)", "https://learn.sparkfun.com/tutorials/ad8232-heart-rate-monitor-hookup-guide", "Posición anatómica de los 3 electrodos (RA, LA, RL) y visualización de la onda QRS."],
+    lib: ["Repositorio y esquemático AD8232 (GitHub)", "https://github.com/sparkfun/AD8232_Heart_Rate_Monitor", "Planos de la placa breakout y sketch de adquisición serie."]
+  },
+  mlx90614: {
+    mfg: "Melexis",
+    official: ["Página oficial MLX90614 (Melexis)", "https://www.melexis.com/en/product/MLX90614/Digital-Plug-Play-Infrared-Thermometer-TO-Can", "Termómetro infrarrojo sin contacto en cápsula metálica TO-39 con salida SMBus/I2C."],
+    datasheet: ["Datasheet oficial MLX90614 (PDF)", "https://www.melexis.com/-/media/files/documents/datasheets/mlx90614-datasheet-melexis.pdf", "Campo de visión (FOV), ajuste de emisividad en EEPROM y mapa de registros."],
+    guide: ["Guía técnica Adafruit MLX90614", "https://learn.adafruit.com/using-melexis-mlx90614-non-contact-sensors", "Cómo conectarlo por I2C y compensar la emisividad de piel u objetos."],
+    lib: ["Componente oficial ESPHome mlx90614", "https://esphome.io/components/sensor/mlx90614.html", "Configuración directa en YAML para temperatura de objeto y ambiente."]
+  },
+  mpu6050: {
+    mfg: "TDK InvenSense",
+    official: ["Página oficial MPU-6050 (TDK InvenSense)", "https://invensense.tdk.com/products/motion-tracking/6-axis/mpu-6050/", "Unidad inercial MEMS de 6 ejes (acelerómetro + giroscopio) con procesador DMP."],
+    datasheet: ["Datasheet oficial MPU-6000/6050 (PDF)", "https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf", "Rangos configurables (±2g–±16g, ±250–±2000 °/s) y especificaciones eléctricas."],
+    guide: ["Guía ESP32 + MPU-6050 (Random Nerd)", "https://randomnerdtutorials.com/esp32-mpu-6050-accelerometer-gyroscope-arduino/", "Lectura de aceleración, giro y ángulos de inclinación en el ESP32."],
+    lib: ["Componente ESPHome + Librería Adafruit", "https://esphome.io/components/sensor/mpu6050.html", "Integración lista para ESPHome y librería Adafruit_MPU6050."]
+  },
+  ccs811: {
+    mfg: "ScioSense / ams OSRAM",
+    official: ["Página oficial CCS811 (ScioSense)", "https://www.sciosense.com/ccs811-digital-gas-sensor-for-monitoring-indoor-air-quality/", "Sensor digital MOX de compuestos orgánicos volátiles (TVOC) y eCO₂."],
+    datasheet: ["Datasheet oficial CCS811 (PDF)", "https://cdn.sparkfun.com/assets/learn_tutorials/1/4/3/CCS811_Datasheet-DS000459.pdf", "Modos de muestreo (1s, 10s, 60s), pin nWAKE y compensación con temperatura/humedad."],
+    guide: ["Guía de cableado y uso CCS811 (Adafruit)", "https://learn.adafruit.com/adafruit-ccs811-air-quality-sensor", "Tiempo de quemado inicial (burn-in de 48h) y manejo del pin WAKE a GND."],
+    lib: ["Componente oficial ESPHome ccs811", "https://esphome.io/components/sensor/ccs811.html", "Soporte nativo con guardado de línea base (baseline) y compensación ambiental."]
+  },
+  sht30: {
+    mfg: "Sensirion",
+    official: ["Página oficial serie SHT3x (Sensirion)", "https://sensirion.com/products/catalog/SHT30-DIS-B", "Sensor digital CMOSens de humedad relativa (±2 %) y temperatura (±0.2 °C)."],
+    datasheet: ["Datasheet oficial Sensirion SHT3x-DIS (PDF)", "https://sensirion.com/media/documents/213E6A3B/63A5A569/Datasheet_SHT3x_DIS.pdf", "Comandos de disparo, calefactor interno anticondensación y direcciones 0x44/0x45."],
+    guide: ["Guía Adafruit SHT31 / SHT30", "https://learn.adafruit.com/adafruit-sht31-d-temperature-and-humidity-sensor-breakout", "Código de color de cables en sondas impermeables y lectura I2C con ESP32."],
+    lib: ["Componente oficial ESPHome sht3xd", "https://esphome.io/components/sensor/sht3xd.html", "Configuración directa en ESPHome y librería Adafruit_SHT31."]
+  },
+  ds18b20: {
+    mfg: "Analog Devices (Maxim Integrated)",
+    official: ["Página oficial DS18B20 (Analog Devices)", "https://www.analog.com/en/products/ds18b20.html", "Termómetro digital 1-Wire programable de 9 a 12 bits con ID único de 64 bits."],
+    datasheet: ["Datasheet oficial DS18B20 (PDF)", "https://www.analog.com/media/en/technical-documentation/data-sheets/ds18b20.pdf", "Tiempos del protocolo 1-Wire, resolución de 0.0625 °C y modo de alimentación."],
+    guide: ["Guía completa ESP32 + DS18B20 (Random Nerd)", "https://randomnerdtutorials.com/esp32-ds18b20-temperature-arduino-ide/", "Conexión de una o múltiples sondas impermeables en un solo GPIO con pull-up de 4.7 kΩ."],
+    lib: ["Componente oficial ESPHome dallas_temp", "https://esphome.io/components/sensor/dallas_temp.html", "Escaneo automático de direcciones de 64 bits en ESPHome."]
+  },
+  esp32cam: {
+    mfg: "Ai-Thinker / Espressif + OmniVision",
+    official: ["Documentación oficial ESP32-CAM (Ai-Thinker)", "https://docs.ai-thinker.com/en/esp32-cam", "Página oficial del módulo con ESP32-S, PSRAM de 4 MB, microSD y cámara OV2640."],
+    datasheet: ["Datasheet sensor de imagen OV2640 (PDF)", "https://www.uctronics.com/download/cam_module/OV2640DS.pdf", "Especificaciones ópticas y registros SCCB del sensor UXGA de 2 megapíxeles."],
+    guide: ["Guía maestra de pinout y programación ESP32-CAM", "https://randomnerdtutorials.com/esp32-cam-ai-thinker-pinout/", "Cómo flashear con puente IO0-GND, evitar errores de brownout y transmitir video."],
+    lib: ["Driver oficial esp32-camera (Espressif GitHub)", "https://github.com/espressif/esp32-camera", "Repositorio oficial de Espressif para captura JPEG y streaming MJPEG."]
+  },
+  // SunFounder Kit & Core Inventory ("kit")
+  bme280: {
+    mfg: "Bosch Sensortec",
+    official: ["Página oficial BME280 (Bosch Sensortec)", "https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/", "Sensor ambiental integrado de presión barométrica, humedad y temperatura."],
+    datasheet: ["Datasheet oficial Bosch BME280 (PDF)", "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf", "Sobremuestreo (oversampling), filtro IIR, modos sleep/forced/normal y fórmulas de compensación."],
+    guide: ["Guía ESP32 + BME280 (Random Nerd)", "https://randomnerdtutorials.com/esp32-bme280-arduino-ide-pressure-temperature-humidity/", "Diferencia física frente al BMP280, cambio de dirección 0x76/0x77 y código Arduino."],
+    lib: ["Componente oficial ESPHome bme280_i2c", "https://esphome.io/components/sensor/bme280_i2c.html", "Integración nativa en ESPHome y librería Adafruit_BME280."]
+  },
+  pir: {
+    mfg: "BISS0001 / Módulo HC-SR501 (Kit SunFounder)",
+    official: ["Documentación oficial PIR en Kit SunFounder ESP32", "https://docs.sunfounder.com/projects/esp32-starter-kit/en/latest/arduino/basic_projects/ar_pir.html", "Guía específica del módulo HC-SR501 incluido en tu kit SunFounder."],
+    datasheet: ["Datasheet y ajuste de potenciómetros HC-SR501 (PDF)", "https://www.mpja.com/download/31227sc.pdf", "Ajuste de tiempo de retardo (Tx), sensibilidad (Sx) y puente de disparo H/L."],
+    guide: ["Guía ESP32 + PIR con interrupciones", "https://randomnerdtutorials.com/esp32-pir-motion-sensor-interrupts-timers/", "Uso de attachInterrupt() y despertar del ESP32 desde Deep Sleep con ext0."],
+    lib: ["Componente ESPHome gpio binary_sensor", "https://esphome.io/components/binary_sensor/gpio.html", "Configuración como sensor binario de presencia/movimiento en Home Assistant."]
+  },
+  hcsr04: {
+    mfg: "Transductor Ultrasónico 40 kHz HC-SR04 (Kit SunFounder)",
+    official: ["Documentación oficial HC-SR04 en Kit SunFounder ESP32", "https://docs.sunfounder.com/projects/esp32-starter-kit/en/latest/arduino/basic_projects/ar_ultrasonic.html", "Esquema y código del módulo ultrasónico de tu kit SunFounder."],
+    datasheet: ["Datasheet técnico HC-SR04 (PDF)", "https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf", "Diagrama de tiempos del pulso TRIG (10 µs), cono acústico de 15° y fórmula de eco."],
+    guide: ["Guía ESP32 + Sensor Ultrasónico HC-SR04", "https://randomnerdtutorials.com/esp32-hc-sr04-ultrasonic-arduino/", "Conexión con divisor de tensión para proteger el GPIO de 3.3 V y compensación por temperatura."],
+    lib: ["Componente oficial ESPHome ultrasonic", "https://esphome.io/components/sensor/ultrasonic.html", "Medición directa en metros con timeout configurable en ESPHome."]
+  },
+  ldr: {
+    mfg: "Fotocelda CdS GL5528 + LM393 (Kit SunFounder)",
+    official: ["Documentación oficial Photoresistor en Kit SunFounder ESP32", "https://docs.sunfounder.com/projects/esp32-starter-kit/en/latest/arduino/basic_projects/ar_photoresistor.html", "Explicación y circuito del fotorresistor de tu kit SunFounder."],
+    datasheet: ["Datasheet fotorresistencia serie GL55 (PDF)", "https://cdn.sparkfun.com/datasheets/Sensors/LightImaging/SEN-09088.pdf", "Curva logarítmica de resistencia (kΩ) vs iluminancia (lux) y respuesta espectral."],
+    guide: ["Guía de lectura analógica ADC en ESP32", "https://randomnerdtutorials.com/esp32-adc-analog-read-arduino-ide/", "Cómo leer el divisor resistivo en pines ADC1 (GPIO32–39) con atenuación de 11/12 dB."],
+    lib: ["Componente ESPHome adc + resistance", "https://esphome.io/components/sensor/resistance.html", "Conversión de voltaje ADC a ohmios en ESPHome."]
+  },
+  mic: {
+    mfg: "Cápsula Electret + LM393 / MAX9814 (Kit SunFounder)",
+    official: ["Documentación Sound Sensor en SunFounder Kit", "https://docs.sunfounder.com/projects/umsk/en/latest/02_arduino/02_sensor_lessons/lesson16_sound_sensor.html", "Ajuste del potenciómetro de umbral y lectura analógica/digital del módulo del kit."],
+    datasheet: ["Datasheet amplificador MAX9814 con AGC (PDF)", "https://www.analog.com/media/en/technical-documentation/data-sheets/max9814.pdf", "Control automático de ganancia (40/50/60 dB) y polarización de micrófono electret."],
+    guide: ["Guía Adafruit Microphone Amplifier Breakout", "https://learn.adafruit.com/adafruit-agc-electret-microphone-amplifier-max9814", "Medición de amplitud pico a pico (peak-to-peak) para nivel sonoro."],
+    lib: ["Componente ESPHome adc", "https://esphome.io/components/sensor/adc.html", "Lectura de envolvente analógica en ESP32."]
+  },
+  joystick: {
+    mfg: "Potenciómetros Biaxiales 10 kΩ + SW (Kit SunFounder)",
+    official: ["Documentación oficial Joystick en Kit SunFounder ESP32", "https://docs.sunfounder.com/projects/esp32-starter-kit/en/latest/arduino/basic_projects/ar_joystick.html", "Cableado de VRx, VRy y botón SW del joystick de tu kit SunFounder."],
+    datasheet: ["Especificación técnica del módulo Joystick XY", "https://docs.sunfounder.com/projects/umsk/en/latest/01_components_basic/27_joystick_module.html", "Diagrama interno de los dos potenciómetros de 10 kΩ y el pulsador con pull-up."],
+    guide: ["Guía ESP32 + Joystick XY y zona muerta (Deadzone)", "https://esp32io.com/tutorials/esp32-joystick", "Mapeo de lecturas 0–4095 en pines ADC1 y filtrado del centro mecánico."],
+    lib: ["Componente ESPHome adc + gpio", "https://esphome.io/components/sensor/adc.html", "Integración de ejes analógicos y botón en ESPHome."]
+  },
+  ky040: {
+    mfg: "Encoder Rotatorio Incremental KY-040 (Kit SunFounder)",
+    official: ["Documentación Rotary Encoder en SunFounder Kit", "https://docs.sunfounder.com/projects/umsk/en/latest/02_arduino/02_sensor_lessons/lesson24_rotary_encoder.html", "Funcionamiento de las fases CLK/DT y código de ejemplo para tu kit."],
+    datasheet: ["Especificaciones de encoders serie EC11 (Alps Alpine)", "https://tech.alpsalpine.com/e/products/category/encorder/sub/01/series/ec11/", "Diagrama de desfases de 90° en código Gray, pulsos por vuelta y vida útil."],
+    guide: ["Guía ESP32 + Encoder Rotatorio KY-040", "https://esp32io.com/tutorials/esp32-rotary-encoder", "Decodificación sin pérdida de pasos usando interrupciones o periférico PCNT del ESP32."],
+    lib: ["Componente oficial ESPHome rotary_encoder", "https://esphome.io/components/sensor/rotary_encoder.html", "Soporte nativo con periférico contador de pulsos en ESPHome."]
+  },
+  dht22: {
+    mfg: "Aosong Electronics (DHT11 / DHT22)",
+    official: ["Documentación oficial DHT11 en Kit SunFounder ESP32", "https://docs.sunfounder.com/projects/esp32-starter-kit/en/latest/arduino/basic_projects/ar_dht11.html", "Conexión y lectura del sensor de humedad y temperatura de tu kit SunFounder."],
+    datasheet: ["Datasheet técnico DHT22 / AM2302 (PDF)", "https://www.sparkfun.com/datasheets/Sensors/Temperature/DHT22.pdf", "Trama de 40 bits (16 humedad + 16 temperatura + 8 checksum) y tiempos de pulso."],
+    guide: ["Guía ESP32 + DHT11/DHT22 (Random Nerd)", "https://randomnerdtutorials.com/esp32-dht11-dht22-temperature-humidity-sensor-arduino-ide/", "Instalación de librería DHT de Adafruit y solución a errores NaN."],
+    lib: ["Componente oficial ESPHome dht", "https://esphome.io/components/sensor/dht.html", "Configuración directa para modelos DHT11 y DHT22/AM2302."]
+  },
+  rc522: {
+    mfg: "NXP Semiconductors (MFRC522)",
+    official: ["Página oficial MFRC522 13.56 MHz (NXP)", "https://www.nxp.com/products/rfid-nfc/nfc-hf/nfc-readers/standard-performance-mifare-and-ntag-frontend:MFRC522", "Lector/escritor ISO/IEC 14443 A/MIFARE de 13.56 MHz por SPI."],
+    datasheet: ["Datasheet oficial NXP MFRC522 (PDF)", "https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf", "Comandos internos, criptografía Crypto1 MIFARE Classic y diseño de antena."],
+    guide: ["Documentación RFID RC522 en Kit SunFounder ESP32", "https://docs.sunfounder.com/projects/esp32-starter-kit/en/latest/arduino/basic_projects/ar_rfid.html", "Mapa de los 8 pines SPI hacia el ESP32 y lectura/escritura de tarjetas del kit."],
+    lib: ["Componente ESPHome rc522_spi + Librería MFRC522", "https://esphome.io/components/binary_sensor/rc522.html", "Identificación de etiquetas UID en ESPHome y librería miguelbalboa/rfid."]
+  },
+  flama: {
+    mfg: "Fototransistor IR YG1006 + LM393 (Kit SunFounder)",
+    official: ["Documentación Flame Sensor en SunFounder Kit", "https://docs.sunfounder.com/projects/umsk/en/latest/02_arduino/02_sensor_lessons/lesson14_flame_sensor.html", "Uso de las salidas AO y DO y ajuste del umbral con el potenciómetro azul."],
+    datasheet: ["Especificación del fotodiodo infrarrojo 760–1100 nm", "https://docs.sunfounder.com/projects/umsk/en/latest/01_components_basic/14_flame_sensor.html", "Ángulo de detección de 60° y pico de sensibilidad a la radiación del fuego."],
+    guide: ["Guía ESP32 + Sensor de Flama IR", "https://esp32io.com/tutorials/esp32-flame-sensor", "Cómo combinar la lectura analógica y digital para descartar falsas alarmas por sol."],
+    lib: ["Componente ESPHome gpio / adc", "https://esphome.io/components/binary_sensor/gpio.html", "Alerta binaria instantánea en Home Assistant."]
+  },
+  mq: {
+    mfg: "Zhengzhou Winsen Electronics (Serie MQ)",
+    official: ["Documentación oficial Gas Sensor MQ-2 en Kit SunFounder ESP32", "https://docs.sunfounder.com/projects/esp32-starter-kit/en/latest/arduino/basic_projects/ar_mq2.html", "Guía del módulo detector de humo, GLP y gases inflamables de tu kit."],
+    datasheet: ["Datasheet oficial Winsen MQ-2 (PDF)", "https://www.pololu.com/file/0J309/MQ2.pdf", "Curvas de sensibilidad Rs/R0 para H₂, GLP, metano, CO, alcohol y humo."],
+    guide: ["Guía ESP32 + Sensor de Gas MQ-2", "https://esp32io.com/tutorials/esp32-gas-sensor", "Precalentamiento del calefactor de 5 V y divisor de tensión para proteger el ADC del ESP32."],
+    lib: ["Librería MQUnifiedsensor (GitHub)", "https://github.com/miguel5612/MQSensorsLib", "Cálculo de ppm mediante regresión exponencial para toda la familia MQ."]
+  },
+  suelo: {
+    mfg: "Sonda Capacitiva con TLC555 (Kit SunFounder)",
+    official: ["Documentación Soil Moisture en Kit SunFounder ESP32", "https://docs.sunfounder.com/projects/esp32-starter-kit/en/latest/arduino/basic_projects/ar_soil_moisture.html", "Uso y conexión de la sonda de humedad de suelo de tu kit SunFounder."],
+    datasheet: ["Wiki técnica Capacitive Soil Moisture Sensor", "https://wiki.dfrobot.com/Capacitive_Soil_Moisture_Sensor_SKU_SEN0193", "Esquemático del oscilador 555 y rangos de tensión en aire seco vs agua."],
+    guide: ["Guía de calibración de humedad de suelo con ESP32", "https://esp32io.com/tutorials/esp32-soil-moisture-sensor", "Cómo obtener los extremos 0 % (seco) y 100 % (vaso de agua) con map()."],
+    lib: ["Componente ESPHome adc con calibrate_linear", "https://esphome.io/components/sensor/adc.html", "Conversión directa de voltios a porcentaje de humedad en ESPHome."]
+  },
+  nivel: {
+    mfg: "Sensor de Nivel por Trazas Expuestas (Kit SunFounder)",
+    official: ["Documentación Water Level Sensor en Kit SunFounder ESP32", "https://docs.sunfounder.com/projects/esp32-starter-kit/en/latest/arduino/basic_projects/ar_water_level.html", "Guía oficial del módulo rojo/azul de detección de agua de tu kit."],
+    datasheet: ["Principio eléctrico y esquemático del sensor de nivel", "https://docs.sunfounder.com/projects/umsk/en/latest/01_components_basic/19_water_level_sensor.html", "Arreglo de pistas interdigitadas y amplificación con transistor NPN J3Y."],
+    guide: ["Guía ESP32 + Sensor de nivel evitando electrólisis", "https://esp32io.com/tutorials/esp32-water-sensor", "Cómo alimentar el pin VCC desde un GPIO digital solo durante 10 ms al medir para no oxidar el cobre."],
+    lib: ["Componente ESPHome adc", "https://esphome.io/components/sensor/adc.html", "Lectura de nivel o detección de fugas en ESPHome."]
+  },
+  tcrt5000: {
+    mfg: "Vishay Semiconductors (TCRT5000)",
+    official: ["Página oficial TCRT5000 (Vishay)", "https://www.vishay.com/en/product/83760/", "Sensor óptico reflectivo con emisor IR de 950 nm y fototransistor con filtro de luz día."],
+    datasheet: ["Datasheet oficial Vishay TCRT5000 (PDF)", "https://www.vishay.com/docs/83760/tcrt5000.pdf", "Distancia óptima de reflexión (2.5 mm), corriente de colector y dimensiones."],
+    guide: ["Documentación Line Tracking en Kit SunFounder ESP32", "https://docs.sunfounder.com/projects/esp32-starter-kit/en/latest/arduino/basic_projects/ar_line_track.html", "Ajuste de umbral para robots sigue-líneas y contadores de revoluciones."],
+    lib: ["Componente ESPHome pulse_counter / gpio", "https://esphome.io/components/sensor/pulse_counter.html", "Ideal para leer giros en medidores de agua/gas o ruedas."]
+  },
+  irrx: {
+    mfg: "Receptor IR Demodulador 38 kHz VS1838B (Kit SunFounder)",
+    official: ["Documentación oficial IR Receiver en Kit SunFounder ESP32", "https://docs.sunfounder.com/projects/esp32-starter-kit/en/latest/arduino/basic_projects/ar_ir_receiver.html", "Decodificación del control remoto infrarrojo incluido en tu kit SunFounder."],
+    datasheet: ["Datasheet técnico VS1838B 38 kHz (PDF)", "https://www.elecrow.com/download/Infrared%20receiver%20vs1838b.pdf", "Filtro paso banda de 38 kHz, inmunidad a luz ambiente y pinout (OUT, GND, VCC)."],
+    guide: ["Guía de recepción y clonación de mandos IR en ESP32", "https://esp32io.com/tutorials/esp32-ir-remote", "Cómo capturar códigos hexadecimales NEC de cualquier control remoto."],
+    lib: ["Componente oficial ESPHome remote_receiver", "https://esphome.io/components/remote_receiver.html", "Recibe y decodifica tramas NEC, Sony, LG y Samsung en ESPHome."]
+  },
+  tilt: {
+    mfg: "Interruptor de Inclinación SW-520D (Kit SunFounder)",
+    official: ["Documentación oficial Tilt Switch en Kit SunFounder ESP32", "https://docs.sunfounder.com/projects/esp32-starter-kit/en/latest/arduino/basic_projects/ar_tilt.html", "Guía del módulo detector de vuelco o inclinación de tu kit SunFounder."],
+    datasheet: ["Especificación del cilindro SW-520D y comparador", "https://docs.sunfounder.com/projects/umsk/en/latest/01_components_basic/08_tilt_switch_module.html", "Ángulo de cierre de contacto por gravedad y salida digital limpia."],
+    guide: ["Guía de filtrado antirrebote (Debounce) en ESP32", "https://esp32io.com/tutorials/esp32-button-debounce", "Cómo ignorar vibraciones breves al detectar si un objeto se inclinó."],
+    lib: ["Componente ESPHome gpio binary_sensor", "https://esphome.io/components/binary_sensor/gpio.html", "Usa el filtro delayed_on_off: 100ms para evitar falsos disparos."]
+  },
+  ttp223: {
+    mfg: "Tontek Design Technology (TTP223)",
+    official: ["Documentación Touch Switch TTP223 en SunFounder Kit", "https://docs.sunfounder.com/projects/umsk/en/latest/02_arduino/02_sensor_lessons/lesson04_touch_switch.html", "Uso del botón táctil capacitivo incluido en tu kit."],
+    datasheet: ["Datasheet oficial Tontek TTP223 (PDF)", "https://www.mouser.com/datasheet/2/737/ttp223-1384700.pdf", "Configuración de los puentes A y B (modo momentáneo vs biestable/toggle, activo alto/bajo) y autocalibración."],
+    guide: ["Guía ESP32 + Sensor Táctil TTP223", "https://esp32io.com/tutorials/esp32-touch-sensor", "Cómo ocultarlo detrás de una pared de PLA o acrílico de 2–3 mm como botón invisible."],
+    lib: ["Componente ESPHome gpio binary_sensor", "https://esphome.io/components/binary_sensor/gpio.html", "Integración inmediata como interruptor táctil en ESPHome."]
+  },
+  hall: {
+    mfg: "Allegro A3144 / Módulo Hall KY-003 (Kit SunFounder)",
+    official: ["Documentación Hall Sensor en SunFounder Sensor Kit", "https://docs.sunfounder.com/projects/umsk/en/latest/02_arduino/02_sensor_lessons/lesson11_hall_sensor.html", "Detección de campos magnéticos con el módulo Hall de tu kit."],
+    datasheet: ["Datasheet oficial Allegro A3144 Hall Switch (PDF)", "https://www.mpja.com/download/a3144eul.pdf", "Puntos de conmutación magnética (Gauss), histéresis y salida de colector abierto."],
+    guide: ["Guía ESP32 + Sensor de Efecto Hall", "https://esp32io.com/tutorials/esp32-hall-effect-sensor", "Medición de RPM en ruedas/ventiladores y detector de puerta cerrada con imán de neodimio."],
+    lib: ["Componente ESPHome pulse_counter / gpio", "https://esphome.io/components/sensor/pulse_counter.html", "Funciona como sensor de puerta/ventana o tacómetro en ESPHome."]
+  },
+  // High-demand catalog sensors
+  scd41: {
+    mfg: "Sensirion",
+    official: ["Página oficial SCD41 (Sensirion)", "https://sensirion.com/products/catalog/SCD41", "Sensor fotoacústico PASens miniatura de CO₂ real (400–5000 ppm) + T/HR."],
+    datasheet: ["Datasheet oficial Sensirion SCD4x (PDF)", "https://sensirion.com/media/documents/48C4B7FB/64C134E7/Sensirion_SCD4x_Datasheet.pdf", "Calibración forzada (FRC), autocalibración (ASC), modo single-shot y compensación barométrica."],
+    guide: ["Guía Adafruit SCD-40 y SCD-41", "https://learn.adafruit.com/adafruit-scd-40-and-scd-41", "Cableado STEMMA QT / Qwiic y código para ESP32."],
+    lib: ["Componente oficial ESPHome scd4x", "https://esphome.io/components/sensor/scd4x.html", "Soporte nativo completo en ESPHome."]
+  },
+  sen55: {
+    mfg: "Sensirion",
+    official: ["Página oficial SEN55 (Sensirion)", "https://sensirion.com/products/catalog/SEN55", "Nodo ambiental todo en uno: PM1/2.5/4/10, VOC, NOx, temperatura y humedad."],
+    datasheet: ["Datasheet oficial Sensirion SEN5x (PDF)", "https://sensirion.com/media/documents/6791EFA0/62A1F68F/Sensirion_Datasheet_Environmental_Node_SEN5x.pdf", "Pinout del conector JST-GH de 6 pines, limpieza automática del ventilador y trama I2C."],
+    guide: ["Guía de inicio rápido SEN5x con Arduino / ESP32", "https://developer.sensirion.com/Sensirion-ess-toolkits/sen5x-environmental-sensor-node/", "Diagrama de conexión a 5 V con niveles I2C de 3.3 V."],
+    lib: ["Componente oficial ESPHome sen5x", "https://esphome.io/components/sensor/sen5x.html", "Soporte directo para todas las variables del SEN54/SEN55 en ESPHome."]
+  },
+  sen66: {
+    mfg: "Sensirion",
+    official: ["Página oficial plataforma SEN6x / SEN66 (Sensirion)", "https://sensirion.com/products/product-insights/sen6x", "Nueva generación compacta con PM, CO₂ fotoacústico, VOC, NOx y T/HR integrados."],
+    datasheet: ["Documentación técnica serie SEN6x (Sensirion)", "https://sensirion.com/products/catalog/SEN66", "Especificaciones mecánicas, flujo óptico MEMS y protocolo I2C."],
+    guide: ["Recursos para desarrolladores Sensirion SEN6x", "https://developer.sensirion.com/", "Notas de diseño de carcasa y sellado de entrada de aire."],
+    lib: ["Driver oficial arduino-i2c-sen66 (GitHub)", "https://github.com/Sensirion/arduino-i2c-sen66", "Librería oficial de Sensirion para Arduino y ESP32."]
+  },
+  ld2410: {
+    mfg: "Hi-Link (HLK-LD2410B / LD2410C)",
+    official: ["Página del fabricante Hi-Link (HLK-LD2410)", "https://www.hlktech.net/index.php?id=1095", "Radar FMCW de 24 GHz con detección de presencia humana estática, micro-movimiento y Bluetooth."],
+    datasheet: ["Manual y protocolo serie HLK-LD2410 (PDF)", "https://dfimg.dfrobot.com/nobody/wiki/7134c18816d2d37c72d2f9d876f2a658.pdf", "Puertas de distancia (0 a 8), energía de reposo/movimiento y tramas UART a 256000 bps."],
+    guide: ["Guía práctica LD2410 con ESP32 y Home Assistant", "https://esphome.io/components/sensor/ld2410.html", "Cómo ajustar los umbrales de cada puerta por Bluetooth (app HLKRadarTool) o desde ESPHome."],
+    lib: ["Componente oficial ESPHome ld2410", "https://esphome.io/components/sensor/ld2410.html", "Control total de sensibilidades y lectura de distancia en ESPHome."]
+  },
+  ld2450: {
+    mfg: "Hi-Link (HLK-LD2450)",
+    official: ["Página del fabricante Hi-Link (HLK-LD2450)", "https://www.hlktech.net/index.php?id=1157", "Radar MIMO 24 GHz (1T2R) con seguimiento simultáneo de coordenadas X/Y de hasta 3 personas."],
+    datasheet: ["Protocolo de comunicación serie HLK-LD2450 (PDF)", "https://github.com/Gjorgjevikj/esp32-ld2450/blob/main/docs/HLK-LD2450%20Serial%20Communication%20Protocol%20V1.02.pdf", "Estructura de la trama de 30 bytes (X, Y, velocidad y resolución de distancia)."],
+    guide: ["Guía de zonas de exclusión y coordenadas con LD2450", "https://esphome.io/components/sensor/ld2450.html", "Definición de hasta 3 zonas rectangulares en la habitación con ESP32."],
+    lib: ["Componente oficial ESPHome ld2450", "https://esphome.io/components/sensor/ld2450.html", "Integración oficial en ESPHome para seguimiento multi-objetivo."]
+  },
+  vl53l1x: {
+    mfg: "STMicroelectronics",
+    official: ["Página oficial VL53L1X (STMicroelectronics)", "https://www.st.com/en/imaging-and-photonics-solutions/vl53l1x.html", "Sensor láser Time-of-Flight (940 nm FlightSense) de hasta 4 metros con ROI programable."],
+    datasheet: ["Datasheet oficial ST VL53L1X (PDF)", "https://www.st.com/resource/en/datasheet/vl53l1x.pdf", "Modos de alcance (corto, medio, largo), matriz SPAD de 16×16 y presupuesto de tiempo."],
+    guide: ["Guía Adafruit VL53L1X Time of Flight", "https://learn.adafruit.com/adafruit-vl53l1x", "Conexión Qwiic/STEMMA QT y cambio de dirección I2C usando el pin XSHUT."],
+    lib: ["Librería Pololu / SparkFun VL53L1X", "https://github.com/pololu/vl53l1x-arduino", "Driver ligero en C++ para Arduino y ESP32."]
+  },
+  vl53l5cx: {
+    mfg: "STMicroelectronics",
+    official: ["Página oficial VL53L5CX (STMicroelectronics)", "https://www.st.com/en/imaging-and-photonics-solutions/vl53l5cx.html", "Sensor ToF multizona de 64 zonas (8×8 píxeles de profundidad reales) con FOV diagonal de 63°."],
+    datasheet: ["Datasheet oficial ST VL53L5CX (PDF)", "https://www.st.com/resource/en/datasheet/vl53l5cx.pdf", "Transferencia de firmware de 84 KB al arrancar por I2C a 1 MHz y lectura de histogramas."],
+    guide: ["Guía SparkFun VL53L5CX 8x8 ToF Imager", "https://learn.sparkfun.com/tutorials/qwiic-tof-imager---vl53l5cx-hookup-guide", "Visualización 3D de la malla 8×8 con ESP32."],
+    lib: ["Librería SparkFun VL53L5CX (GitHub)", "https://github.com/sparkfun/SparkFun_VL53L5CX_Arduino_Library", "Driver completo para matrices 4×4 y 8×8 en ESP32."]
+  },
+  bno085: {
+    mfg: "CEVA / Bosch (BNO085 / BNO086)",
+    official: ["Página técnica BNO085 / BNO086 (CEVA Hillcrest Labs)", "https://www.ceva-ip.com/product/bno085-086/", "SiP de 9 ejes con coprocesador ARM Cortex-M0+ y algoritmos MotionEngine de orientación."],
+    datasheet: ["Datasheet oficial BNO080/085/086 (PDF)", "https://www.ceva-ip.com/wp-content/uploads/2019/10/BNO080_085-Datasheet.pdf", "Protocolo SHTP, vectores de rotación por cuaterniones y selección de interfaz PS0/PS1."],
+    guide: ["Guía exhaustiva Adafruit 9-DOF Orientation BNO085", "https://learn.adafruit.com/adafruit-9-dof-orientation-imu-fusion-breakout-bno085", "Por qué usar I2C a 400 kHz o UART-RVC en el ESP32 y cómo leer cuaterniones libres de deriva."],
+    lib: ["Librería SparkFun BNO08x + Adafruit BNO08x", "https://github.com/sparkfun/SparkFun_BNO08x_Arduino_Library", "Drivers actualizados para BNO085 y BNO086 en ESP32."]
+  },
+  ina219: {
+    mfg: "Texas Instruments",
+    official: ["Página oficial INA219 (Texas Instruments)", "https://www.ti.com/product/INA219", "Monitor bidireccional de corriente y potencia por lado alto (high-side) hasta 26 V por I2C."],
+    datasheet: ["Datasheet oficial TI INA219 (PDF)", "https://www.ti.com/lit/ds/symlink/ina219.pdf", "Cálculo del registro de calibración, ganancia PGA (±40 mV a ±320 mV) y cambio de shunt."],
+    guide: ["Guía Adafruit INA219 Current Sensor Breakout", "https://learn.adafruit.com/adafruit-ina219-current-sensor-breakout", "Cómo intercalar VIN+ y VIN- en serie con la carga o batería."],
+    lib: ["Componente oficial ESPHome ina219", "https://esphome.io/components/sensor/ina219.html", "Lectura directa de tensión, corriente y potencia en ESPHome."]
+  },
+  ina226: {
+    mfg: "Texas Instruments",
+    official: ["Página oficial INA226 (Texas Instruments)", "https://www.ti.com/product/INA226", "Monitor de corriente y potencia de 16 bits hasta 36 V (high-side o low-side) con pin de alerta."],
+    datasheet: ["Datasheet oficial TI INA226 (PDF)", "https://www.ti.com/lit/ds/symlink/ina226.pdf", "Resolución de tensión de shunt de 2.5 µV, promediado por hardware y 16 direcciones I2C."],
+    guide: ["Guía de medición de potencia de precisión con INA226", "https://esphome.io/components/sensor/ina226.html", "Selección de resistencia shunt según la corriente máxima de tu proyecto."],
+    lib: ["Componente oficial ESPHome ina226", "https://esphome.io/components/sensor/ina226.html", "Soporte nativo en ESPHome y librería INA226_WE."]
+  },
+  ads1115: {
+    mfg: "Texas Instruments",
+    official: ["Página oficial ADS1115 (Texas Instruments)", "https://www.ti.com/product/ADS1115", "Convertidor analógico-digital (ADC) delta-sigma de 16 bits reales, 4 canales, con PGA y referencia interna."],
+    datasheet: ["Datasheet oficial TI ADS1115 (PDF)", "https://www.ti.com/lit/ds/symlink/ads1115.pdf", "Rangos del amplificador PGA (±0.256 V a ±6.144 V), modo diferencial y pin ADDR (0x48–0x4B)."],
+    guide: ["Guía ESP32 + ADS1115 ADC de 16 bits (Random Nerd)", "https://randomnerdtutorials.com/esp32-ads1115-adc/", "Cómo superar la no-linealidad del ADC interno del ESP32 para sondas de pH, TDS o geófonos."],
+    lib: ["Componente oficial ESPHome ads1115", "https://esphome.io/components/sensor/ads1115.html", "Configuración de canales simples y diferenciales en ESPHome."]
+  },
+  inmp441: {
+    mfg: "TDK InvenSense",
+    official: ["Información técnica INMP441 (TDK InvenSense)", "https://invensense.tdk.com/wp-content/uploads/2015/02/INMP441.pdf", "Micrófono MEMS omnidireccional de puerto inferior con salida digital I2S de 24 bits."],
+    datasheet: ["Datasheet oficial INMP441 (PDF)", "https://invensense.tdk.com/wp-content/uploads/2015/02/INMP441.pdf", "Relación señal/ruido de 61 dBA, respuesta plana de 60 Hz a 15 kHz y diagrama de tiempos I2S."],
+    guide: ["Guía de audio digital I2S con ESP32 + INMP441", "https://dronebotworkshop.com/esp32-i2s/", "Cableado de SCK (BCLK), WS (LRCLK), SD y selección de canal L/R."],
+    lib: ["Componente ESPHome i2s_audio microphone", "https://esphome.io/components/microphone/i2s_audio.html", "Listo para asistentes de voz y análisis acústico en ESPHome."]
+  }
+};
+
+const MFG_RULES = [
+  [/bme|bmp|bmi|bno055|bmm|bmv/i, "Bosch Sensortec", "https://www.bosch-sensortec.com/"],
+  [/sht|scd|sgp|sen5|sen6|sfa|sdp|stcc|sts/i, "Sensirion", "https://sensirion.com/products/catalog/"],
+  [/vl53|lsm6|lis3|lis2|lps2|sths/i, "STMicroelectronics", "https://www.st.com/"],
+  [/ina2|ads1|tmp1|hdc|opt3|opt4|drv|iwr6|sn65/i, "Texas Instruments", "https://www.ti.com/"],
+  [/max3|max8|max1|ad82|ad59|adxl|ds18/i, "Analog Devices", "https://www.analog.com/"],
+  [/mlx9/i, "Melexis", "https://www.melexis.com/"],
+  [/as73|as56|as39|tcs3|tmf8|apds|ltr3|ccs8|ens1/i, "ams OSRAM / ScioSense", "https://ams-osram.com/"],
+  [/mpu6|icm-|icm4|icm2|inmp/i, "TDK InvenSense", "https://invensense.tdk.com/"],
+  [/neo-|max-m10|zed-f9|u-blox/i, "u-blox", "https://www.u-blox.com/"],
+  [/sx126|sx127|lora/i, "Semtech", "https://www.semtech.com/"],
+  [/atecc|mcp/i, "Microchip Technology", "https://www.microchip.com/"],
+  [/ld24|hlk/i, "Hi-Link Electronic", "https://www.hlktech.net/"],
+  [/mr60|grove|xiao|seeed/i, "Seeed Studio", "https://wiki.seeedstudio.com/"],
+  [/dfrobot|gravity|c4002|sen0/i, "DFRobot", "https://wiki.dfrobot.com/"],
+  [/mh-z|ze03|mq-|winsen/i, "Winsen Electronics", "https://www.winsen-sensor.com/"],
+  [/pms5|pms7/i, "Plantower", "https://www.plantower.com/en/"],
+  [/veml|tcrt|vishay/i, "Vishay Semiconductors", "https://www.vishay.com/"],
+  [/bh1750/i, "ROHM Semiconductor", "https://www.rohm.com/"],
+  [/ms58|ms56|ms45/i, "TE Connectivity", "https://www.te.com/"],
+  [/mprls/i, "Honeywell Sensing", "https://sps.honeywell.com/"],
+  [/rc522|pn532|mpr121|tja1/i, "NXP Semiconductors", "https://www.nxp.com/"],
+  [/pmw3|paa5|paj7/i, "PixArt Imaging", "https://www.pixart.com/"],
+  [/dw3000|dwm3000/i, "Qorvo", "https://www.qorvo.com/"],
+  [/lepton|flir/i, "Teledyne FLIR", "https://www.flir.com/"],
+  [/amg88/i, "Panasonic Industry", "https://industry.panasonic.com/"],
+  [/nau78/i, "Nuvoton Technology", "https://www.nuvoton.com/"],
+  [/hx711/i, "Avia Semiconductor", "https://cdn.sparkfun.com/datasheets/Sensors/ForceFlex/hx711_english.pdf"],
+  [/tf-luna|benewake/i, "Benewake LiDAR", "https://en.benewake.com/"],
+  [/ld19|ld06|ldrobot/i, "LDROBOT", "https://www.ldrobot.com/"],
+  [/mmc5983/i, "MEMSIC", "https://www.memsic.com/"],
+  [/ak5816/i, "Asahi Kasei Microdevices (AKM)", "https://www.akm.com/"],
+  [/esp32/i, "Espressif Systems", "https://docs.espressif.com/"]
+];
+
+function sensorDocsOf(s){
+  if (s._base && DOCS_DB[s._base.id]) {
+    const b = DOCS_DB[s._base.id];
+    return {
+      mfg: b.mfg,
+      officialUrl: s._nov ? s._nov.l : b.official[1],
+      datasheetUrl: b.datasheet[1],
+      links: [
+        s._nov ? ["Anuncio de lanzamiento", `Artículo original en ${s._nov.f}`, s._nov.l, `Publicación oficial de la novedad: «${s._nov.t}».`] : ["Fabricante / Producto", b.official[0], b.official[1], b.official[2]],
+        ["Hoja de datos (Datasheet)", b.datasheet[0], b.datasheet[1], b.datasheet[2]],
+        ["Guía práctica ESP32 / Kit", b.guide[0], b.guide[1], b.guide[2]],
+        ["Librería / ESPHome", b.lib[0], b.lib[1], b.lib[2]]
+      ]
+    };
+  }
+  if (DOCS_DB[s.id]) {
+    const b = DOCS_DB[s.id];
+    return {
+      mfg: b.mfg,
+      officialUrl: b.official[1],
+      datasheetUrl: b.datasheet[1],
+      links: [
+        ["Fabricante / Producto", b.official[0], b.official[1], b.official[2]],
+        ["Hoja de datos (Datasheet)", b.datasheet[0], b.datasheet[1], b.datasheet[2]],
+        ["Guía práctica ESP32 / Kit", b.guide[0], b.guide[1], b.guide[2]],
+        ["Librería / ESPHome", b.lib[0], b.lib[1], b.lib[2]]
+      ]
+    };
+  }
+  const q = encodeURIComponent(termOf(s));
+  const pnText = `${s.pn} ${s.q || ""} ${s.d || ""}`;
+  const hit = MFG_RULES.find(([rx]) => rx.test(pnText));
+  const mfg = hit ? hit[1] : (s._nov ? detectMaker(s._nov.t, s._nov.f) : "Fabricante / Estándar de industria");
+  const officialUrl = s._nov ? s._nov.l : (hit ? `https://www.google.com/search?q=${q}+site%3A${encodeURIComponent(hit[2].replace(/^https?:\/\/(www\.)?/, "").replace(/\/.*$/, ""))}` : `https://www.google.com/search?q=${q}+official+product+page+sensor`);
+  const datasheetUrl = `https://www.google.com/search?q=${q}+datasheet+filetype%3Apdf`;
+  const guideUrl = `https://www.google.com/search?q=${q}+ESP32+wiring+tutorial+guide+%28site%3Alearn.adafruit.com+OR+site%3Alearn.sparkfun.com+OR+site%3Awiki.seeedstudio.com+OR+site%3Awiki.dfrobot.com+OR+site%3Arandomnerdtutorials.com%29`;
+  const libUrl = has(s, "esphome")
+    ? `https://www.google.com/search?q=site%3Aesphome.io+${q}`
+    : `https://registry.platformio.org/search?q=${q}`;
+  return {
+    mfg,
+    officialUrl,
+    datasheetUrl,
+    links: [
+      s._nov
+        ? ["Anuncio original", `Ver lanzamiento en ${s._nov.f}`, s._nov.l, `Publicación detectada por el radar: «${s._nov.t}».`]
+        : ["Fabricante / Página oficial", `${s.pn} en ${mfg}`, officialUrl, `Ficha oficial del fabricante (${mfg}) y notas de aplicación.`],
+      ["Hoja de datos (Datasheet)", `Datasheet PDF de ${s.pn}`, datasheetUrl, "Especificaciones eléctricas, mapa de registros, curvas y dimensiones mecánicas."],
+      ["Guía práctica ESP32", `Tutorial de conexión (${s.pn} + ESP32)`, guideUrl, "Guías paso a paso en Adafruit Learn, SparkFun, Seeed Wiki, DFRobot o Random Nerd."],
+      [has(s, "esphome") ? "Componente ESPHome" : "Librerías C++ / PlatformIO", has(s, "esphome") ? `${s.pn} en esphome.io` : `Drivers para ${s.pn}`, libUrl, has(s, "esphome") ? "Documentación oficial del componente para Home Assistant y ESPHome." : "Librerías listas para Arduino IDE y PlatformIO en ESP32."]
+    ]
+  };
+}
+function sensorDocsHTML(s){
+  const docs = sensorDocsOf(s);
+  const invBadge = s.own === "si" ? " · En tu inventario confirmado" : s.own === "kit" ? " · En tu kit SunFounder" : "";
+  return `<div>
+    <h3>Profundizar: página oficial, hoja de datos y guías (${esc(docs.mfg)}${esc(invBadge)})</h3>
+    <div class="doc-grid">
+      ${docs.links.map(([kind, title, url, desc]) => `<a class="doc-card" href="${esc(url)}" target="_blank" rel="noopener noreferrer">
+        <span class="doc-k">${esc(kind)}</span>
+        <b>${esc(title)} ↗</b>
+        <small>${esc(desc)}</small>
+      </a>`).join("")}
+    </div>
+  </div>`;
+}
+
 function fichaTab(s){
   const on = inRadar(s.id), internal = has(s, "interno"), q = termOf(s), p = physOf(s);
   const plug = [has(s, "qwiic") ? "Qwiic / STEMMA QT" : "", has(s, "grove") ? "Grove" : ""].filter(Boolean).join(", ");
@@ -2832,9 +3465,11 @@ function fichaTab(s){
     ["Carcasa (Fusion 360 / 3D)", esc(enclosureHint(s))]
   ].filter(Boolean);
   return `<div class="ficha-tab">
-    <p>${esc(s.d)}</p>
+    <p>${esc(s._shortEs || s.d)}</p>
+    ${s._nov ? `<div class="orig-box"><span><b>Fuente de la novedad:</b> ${esc(s._nov.f)} (${esc(fmtDate(s._nov.d))})</span><span><b>Título original (EN):</b> «${esc(s._nov.t)}»</span>${s._nov.s ? `<span><b>Resumen original (EN):</b> ${esc(s._nov.s)}</span>` : ""}<span><a class="link" href="${esc(s._nov.l)}" target="_blank" rel="noopener noreferrer">Abrir publicación original en el navegador ↗</a></span></div>` : ""}
     ${s.w ? `<p class="alert"><strong>Antes de conectar:</strong> ${esc(s.w)}</p>` : ""}
     <dl class="specs">${specs.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
+    ${sensorDocsHTML(s)}
     <div><h3>Ideas de proyecto</h3><ul class="ideas">${s.i.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
     ${combos.length ? `<div><h3>Combínalo con</h3><p class="combo">${combos.map(o => `<button type="button" class="pill" data-open="${o.id}">${esc(o.pn)}${o.own === "si" ? " · lo tienes" : o.own === "kit" ? " · en tu kit" : ""}</button>`).join("")}</p></div>` : ""}
     <div><h3>${internal ? "Dónde aprender a usarlo" : "Buscar «" + esc(q) + "» en"}</h3><div class="buy">${storeGroupsHTML(q, internal ? ["lista"] : null)}</div></div>
@@ -2842,10 +3477,11 @@ function fichaTab(s){
 }
 function fichaHTML(s){
   const on = inRadar(s.id), inCmp = cmpList.includes(s.id);
+  const docs = sensorDocsOf(s);
   const body = labTab === "anat" ? anatTab(s) : labTab === "wire" ? wireTab(s) : labTab === "ind" ? indTab(s) : labTab === "fis" ? fisTab(s) : labTab === "mod" ? cadViewerHTML(s) : fichaTab(s);
   return `<div class="ficha lab">
     <div class="ficha-top">
-      <p class="meta"><span>${esc(FAM[s.f])}</span>${flagsHTML(s)}</p>
+      <p class="meta"><span>${esc(FAM[s.f])}</span><span>${esc(docs.mfg)}</span>${flagsHTML(s)}</p>
       <button type="button" class="x" data-act="close">Cerrar</button>
       <h2 id="ficha-t">${esc(s.pn)}</h2>
       <p class="what">${esc(s.n)}</p>
@@ -2853,7 +3489,9 @@ function fichaHTML(s){
     <div class="lab-actions">
       <button type="button" class="radar-btn" data-radar="${s.id}" aria-pressed="${on}">${on ? "En tu radar" : "+ Agregar a mi radar"}</button>
       <button type="button" class="btn small" data-cmp="${s.id}" aria-pressed="${inCmp}">${inCmp ? "Quitar de comparar" : "Comparar"}</button>
-      <button type="button" class="btn small" data-inv="${s.id}" aria-pressed="${Boolean(s.own)}" title="Alternar entre No lo tengo → En tu kit → Lo tienes">Inventario: ${s.own === "si" ? "Lo tienes ✓" : s.own === "kit" ? "En tu kit" : "No lo tengo"}</button>
+      ${!s._nov ? `<button type="button" class="btn small" data-inv="${s.id}" aria-pressed="${Boolean(s.own)}" title="Alternar entre No lo tengo → En tu kit → Lo tienes">Inventario: ${s.own === "si" ? "Lo tienes ✓" : s.own === "kit" ? "En tu kit" : "No lo tengo"}</button>` : ""}
+      <a class="btn small" href="${esc(docs.officialUrl)}" target="_blank" rel="noopener noreferrer">${s._nov ? `Artículo en ${esc(s._nov.f || "fuente")} ↗` : "Página oficial ↗"}</a>
+      <a class="btn small" href="${esc(docs.datasheetUrl)}" target="_blank" rel="noopener noreferrer">Datasheet PDF ↗</a>
     </div>
     <div class="lab-tabs" role="tablist" aria-label="Laboratorio del sensor">${LAB_TABS.map(([id, n]) => `<button type="button" role="tab" data-tab="${id}" aria-selected="${labTab === id}">${n}</button>`).join("")}</div>
     <div class="lab-body" role="tabpanel">${body}</div>
