@@ -3,8 +3,8 @@
 Native macOS app (Apple Silicon) for discovering sensors for ESP32 projects in health, home automation,
 robotics, hydroponics, air quality, energy, wearables and security.
 
-- **Dashboard-style views** (top bar): **Explorar**, **Panel** (KPIs, sectors, I²C address map, price × difficulty heatmap), **Comparar** (side-by-side with I²C clash detection) and **Banco de proyecto** (pin allocator, block diagram, audit)
-- **Sensor laboratory** on every sheet: clickable board anatomy, ESP32 wiring diagram with clickable wires, industries that use it, how it works, 3D/CAD and projects
+- **Dashboard-style views** (top bar): **Explorar**, **Panel** (KPIs, sectors, I²C address map, clickable price × difficulty heatmap), **Comparar** (side-by-side with I²C clash detection) and **Banco de proyecto** (target board selector, pin allocator, block diagram, power/battery calculator, auxiliary electronics BOM + budget in `€`, and electrical audit)
+- **Sensor laboratory** on every sheet: clickable board anatomy, ESP32 wiring diagram with clickable wires, target board selector (`ESP32 DevKit 30/38p` · `Seeed XIAO ESP32-C6/C3` · `ESP32-S3 DevKitC-1`), real factory baudrates, Serial Monitor troubleshooting guide, live inventory toggle (`No lo tengo` ⇄ `En tu kit` ⇄ `Lo tienes`), industries that use it, how it works, 3D/CAD and projects
 - New sector **Defensa y campo** (dual-use sensing for robotics, perimeter and field work; defensive and civil-protection framing) and a **Comunicación** family (LoRa, CAN, GNSS…); 139 sensors in total
 - Curated catalog of sensors with filters by sector, interface (`I2C`, `SPI`, `UART`, `Analógico`, `Trigger/Echo`, `RS485`, etc.), price, ownership (`Lo que ya tengo` / `Solo lo que no tengo`) and "what it measures"
 - Direct search recommendations and **Project Recipes** (`Hidroponía DWC`, `Estación ambiental`, `Nodo biomédico`, `Sueño y caídas 60 GHz`) matched against owned hardware

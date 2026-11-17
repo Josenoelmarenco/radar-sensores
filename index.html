@@ -297,7 +297,21 @@ body:not([data-view="explorar"]) .v-explorar{display:none}
 .amap-sel{margin-top:10px;font-size:.9rem;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .heat{border-collapse:separate;border-spacing:3px;width:100%;margin-top:10px}
 .heat th{font:500 .72rem var(--f-mono);color:var(--muted);text-align:center;padding:4px}
-.heat td{height:34px;text-align:center;font:600 .85rem var(--f-mono);border-radius:5px;border:1px solid var(--line)}
+.heat td{height:34px;text-align:center;font:600 .85rem var(--f-mono);border-radius:5px;border:1px solid var(--line);padding:0}
+.heat-btn{width:100%;height:100%;border:0;background:none;font:inherit;color:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:4px}
+.heat-btn:hover{outline:2px solid var(--ink);outline-offset:-2px}
+.board-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:9px 12px;background:var(--sunk);border:1px solid var(--line);border-radius:9px;margin-bottom:10px}
+.board-bar .lab{font:500 .7rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.board-bar .hint{flex:1 1 260px;font-size:.8rem;color:var(--muted)}
+.pwr-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px;margin-top:10px}
+.pwr-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:11px 13px;display:grid;gap:3px}
+.pwr-card b{font:700 1.35rem/1.1 var(--f-display);color:var(--mask)}
+.pwr-card small{font:500 .72rem var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.pwr-card span{font-size:.82rem;color:var(--muted)}
+.diag-box{margin-top:10px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.diag-box summary{padding:9px 12px;font:600 .85rem var(--f-display);cursor:pointer;background:var(--sunk);display:flex;justify-content:space-between;align-items:center}
+.diag-box summary::after{content:"▾";font-size:.8rem;color:var(--muted)}
+.diag-box[open] summary::after{content:"▴"}
 .rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
 .rec-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:9px}
 .rec-card h3{font:700 1rem var(--f-display)}.rec-card p{font-size:.88rem;color:var(--muted)}.rec-card .btn{margin-top:auto;align-self:flex-start}
@@ -579,10 +593,11 @@ function indexCatalog(cat){
   if (cat && Array.isArray(cat.sensores)) CAT = cat;
   DATA = CAT.sensores.filter(validSensor);
   OWN = CAT.propios && typeof CAT.propios === "object" ? CAT.propios : {};
+  const invOv = (typeof META !== "undefined" && META && META.inventario && typeof META.inventario === "object") ? META.inventario : {};
   byId.clear();
   for (const s of DATA) {
     byId.set(s.id, s);
-    s.own = OWN[s.id] || "";
+    s.own = s.id in invOv ? invOv[s.id] : (OWN[s.id] || "");
     s._pn = norm(s.pn + " " + (s.q || ""));
     s._n = norm(s.n);
     s._hay = norm([s.d || "", s.i.join(" "), s.k || "", FAM[s.f], s.s.map(x => SECLABEL[x] || x).join(" "), s.b.join(" "), s.a || "", s.t.join(" ")].join(" "));
@@ -597,7 +612,7 @@ function indexCatalog(cat){
   buildPnKeys();
 }
 
-const state = {q:"", sector:"", fam:"", bus:new Set(), price:new Set(), flags:new Set(), sort:"sug", radar:[], seed:0, recipe:""};
+const state = {q:"", sector:"", fam:"", bus:new Set(), price:new Set(), flags:new Set(), level:0, sort:"sug", radar:[], seed:0, recipe:""};
 const LS = "radar-sensores-v1";
 
 /* ---------- filtering ---------- */
@@ -624,6 +639,7 @@ function visible(){
     if (state.fam && s.f !== state.fam) return;
     if (state.bus.size && !s.b.some(b => state.bus.has(b))) return;
     if (state.price.size && !state.price.has(String(s.p))) return;
+    if (state.level && s.l !== state.level) return;
     if (state.flags.has("propios") && !s.own) return;
     if (state.flags.has("nuevo") && !has(s,"nuevo")) return;
     if (state.flags.has("joya") && !has(s,"joya")) return;
@@ -644,7 +660,7 @@ function visible(){
   });
   return out.map(x => x.s);
 }
-const anyFilter = () => state.q || state.sector || state.fam || state.bus.size || state.price.size || state.flags.size;
+const anyFilter = () => state.q || state.sector || state.fam || state.bus.size || state.price.size || state.flags.size || state.level;
 
 /* ---------- direct recommendation & project recipes ---------- */
 function pickCardHTML(s){
@@ -1219,6 +1235,7 @@ function renderFilters(){
   $("#f-flags").innerHTML = `<span class="lab">Mostrar</span>` + FLAGS.map(([id, n]) => `<button type="button" class="pill" data-flag="${id}" aria-pressed="${state.flags.has(id)}">${esc(n)}</button>`).join("");
   $("#f-bus").innerHTML = `<span class="lab">Interfaz</span>` + activeBuses.map(b => `<button type="button" class="pill" data-bus="${esc(b)}" aria-pressed="${state.bus.has(b)}">${esc(b)}</button>`).join("");
   $("#f-price").innerHTML = `<span class="lab">Precio</span>` + PRICES.map(([id, n]) => `<button type="button" class="pill" data-price="${id}" aria-pressed="${state.price.has(id)}" title="${esc(PRICE_T[id])}">${esc(n)}</button>`).join("") +
+    `<span class="lab" style="margin-left:8px">Nivel</span>` + [[1, "Fácil"], [2, "Medio"], [3, "Avanzado"]].map(([lv, n]) => `<button type="button" class="pill" data-level="${lv}" aria-pressed="${state.level === lv}" title="${esc(LEVEL_T[lv])}">${n}</button>`).join("") +
     `<span class="hint" style="font-size:.8rem">€ menos de 5 · €€ 5 a 15 · €€€ 15 a 40 · €€€€ más de 40</span>`;
 }
 function renderOutside(){
@@ -1392,11 +1409,12 @@ function radarText(){
 }
 function esphomeYAML(){
   const bd = typeof benchData === "function" ? benchData() : null;
+  const B = typeof boardCfg === "function" ? boardCfg() : {esphome: "esp32dev", i2c: [21, 22], adc: [34]};
   const catSensors = bd ? bd.items : state.radar.map(r => byId.get(r.id)).filter(Boolean);
   const wireMap = bd ? new Map(bd.wires.map(x => [x.s.id, x.w])) : new Map();
-  const lines = ["# Base ESPHome generada por Radar de sensores", "esphome:", "  name: nodo-sensores", "", "esp32:", "  board: esp32dev", ""];
+  const lines = ["# Base ESPHome generada por Radar de sensores", "esphome:", "  name: nodo-sensores", "", "esp32:", `  board: ${B.esphome}`, ""];
   if (catSensors.some(s => s.b.includes("I2C"))) {
-    lines.push("i2c:", "  sda: GPIO21", "  scl: GPIO22", "  scan: true", "");
+    lines.push("i2c:", `  sda: GPIO${B.i2c[0]}`, `  scl: GPIO${B.i2c[1]}`, "  scan: true", "");
   }
   const uartDevs = catSensors.filter(s => { const w = wireMap.get(s.id); return w && w.rows.some(r => r.kind === "uart-rx" && r.g != null); });
   if (uartDevs.length) {
@@ -1404,7 +1422,8 @@ function esphomeYAML(){
     uartDevs.forEach(s => {
       const w = wireMap.get(s.id);
       const rx = w.rows.find(r => r.fn === "RX" && r.g != null), tx = w.rows.find(r => r.fn === "TX" && r.g != null);
-      lines.push(`  - id: uart_${s.id}`, `    rx_pin: GPIO${rx ? rx.g : 16}`, `    tx_pin: GPIO${tx ? tx.g : 17}`, "    baud_rate: 9600", "");
+      const baud = (typeof BAUD_MAP !== "undefined" && BAUD_MAP[s.id]) ? BAUD_MAP[s.id][0] : 9600;
+      lines.push(`  - id: uart_${s.id}`, `    rx_pin: GPIO${rx ? rx.g : 16}`, `    tx_pin: GPIO${tx ? tx.g : 17}`, `    baud_rate: ${baud}`, "");
     });
   }
   lines.push("sensor:");
@@ -1415,7 +1434,7 @@ function esphomeYAML(){
     if (s.b.includes("I2C")) {
       lines.push(`  - platform: ${s.id} # verifica el nombre exacto en esphome.io`, `    address: ${s.a || "0x00"}`, `    update_interval: 15s`);
     } else if (adcRow || s.b.includes("Analógico")) {
-      lines.push(`  - platform: adc`, `    pin: GPIO${adcRow ? adcRow.g : 34}`, `    name: "${s.pn}"`, `    attenuation: 12db`);
+      lines.push(`  - platform: adc`, `    pin: GPIO${adcRow ? adcRow.g : B.adc[0]}`, `    name: "${s.pn}"`, `    attenuation: 12db`);
     } else if (s.b.includes("1-Wire")) {
       lines.push(`  - platform: dallas_temp`, `    name: "${s.pn}"`);
     } else {
@@ -1470,6 +1489,21 @@ let NOV = Array.isArray(BOOT.novedades) ? NOV_INIT(BOOT.novedades) : [];
 function NOV_INIT(arr){ return arr.filter(n => n && typeof n.id === "string" && typeof n.t === "string" && /^https?:\/\//.test(n.l || "")); }
 let META = BOOT.meta && typeof BOOT.meta === "object" && !Array.isArray(BOOT.meta) ? BOOT.meta : {};
 if (!Array.isArray(META.descartados)) META.descartados = [];
+if (!META.inventario || typeof META.inventario !== "object" || Array.isArray(META.inventario)) {
+  try { const raw = JSON.parse(localStorage.getItem("radar-inventario") || "{}"); META.inventario = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {}; } catch (e) { META.inventario = {}; }
+}
+function cycleInventory(id){
+  const s = byId.get(id); if (!s) return;
+  const order = ["", "kit", "si"];
+  const next = order[(order.indexOf(s.own || "") + 1) % order.length];
+  s.own = next;
+  if (!META.inventario || typeof META.inventario !== "object") META.inventario = {};
+  if (next === (OWN[id] || "")) delete META.inventario[id];
+  else META.inventario[id] = next;
+  if (BRIDGE) post({cmd: "guardar", nombre: "meta", datos: META});
+  else try { localStorage.setItem("radar-inventario", JSON.stringify(META.inventario)); } catch (e) {}
+  renderAll();
+}
 let busy = false, busyTimer = 0, novSolo = false, novMax = 8;
 
 const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -1758,6 +1792,7 @@ document.addEventListener("click", e => {
   else if ("sector" in d) { try { location.hash = d.sector || "todos"; } catch (err) {} setSector(d.sector); }
   else if ("bus" in d) { toggleIn(state.bus, d.bus); renderFilters(); renderGrid(); }
   else if ("price" in d) { toggleIn(state.price, d.price); renderFilters(); renderGrid(); }
+  else if ("level" in d) { const lv = Number(d.level); state.level = state.level === lv ? 0 : lv; renderFilters(); renderGrid(); }
   else if ("flag" in d) {
     if (d.flag === "propios" && !state.flags.has("propios")) state.flags.delete("falta");
     if (d.flag === "falta" && !state.flags.has("falta")) state.flags.delete("propios");
@@ -1774,7 +1809,7 @@ document.addEventListener("click", e => {
   else if (d.act === "nov-ver") { $("#answer").hidden = true; $("#nov-sec").scrollIntoView({behavior: "smooth", block: "start"}); }
   else if (d.act === "carpeta") { post({cmd: "carpeta"}); }
   else if (d.act === "clear") {
-    state.q = ""; $("#q").value = ""; state.fam = ""; $("#fam").value = ""; state.bus.clear(); state.price.clear(); state.flags.clear();
+    state.q = ""; $("#q").value = ""; state.fam = ""; $("#fam").value = ""; state.bus.clear(); state.price.clear(); state.flags.clear(); state.level = 0;
     state.recipe = ""; $("#answer").hidden = true; renderRecipesBar();
     try { location.hash = "todos"; } catch (err) {}
     renderFilters(); setSector("");
@@ -2353,9 +2388,99 @@ function classifyPin(raw, s, prim, allPins){
   return {k: "unk"};
 }
 
-const POOLS = {adc:[34,35,36,39,32,33], dig:[27,26,25,14,13,33,32,4], cs:[5,13,14,27,26,25,15]};
-const UART_PAIRS = [[16,17],[25,26],[32,33]];
+const BOARDS = {
+  devkit: {
+    id: "devkit",
+    name: "ESP32 DevKit (30/38p)",
+    short: "ESP32 DevKit",
+    esphome: "esp32dev",
+    i2c: [21, 22],
+    spi: [18, 19, 23],
+    uart: [[16, 17, " (RX2)", " (TX2)"], [25, 26, " (RX)", " (TX)"], [32, 33, " (RX)", " (TX)"]],
+    i2s: [26, 25, 33],
+    w1: 4,
+    adc: [34, 35, 36, 39, 32, 33],
+    dig: [27, 26, 25, 14, 13, 33, 32, 4],
+    cs: [5, 13, 14, 27, 26, 25, 15],
+    strap: [0, 2, 12, 15],
+    adc2: [0, 2, 4, 12, 13, 14, 15, 25, 26, 27],
+    note: "Numeración clásica del ESP32 DevKit (30/38 pines). Evita GPIO0, 2, 12 y 15 al arrancar y usa ADC1 (GPIO32–39) con Wi-Fi."
+  },
+  xiao: {
+    id: "xiao",
+    name: "Seeed XIAO ESP32-C6 / C3",
+    short: "XIAO ESP32-C6/C3",
+    esphome: "seeed_xiao_esp32c6",
+    i2c: [6, 7],
+    spi: [8, 9, 10],
+    uart: [[20, 21, " (RX/D7)", " (TX/D6)"], [0, 1, " (RX)", " (TX)"]],
+    i2s: [1, 2, 3],
+    w1: 2,
+    adc: [0, 1, 2],
+    dig: [2, 3, 4, 5, 1, 0],
+    cs: [3, 4, 5, 2],
+    strap: [8, 9],
+    adc2: [],
+    note: "Formato ultracompacto de 11 pines (21×17.5 mm) ideal para wearables y nodos pequeños. I2C en D4/D5 (GPIO6/7), UART en D7/D6 (GPIO20/21) y 3 entradas ADC (GPIO0–2)."
+  },
+  s3: {
+    id: "s3",
+    name: "ESP32-S3 DevKitC-1",
+    short: "ESP32-S3",
+    esphome: "esp32-s3-devkitc-1",
+    i2c: [8, 9],
+    spi: [12, 13, 11],
+    uart: [[18, 17, " (RX1)", " (TX1)"], [16, 15, " (RX2)", " (TX2)"], [44, 43, " (RX0)", " (TX0)"]],
+    i2s: [41, 42, 2],
+    w1: 4,
+    adc: [1, 2, 4, 5, 6, 7],
+    dig: [14, 21, 47, 48, 38, 39, 40, 41, 42],
+    cs: [10, 14, 21, 47, 48],
+    strap: [0, 3, 45, 46],
+    adc2: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+    note: "Doble núcleo con aceleración vectorial (TinyML/visión) y USB nativo (GPIO19/20). Usa ADC1 (GPIO1–10) y evita los pines de arranque GPIO0, 3, 45 y 46."
+  }
+};
+let curBoard = "devkit";
+try { const sb = localStorage.getItem("radar-sensores-board"); if (sb && BOARDS[sb]) curBoard = sb; } catch (e) {}
+function boardCfg(){ return BOARDS[curBoard] || BOARDS.devkit; }
+function setBoard(id){
+  if (!BOARDS[id]) return;
+  curBoard = id;
+  try { localStorage.setItem("radar-sensores-board", id); } catch (e) {}
+  v2Refresh();
+}
+function boardBarHTML(){
+  const b = boardCfg();
+  return `<div class="board-bar" role="group" aria-label="Placa ESP32 objetivo">
+    <span class="lab">Placa objetivo</span>
+    ${Object.values(BOARDS).map(x => `<button type="button" class="pill" data-board="${x.id}" aria-pressed="${curBoard === x.id}">${esc(x.name)}</button>`).join("")}
+    <span class="hint">${esc(b.note)}</span>
+  </div>`;
+}
+const POOLS = BOARDS.devkit;
+const UART_PAIRS = BOARDS.devkit.uart;
 const BUS_COLOR = {I2C:"#3B82F6", SPI:"#A855F7", UART:"#22C55E", Analógico:"#F59E0B", Digital:"#14B8A6", "1-Wire":"#F97316", I2S:"#06B6D4", CAN:"#84CC16", "Trigger/Echo":"#EF4444", RS485:"#84CC16"};
+const BAUD_MAP = {
+  ld2410: [256000, "256000 bps de fábrica en la familia Hi-Link LD2410B/C"],
+  ld2450: [256000, "256000 bps de fábrica en el radar multitarget LD2450"],
+  ld19: [230400, "230400 bps unidireccional (TX del LiDAR al RX del ESP32)"],
+  tfluna: [115200, "115200 bps por defecto en modo UART (con PIN5 flotante o a 3V3)"],
+  mr60bha2: [115200, "115200 bps en protocolo de tramas Seeed 60 GHz"],
+  mr60fda2: [115200, "115200 bps en protocolo de tramas Seeed 60 GHz"],
+  iwr6843: [115200, "115200 bps para CLI de control (y 921600 bps para el puerto de datos)"],
+  rd03d: [256000, "256000 bps en radar Ai-Thinker Rd-03D"],
+  r503: [57600, "57600 bps por defecto en lectores de huella R503 / AS608"],
+  mhz19: [9600, "9600 bps (tramas de 9 bytes con comando 0xFF 0x01 0x86)"],
+  pms5003: [9600, "9600 bps (tramas activas de 32 bytes con cabecera 0x42 0x4D)"],
+  pzem: [9600, "9600 bps (Modbus-RTU sobre UART aislado)"],
+  ze03: [9600, "9600 bps (tramas UART de 9 bytes)"],
+  gps: [9600, "9600 bps NMEA en NEO-6M/8M (o 38400 bps en muchos módulos M10)"],
+  zedf9p: [38400, "38400 / 115200 bps UBX/NMEA en u-blox ZED-F9P"],
+  gm65: [9600, "9600 bps por defecto en modo serie TTL"],
+  sim7080: [115200, "115200 bps para comandos AT (autobauding soportado)"],
+  cozir: [9600, "9600 bps (tramas ASCII de bajo consumo)"]
+};
 function newCtx(){ return {used: new Set(), uart: new Map(), i2s: new Map(), use: new Map(), mem: new Map(), nDev: 0}; }
 function takeFrom(ctx, list){ for (const g of list) if (!ctx.used.has(g)) { ctx.used.add(g); return g; } return null; }
 function ctxUse(ctx, label, s, fn){
@@ -2366,6 +2491,7 @@ function ctxUse(ctx, label, s, fn){
 }
 function wiringFor(s, ctx, opts){
   opts = opts || {};
+  const B = boardCfg();
   const p = physOf(s);
   if (isStandalone(s)) return {internal: true, rows: [], note: has(s, "interno") || s.b.includes("Interno")
     ? "No lleva cables: es una función del propio ESP32 (radio o pines táctiles internos). Se obtiene por software."
@@ -2393,33 +2519,32 @@ function wiringFor(s, ctx, opts){
     if (row.opt && !opts.opt) { row.fn = "Opcional"; rows.push(row); continue; }
     const out5 = volt === "5V";
     switch (c.k) {
-      case "sda": give(21, "GPIO21", "i2c-sda", "SDA", true); ctx.used.add(21); break;
-      case "scl": give(22, "GPIO22", "i2c-scl", "SCL", true); ctx.used.add(22); break;
-      case "sck": give(18, "GPIO18", "spi-sck", "SCK", true); ctx.used.add(18); break;
-      case "miso": give(19, "GPIO19", "spi-miso", "MISO", true); ctx.used.add(19); break;
-      case "mosi": give(23, "GPIO23", "spi-mosi", "MOSI", true); ctx.used.add(23); break;
-      case "cs": { const g = takeFrom(ctx, POOLS.cs); give(g, g == null ? "sin pin libre" : "GPIO" + g, "spi-cs", "CS"); break; }
+      case "sda": give(B.i2c[0], "GPIO" + B.i2c[0], "i2c-sda", "SDA", true); ctx.used.add(B.i2c[0]); break;
+      case "scl": give(B.i2c[1], "GPIO" + B.i2c[1], "i2c-scl", "SCL", true); ctx.used.add(B.i2c[1]); break;
+      case "sck": give(B.spi[0], "GPIO" + B.spi[0], "spi-sck", "SCK", true); ctx.used.add(B.spi[0]); break;
+      case "miso": give(B.spi[1], "GPIO" + B.spi[1], "spi-miso", "MISO", true); ctx.used.add(B.spi[1]); break;
+      case "mosi": give(B.spi[2], "GPIO" + B.spi[2], "spi-mosi", "MOSI", true); ctx.used.add(B.spi[2]); break;
+      case "cs": { const g = takeFrom(ctx, B.cs); give(g, g == null ? "sin pin libre" : "GPIO" + g, "spi-cs", "CS"); break; }
       case "tx": case "rx": {
-        if (!ctx.uart.has(s.id)) { const i = ctx.uart.size; const pr = UART_PAIRS[i]; if (pr) { pr.forEach(x => ctx.used.add(x)); ctx.uart.set(s.id, pr); } else ctx.uart.set(s.id, null); }
+        if (!ctx.uart.has(s.id)) { const i = ctx.uart.size; const pr = B.uart[i]; if (pr) { ctx.used.add(pr[0]); ctx.used.add(pr[1]); ctx.uart.set(s.id, pr); } else ctx.uart.set(s.id, null); }
         const pr = ctx.uart.get(s.id);
-        const idx = ctx.uart.size - 1;
         if (!pr) { give(null, "sin UART libre", c.k === "tx" ? "uart-rx" : "uart-tx", c.k === "tx" ? "RX" : "TX"); break; }
-        if (c.k === "tx") { give(pr[0], "GPIO" + pr[0] + (pr[0] === 16 ? " (RX2)" : " (RX)"), "uart-rx", "RX"); if (out5) row.warn = "Con alimentación de 5 V, confirma que la señal TX del módulo sea de 3.3 V."; }
-        else give(pr[1], "GPIO" + pr[1] + (pr[1] === 17 ? " (TX2)" : " (TX)"), "uart-tx", "TX");
-        void idx; break;
+        if (c.k === "tx") { give(pr[0], "GPIO" + pr[0] + (pr[2] || " (RX)"), "uart-rx", "RX"); if (out5) row.warn = "Con alimentación de 5 V, confirma que la señal TX del módulo sea de 3.3 V."; }
+        else give(pr[1], "GPIO" + pr[1] + (pr[3] || " (TX)"), "uart-tx", "TX");
+        break;
       }
-      case "adc": { const g = takeFrom(ctx, POOLS.adc); give(g, g == null ? "sin ADC libre" : "GPIO" + g, "adc", "Entrada analógica"); if (out5) row.warn = "Con alimentación de 5 V, la salida analógica puede superar los 3.3 V del ESP32: usa un divisor de tensión."; break; }
-      case "din": case "int": case "pulse": { const g = takeFrom(ctx, POOLS.dig); give(g, g == null ? "sin GPIO libre" : "GPIO" + g, c.k === "int" ? "dig-in" : c.k === "pulse" ? "pulse" : "dig-in", c.k === "int" ? "Aviso (interrupción)" : c.k === "pulse" ? "Pulsos" : "Entrada digital"); if (out5 && c.k !== "pulse") row.warn = "Con alimentación de 5 V, confirma que la salida sea de 3.3 V."; break; }
-      case "dout": case "ctl": case "trig": { const g = takeFrom(ctx, POOLS.dig); give(g, g == null ? "sin GPIO libre" : "GPIO" + g, c.k === "ctl" ? "ctl" : "dig-out", c.k === "trig" ? "TRIG" : c.k === "ctl" ? "Control" : "Salida digital"); break; }
-      case "echo": { const g = takeFrom(ctx, POOLS.dig); give(g, g == null ? "sin GPIO libre" : "GPIO" + g, "echo", "ECHO (con divisor)"); row.warn = "Si el módulo se alimenta a 5 V, baja el ECHO a 3.3 V con un divisor de 1 kΩ y 2 kΩ."; break; }
-      case "w1": { if (ctx.used.has(4) && !ctx.mem.has("w1")) { const g = takeFrom(ctx, POOLS.dig); give(g, "GPIO" + g, "data1w", "1-Wire"); ctx.mem.set("w1", g); } else { ctx.used.add(4); ctx.mem.set("w1", 4); give(4, "GPIO4", "data1w", "1-Wire", true); } row.note = "Pull-up de 4.7 kΩ a 3V3"; break; }
+      case "adc": { const g = takeFrom(ctx, B.adc); give(g, g == null ? "sin ADC libre" : "GPIO" + g, "adc", "Entrada analógica"); if (out5) row.warn = "Con alimentación de 5 V, la salida analógica puede superar los 3.3 V del ESP32: usa un divisor de tensión."; break; }
+      case "din": case "int": case "pulse": { const g = takeFrom(ctx, B.dig); give(g, g == null ? "sin GPIO libre" : "GPIO" + g, c.k === "int" ? "dig-in" : c.k === "pulse" ? "pulse" : "dig-in", c.k === "int" ? "Aviso (interrupción)" : c.k === "pulse" ? "Pulsos" : "Entrada digital"); if (out5 && c.k !== "pulse") row.warn = "Con alimentación de 5 V, confirma que la salida sea de 3.3 V."; break; }
+      case "dout": case "ctl": case "trig": { const g = takeFrom(ctx, B.dig); give(g, g == null ? "sin GPIO libre" : "GPIO" + g, c.k === "ctl" ? "ctl" : "dig-out", c.k === "trig" ? "TRIG" : c.k === "ctl" ? "Control" : "Salida digital"); break; }
+      case "echo": { const g = takeFrom(ctx, B.dig); give(g, g == null ? "sin GPIO libre" : "GPIO" + g, "echo", "ECHO (con divisor)"); row.warn = "Si el módulo se alimenta a 5 V, baja el ECHO a 3.3 V con un divisor de 1 kΩ y 2 kΩ."; break; }
+      case "w1": { const w1p = B.w1; if (ctx.used.has(w1p) && !ctx.mem.has("w1")) { const g = takeFrom(ctx, B.dig); give(g, g == null ? "sin GPIO libre" : "GPIO" + g, "data1w", "1-Wire"); ctx.mem.set("w1", g); } else { ctx.used.add(w1p); ctx.mem.set("w1", w1p); give(w1p, "GPIO" + w1p, "data1w", "1-Wire", true); } row.note = "Pull-up de 4.7 kΩ a 3V3"; break; }
       case "i2s-bclk": case "i2s-ws": case "i2s-sd": {
-        if (!ctx.i2s.has(s.id)) { const t = [26, 25, 33]; if (t.every(x => !ctx.used.has(x))) { t.forEach(x => ctx.used.add(x)); ctx.i2s.set(s.id, t); } else ctx.i2s.set(s.id, [takeFrom(ctx, POOLS.dig), takeFrom(ctx, POOLS.dig), takeFrom(ctx, POOLS.dig)]); }
+        if (!ctx.i2s.has(s.id)) { const t = B.i2s; if (t.every(x => !ctx.used.has(x))) { t.forEach(x => ctx.used.add(x)); ctx.i2s.set(s.id, t); } else ctx.i2s.set(s.id, [takeFrom(ctx, B.dig), takeFrom(ctx, B.dig), takeFrom(ctx, B.dig)]); }
         const t = ctx.i2s.get(s.id);
         const i = c.k === "i2s-bclk" ? 0 : c.k === "i2s-ws" ? 1 : 2;
         give(t[i], t[i] == null ? "sin GPIO libre" : "GPIO" + t[i], c.k, ["BCLK", "WS", "SD"][i]); break;
       }
-      case "can-tx": case "can-rx": { const g = takeFrom(ctx, POOLS.dig); give(g, g == null ? "sin GPIO libre" : "GPIO" + g, c.k, c.k === "can-tx" ? "TWAI TX" : "TWAI RX"); break; }
+      case "can-tx": case "can-rx": { const g = takeFrom(ctx, B.dig); give(g, g == null ? "sin GPIO libre" : "GPIO" + g, c.k, c.k === "can-tx" ? "TWAI TX" : "TWAI RX"); break; }
       default: rows.push(row); continue;
     }
     rows.push(row);
@@ -2430,24 +2555,72 @@ const KIND_VIEW = {int:"dig-in", din:"dig-in", dout:"dig-out", tx:"uart-rx", rx:
 function wireInfo(row){ return WIRE_KIND[row.kind] || WIRE_KIND[KIND_VIEW[row.kind]] || WIRE_KIND.unk; }
 function snippetFor(s, w){
   if (w.internal) return "";
+  const B = boardCfg();
   const g = fn => { const r = w.rows.find(x => x.fn === fn && x.g != null); return r ? r.g : null; };
   const prim = w.prim;
-  if (prim === "I2C") return `#include <Wire.h>\n\nvoid setup() {\n  Serial.begin(115200);\n  Wire.begin(${g("SDA") || 21}, ${g("SCL") || 22});   // SDA, SCL\n  Wire.beginTransmission(${s.a || "0x00"});          // default I2C address\n  Serial.println(Wire.endTransmission() == 0 ? "Sensor found" : "No answer: check wiring and address");\n}\nvoid loop() {}`;
-  if (prim === "UART") { const rx = w.rows.find(x => x.fn === "RX"), tx = w.rows.find(x => x.fn === "TX"); return `void setup() {\n  Serial.begin(115200);\n  // Check the baud rate in the datasheet (many modules use 9600 or 115200)\n  Serial2.begin(115200, SERIAL_8N1, ${rx && rx.g != null ? rx.g : 16}, ${tx && tx.g != null ? tx.g : 17});  // RX, TX\n}\nvoid loop() {\n  while (Serial2.available()) Serial.write(Serial2.read());\n}`; }
-  if (prim === "SPI") return `#include <SPI.h>\n\nconst int PIN_CS = ${g("CS") || 5};\nvoid setup() {\n  Serial.begin(115200);\n  pinMode(PIN_CS, OUTPUT);\n  digitalWrite(PIN_CS, HIGH);\n  SPI.begin(18, 19, 23, PIN_CS);  // SCK, MISO, MOSI, CS\n}\nvoid loop() {}`;
-  if (prim === "Analógico") return `void setup() {\n  Serial.begin(115200);\n  analogReadResolution(12);   // 0..4095\n}\nvoid loop() {\n  int raw = analogRead(${g("Entrada analógica") || 34});  // ADC1 pin: works with Wi-Fi on\n  Serial.println(raw);\n  delay(200);\n}`;
-  if (prim === "1-Wire") return `#include <OneWire.h>\n#include <DallasTemperature.h>\n\nOneWire bus(${g("1-Wire") || 4});          // 4.7 kOhm pull-up to 3V3\nDallasTemperature sensors(&bus);\nvoid setup() { Serial.begin(115200); sensors.begin(); }\nvoid loop() {\n  sensors.requestTemperatures();\n  Serial.println(sensors.getTempCByIndex(0));\n  delay(1000);\n}`;
-  if (prim === "Trigger/Echo") return `const int TRIG = ${g("TRIG") || 25}, ECHO = ${g("ECHO (con divisor)") || 26};\nvoid setup() { Serial.begin(115200); pinMode(TRIG, OUTPUT); pinMode(ECHO, INPUT); }\nvoid loop() {\n  digitalWrite(TRIG, LOW); delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH); delayMicroseconds(10); digitalWrite(TRIG, LOW);\n  long us = pulseIn(ECHO, HIGH, 30000);\n  Serial.println(us * 0.0343 / 2);   // distance in cm\n  delay(100);\n}`;
-  if (prim === "I2S") return `// ESP-IDF / Arduino-ESP32 I2S input\n// BCLK = ${g("BCLK")}, WS = ${g("WS")}, DIN = ${g("SD")}\n// Use the i2s_std driver in RX mode, 16 kHz, 32-bit slots, left channel (L/R pin to GND).`;
-  if (prim === "CAN") return `#include <driver/twai.h>\n\nvoid setup() {\n  twai_general_config_t cfg = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)${g("TWAI TX") || 25}, (gpio_num_t)${g("TWAI RX") || 26}, TWAI_MODE_NORMAL);\n  twai_timing_config_t t = TWAI_TIMING_CONFIG_500KBITS();\n  twai_filter_config_t f = TWAI_FILTER_CONFIG_ACCEPT_ALL();\n  twai_driver_install(&cfg, &t, &f);\n  twai_start();\n}\nvoid loop() {}`;
-  if (prim === "Digital") { const r = w.rows.find(x => x.g != null && /dig|pulse/.test(x.kind)); return `void setup() {\n  Serial.begin(115200);\n  pinMode(${r ? r.g : 27}, INPUT);\n}\nvoid loop() {\n  Serial.println(digitalRead(${r ? r.g : 27}));\n  delay(100);\n}`; }
+  if (prim === "I2C") return `#include <Wire.h>\n\nvoid setup() {\n  Serial.begin(115200);\n  Wire.begin(${g("SDA") ?? B.i2c[0]}, ${g("SCL") ?? B.i2c[1]});   // SDA, SCL (${B.short})\n  Wire.beginTransmission(${s.a || "0x00"});          // default I2C address\n  Serial.println(Wire.endTransmission() == 0 ? "Sensor found" : "No answer: check wiring and address");\n}\nvoid loop() {}`;
+  if (prim === "UART") {
+    const rx = w.rows.find(x => x.fn === "RX"), tx = w.rows.find(x => x.fn === "TX");
+    const bm = BAUD_MAP[s.id] || [115200, "Check the baud rate in the datasheet (many modules use 9600 or 115200)"];
+    return `void setup() {\n  Serial.begin(115200);\n  // ${bm[1]}\n  Serial2.begin(${bm[0]}, SERIAL_8N1, ${rx && rx.g != null ? rx.g : B.uart[0][0]}, ${tx && tx.g != null ? tx.g : B.uart[0][1]});  // RX, TX (${B.short})\n}\nvoid loop() {\n  while (Serial2.available()) Serial.write(Serial2.read());\n}`;
+  }
+  if (prim === "SPI") return `#include <SPI.h>\n\nconst int PIN_CS = ${g("CS") ?? B.cs[0]};\nvoid setup() {\n  Serial.begin(115200);\n  pinMode(PIN_CS, OUTPUT);\n  digitalWrite(PIN_CS, HIGH);\n  SPI.begin(${B.spi[0]}, ${B.spi[1]}, ${B.spi[2]}, PIN_CS);  // SCK, MISO, MOSI, CS (${B.short})\n}\nvoid loop() {}`;
+  if (prim === "Analógico") return `void setup() {\n  Serial.begin(115200);\n  analogReadResolution(12);   // 0..4095\n}\nvoid loop() {\n  int raw = analogRead(${g("Entrada analógica") ?? B.adc[0]});  // ADC1 pin on ${B.short}: works with Wi-Fi on\n  Serial.println(raw);\n  delay(200);\n}`;
+  if (prim === "1-Wire") return `#include <OneWire.h>\n#include <DallasTemperature.h>\n\nOneWire bus(${g("1-Wire") ?? B.w1});          // 4.7 kOhm pull-up to 3V3\nDallasTemperature sensors(&bus);\nvoid setup() { Serial.begin(115200); sensors.begin(); }\nvoid loop() {\n  sensors.requestTemperatures();\n  Serial.println(sensors.getTempCByIndex(0));\n  delay(1000);\n}`;
+  if (prim === "Trigger/Echo") return `const int TRIG = ${g("TRIG") ?? B.dig[0]}, ECHO = ${g("ECHO (con divisor)") ?? B.dig[1]};\nvoid setup() { Serial.begin(115200); pinMode(TRIG, OUTPUT); pinMode(ECHO, INPUT); }\nvoid loop() {\n  digitalWrite(TRIG, LOW); delayMicroseconds(2);\n  digitalWrite(TRIG, HIGH); delayMicroseconds(10); digitalWrite(TRIG, LOW);\n  long us = pulseIn(ECHO, HIGH, 30000);\n  Serial.println(us * 0.0343 / 2);   // distance in cm\n  delay(100);\n}`;
+  if (prim === "I2S") return `// ESP-IDF / Arduino-ESP32 I2S input (${B.short})\n// BCLK = ${g("BCLK")}, WS = ${g("WS")}, DIN = ${g("SD")}\n// Use the i2s_std driver in RX mode, 16 kHz, 32-bit slots, left channel (L/R pin to GND).`;
+  if (prim === "CAN") return `#include <driver/twai.h>\n\nvoid setup() {\n  twai_general_config_t cfg = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)${g("TWAI TX") ?? B.dig[0]}, (gpio_num_t)${g("TWAI RX") ?? B.dig[1]}, TWAI_MODE_NORMAL);\n  twai_timing_config_t t = TWAI_TIMING_CONFIG_500KBITS();\n  twai_filter_config_t f = TWAI_FILTER_CONFIG_ACCEPT_ALL();\n  twai_driver_install(&cfg, &t, &f);\n  twai_start();\n}\nvoid loop() {}`;
+  if (prim === "Digital") { const r = w.rows.find(x => x.g != null && /dig|pulse/.test(x.kind)); return `void setup() {\n  Serial.begin(115200);\n  pinMode(${r ? r.g : B.dig[0]}, INPUT);\n}\nvoid loop() {\n  Serial.println(digitalRead(${r ? r.g : B.dig[0]}));\n  delay(100);\n}`; }
   return "";
 }
 function wiringText(s, w){
-  const L = [`Conexiones de ${s.pn} al ESP32 DevKit (numeración GPIO clásica)`];
+  const B = boardCfg();
+  const L = [`Conexiones de ${s.pn} a ${B.name}`];
   for (const r of w.rows) L.push(`- ${r.pin} → ${r.gpio}${r.fn ? " (" + r.fn + ")" : ""}${r.warn ? " · " + r.warn : ""}${r.note ? " · " + r.note : ""}`);
   if (s.w) L.push("Antes de conectar: " + s.w);
   return L.join("\n");
+}
+function serialDiagHTML(s, w){
+  const rows = [];
+  const prim = w.prim;
+  if (s.id === "ds18b20") {
+    rows.push(["-127.00 °C (DEVICE_DISCONNECTED)", "Falta la resistencia pull-up de 4.7 kΩ entre DQ y 3V3, o el cable de datos está suelto.", "Coloca una resistencia de 4.7 kΩ entre el pin de datos y 3V3 y verifica continuidad."]);
+    rows.push(["85.00 °C fijo al iniciar", "Es el valor de encendido de fábrica en el registro interno antes de completar la primera conversión.", "Espera 750 ms tras requestTemperatures() en resolución de 12 bits."]);
+  }
+  if (s.id === "max30102") {
+    rows.push(["LED rojo apagado o lecturas IR=0", "En las placas verdes GY-MAX30102 el regulador LDO de 1.8 V del LED necesita al menos 4 V en VIN.", "Alimenta VIN a 5 V (o cierra el puente de 3.3 V en la placa) manteniendo los pull-ups I2C en 3.3 V."]);
+  }
+  if (s.id === "bme280" || s.id === "bmp280" || s.id === "bme680") {
+    rows.push(["No responde en " + (s.a || "0x76") + " o chip ID 0x58", "El pin SDO está conectado a 3V3 (cambia la dirección a 0x77) o te vendieron un BMP280 (sin humedad, ID 0x58).", "Corre un escáner I2C para ver si está en 0x76 o 0x77 y verifica el registro 0xD0."]);
+  }
+  if (s.id === "hx711") {
+    rows.push(["Lectura congelada en 0 o -1", "Pines DT y SCK invertidos o celda de carga con puente Wheatstone mal cableado (E+/E-/A+/A-).", "Mide ~1 kΩ entre E+ y E- y entre A+ y A-; revisa que SCK no quede en HIGH más de 60 µs (entra en power-down)."]);
+  }
+  if (s.id === "pms5003" || s.id === "sen55" || s.id === "mhz19" || s.id === "scd41") {
+    rows.push(["Valores en 0 o inestables al encender", "El ventilador láser, fuente IR o celda fotoacústica requiere estabilización térmica y de flujo.", "Descarta las lecturas de los primeros 30–60 s tras energizar el módulo."]);
+  }
+  if (prim === "I2C") {
+    rows.push(["No answer / error NACK (código 2)", "SDA y SCL invertidos, falta de pull-ups a 3.3 V o dirección I2C alternativa activa.", "Verifica que SDA vaya a GPIO" + boardCfg().i2c[0] + " y SCL a GPIO" + boardCfg().i2c[1] + "; prueba la dirección secundaria del chip."]);
+    rows.push(["Se congela Wire.endTransmission()", "Una línea SDA/SCL quedó en corto a GND o a 5 V, o los cables superan 30–40 cm sin blindaje.", "Acorta los cables, revisa tierras comunes (GND) y usa pull-ups de 2.2–4.7 kΩ si el cable es largo."]);
+  } else if (prim === "UART") {
+    const bm = BAUD_MAP[s.id];
+    rows.push(["No llega ningún byte (available() == 0)", "TX y RX están conectados directo (TX→TX) en vez de cruzados, o falta compartir GND.", "Cruza siempre TX del sensor al RX del ESP32 y RX del sensor al TX del ESP32."]);
+    rows.push(["Caracteres basura (⸮⸮Ã¤) o checksum inválido", "Velocidad en baudios incorrecta en Serial2.begin().", bm ? `Configura exactamente ${bm[0]} bps (${bm[1]}).` : "Prueba con 9600 y 115200 bps según la hoja de datos del módulo."]);
+  } else if (prim === "SPI") {
+    rows.push(["Lecturas en 0xFF o 0x00 constantes", "MISO/MOSI cruzados, pin CS no baja a LOW o modo de reloj SPI (CPOL/CPHA) incompatible.", "Verifica CS en salida digital y confirma si el chip pide SPI_MODE0 o SPI_MODE3."]);
+  } else if (prim === "Analógico") {
+    rows.push(["Lectura fija en 4095 o error con Wi-Fi", "El pin elegido pertenece a ADC2 (bloqueado por el driver Wi-Fi) o la señal supera 3.3 V.", "Usa exclusivamente pines ADC1 (" + boardCfg().adc.map(x => "GPIO" + x).join(", ") + ") y divisor resistivo si el módulo es de 5 V."]);
+    rows.push(["Valores que saltan ±80 cuentas sin tocar nada", "El ADC SAR del ESP32 tiene alinealidad y capta ruido de conmutación de 3.3 V.", "Promedia 16–32 muestras por software o añade un condensador de 100 nF entre el pin y GND."]);
+  } else if (prim === "Trigger/Echo") {
+    rows.push(["pulseIn() devuelve siempre 0 (timeout)", "El módulo HC-SR04 / JSN-SR04T no recibe 5 V completos en VCC o el objeto está fuera del cono acústico.", "Alimenta VCC desde 5V (VIN) y protege el pin ECHO con divisor 1 kΩ + 2 kΩ hacia 3.3 V."]);
+  } else if (prim === "I2S") {
+    rows.push(["Audio en cero absoluto o solo ruido blanco", "El pin L/R (selección de canal) está flotante o lees el canal opuesto al configurado.", "Conecta L/R a GND para canal izquierdo (o a 3V3 para derecho) y alinea ese canal en i2s_std."]);
+  }
+  if (!rows.length) return "";
+  return `<details class="diag-box" open><summary>Diagnóstico rápido en el Monitor Serie (${esc(prim)})</summary>
+    <table class="wtab" style="margin-top:0;border:0;border-radius:0"><thead><tr><th>Síntoma en Monitor Serie</th><th>Causa real probable</th><th>Solución en bancada</th></tr></thead>
+    <tbody>${rows.map(([a, b, c]) => `<tr><td><b>${esc(a)}</b></td><td>${esc(b)}</td><td>${esc(c)}</td></tr>`).join("")}</tbody></table>
+  </details>`;
 }
 
 /* ============================================================================
@@ -2576,11 +2749,11 @@ function wiringSVG(w, s, sel){
   });
   targets.forEach(t => { const y = ty(t); const kind = (rows.find(r => r.gpio === t) || {}).kind; const c = (WIRE_KIND[kind] || {}).c || "var(--muted)";
     labelsR += `<circle cx="560" cy="${y}" r="3.4" fill="${c}"/><text x="570" y="${y + 3.5}" font-family="var(--f-mono)" font-size="10.5" fill="var(--ink)">${esc(t)}</text>`; });
-  return `<svg viewBox="0 0 700 ${H}" role="img" aria-label="Diagrama de conexión de ${esc(s.pn)} al ESP32">
+  return `<svg viewBox="0 0 700 ${H}" role="img" aria-label="Diagrama de conexión de ${esc(s.pn)} a ${esc(boardCfg().short)}">
     <rect x="12" y="10" width="164" height="${H - 20}" rx="9" fill="var(--sunk)" stroke="var(--line)"/>
     <text x="94" y="30" text-anchor="middle" font-family="var(--f-display)" font-size="12" font-weight="700" fill="var(--ink)">${esc(s.pn.slice(0, 22))}</text>
     <rect x="552" y="10" width="136" height="${H - 20}" rx="9" fill="var(--sunk)" stroke="var(--line)"/>
-    <text x="620" y="30" text-anchor="middle" font-family="var(--f-display)" font-size="12" font-weight="700" fill="var(--ink)">ESP32 DevKit</text>
+    <text x="620" y="30" text-anchor="middle" font-family="var(--f-display)" font-size="12" font-weight="700" fill="var(--ink)">${esc(boardCfg().short)}</text>
     ${wires}${labelsL}${labelsR}</svg>`;
 }
 function wireTab(s){
@@ -2595,18 +2768,19 @@ function wireTab(s){
     ? `<h3>${esc(cur.pin)} → ${esc(cur.gpio)}</h3><p><b>${esc(cur.fn || "Sin conexión")}</b></p><p>${esc(pinInfo(cur.pin).que)}</p><p>${esc(info.why)}</p>${cur.note ? `<p class="note">${esc(cur.note)}</p>` : ""}${cur.warn ? `<p class="alert">${esc(cur.warn)}</p>` : ""}`
     : `<h3>Toca un cable</h3><p>Cada color es una función: rojo y naranja alimentan, gris es tierra, azul y amarillo forman el bus I2C, verde es serie, morado es SPI. Toca un cable o una fila de la tabla para ver por qué va ahí.</p>`;
   const optN = rows.filter(r => r.opt).length;
-  return `<div class="wiring">
+  return `${boardBarHTML()}<div class="wiring">
     <div class="wire-box">${wiringSVG(w, s, labWire)}</div>
     <div class="wire-side">
       <div class="detail" aria-live="polite">${detail}</div>
       ${optN ? `<label class="chk"><input type="checkbox" data-labopt ${labOpt ? "checked" : ""}> Mostrar los ${optN} pines opcionales</label>` : ""}
-      <p class="note">Mapa orientativo con la numeración clásica del ESP32 DevKit (30 o 38 pines). Confirma con la hoja de datos de tu módulo antes de alimentarlo.</p>
+      <p class="note">Mapa orientativo para <b>${esc(boardCfg().name)}</b>. Confirma la serigrafía y hoja de datos de tu módulo antes de alimentarlo.</p>
     </div>
   </div>
   <table class="wtab"><thead><tr><th>Pin del módulo</th><th>Va a</th><th>Función</th><th>Aviso</th></tr></thead><tbody>${rows.map((r, i) => `<tr data-wire="${i}" aria-selected="${labWire === i}" tabindex="0"><td><i style="background:${wireInfo(r).c}"></i>${esc(r.pin)}</td><td>${esc(r.gpio)}</td><td>${esc(r.fn)}</td><td>${esc(r.warn || r.note || "")}</td></tr>`).join("")}</tbody></table>
   ${s.w ? `<p class="alert"><strong>Antes de conectar:</strong> ${esc(s.w)}</p>` : ""}
-  <div class="code-head"><h3>Esqueleto de código (Arduino / ESP32)</h3><button type="button" class="btn small" data-labcopy="code">Copiar código</button><button type="button" class="btn small" data-labcopy="tabla">Copiar conexiones</button></div>
-  <pre class="code">${esc(snippetFor(s, w))}</pre>`;
+  <div class="code-head"><h3>Esqueleto de código (Arduino / ${esc(boardCfg().short)})</h3><button type="button" class="btn small" data-labcopy="code">Copiar código</button><button type="button" class="btn small" data-labcopy="tabla">Copiar conexiones</button></div>
+  <pre class="code">${esc(snippetFor(s, w))}</pre>
+  ${serialDiagHTML(s, w)}`;
 }
 
 function indTab(s){
@@ -2679,6 +2853,7 @@ function fichaHTML(s){
     <div class="lab-actions">
       <button type="button" class="radar-btn" data-radar="${s.id}" aria-pressed="${on}">${on ? "En tu radar" : "+ Agregar a mi radar"}</button>
       <button type="button" class="btn small" data-cmp="${s.id}" aria-pressed="${inCmp}">${inCmp ? "Quitar de comparar" : "Comparar"}</button>
+      <button type="button" class="btn small" data-inv="${s.id}" aria-pressed="${Boolean(s.own)}" title="Alternar entre No lo tengo → En tu kit → Lo tienes">Inventario: ${s.own === "si" ? "Lo tienes ✓" : s.own === "kit" ? "En tu kit" : "No lo tengo"}</button>
     </div>
     <div class="lab-tabs" role="tablist" aria-label="Laboratorio del sensor">${LAB_TABS.map(([id, n]) => `<button type="button" role="tab" data-tab="${id}" aria-selected="${labTab === id}">${n}</button>`).join("")}</div>
     <div class="lab-body" role="tabpanel">${body}</div>
@@ -2722,13 +2897,15 @@ function v2Refresh(){
 function goExplore(o){
   if (openId) closeFicha();
   state.q = ""; const qi = $("#q"); if (qi) qi.value = "";
-  state.sector = ""; state.fam = ""; state.bus.clear(); state.price.clear(); state.flags.clear();
+  state.sector = ""; state.fam = ""; state.bus.clear(); state.price.clear(); state.flags.clear(); state.level = 0;
   state.recipe = ""; const ans = $("#answer"); if (ans) ans.hidden = true; renderRecipesBar();
   const f = $("#fam"); if (f) f.value = "";
   if (o.sector != null) { state.sector = o.sector; try { location.hash = o.sector || "todos"; } catch (e) {} }
   else { try { location.hash = "todos"; } catch (e) {} }
   if (o.fam != null) { state.fam = o.fam; if (f) f.value = o.fam; }
   if (o.bus) { state.bus.add(o.bus); }
+  if (o.price != null && o.price !== "null") { state.price.add(String(o.price)); }
+  if (o.level) { state.level = Number(o.level) || 0; }
   renderSectors(); renderFilters(); renderGrid();
   setView("explorar");
   const t = $("#resultados"); if (t) t.scrollIntoView({block: "start"});
@@ -2755,9 +2932,10 @@ function renderPanel(){
   const famE = Object.entries(famC).sort((a, b) => b[1] - a[1]).map(([k, n]) => [k, n, FAM[k] || k]);
   const busC = {}; DATA.forEach(s => s.b.forEach(b => busC[b] = (busC[b] || 0) + 1));
   const busE = Object.entries(busC).sort((a, b) => b[1] - a[1]).map(([k, n]) => [k, n, k]);
-  const heat = [0, 1, 2, 3, 4, null].map(p => [1, 2, 3].map(l => DATA.filter(s => (s.p == null ? null : s.p) === p && s.l === l).length));
+  const pVals = [0, 1, 2, 3, 4, null], pLabs = ["Gratis", "€", "€€", "€€€", "€€€€", "n/d"], lLabs = ["Fácil", "Medio", "Avanzado"];
+  const heat = pVals.map(p => [1, 2, 3].map(l => DATA.filter(s => (s.p == null ? null : s.p) === p && s.l === l).length));
   const hmax = Math.max(1, ...heat.flat());
-  const heatHTML = `<table class="heat"><thead><tr><th></th><th>Fácil</th><th>Medio</th><th>Avanzado</th></tr></thead><tbody>${heat.map((r, i) => `<tr><th>${["Gratis", "€", "€€", "€€€", "€€€€", "n/d"][i]}</th>${r.map((n, j) => `<td title="${n} sensores" style="background:color-mix(in srgb,var(--mask) ${Math.round(n / hmax * 78)}%,transparent)">${n || ""}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+  const heatHTML = `<table class="heat"><thead><tr><th></th><th>Fácil</th><th>Medio</th><th>Avanzado</th></tr></thead><tbody>${heat.map((r, i) => `<tr><th>${pLabs[i]}</th>${r.map((n, j) => `<td title="${n} sensores" style="background:color-mix(in srgb,var(--mask) ${Math.round(n / hmax * 78)}%,transparent)">${n && pVals[i] != null ? `<button type="button" class="heat-btn" data-goheat="${pVals[i]}:${j + 1}" title="Explorar ${n} sensores (${pLabs[i]} · ${lLabs[j]})">${n}</button>` : (n || "")}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
   const addr = new Map();
   DATA.forEach(s => { if (s.a && s.b.includes("I2C")) { if (!addr.has(s.a)) addr.set(s.a, []); addr.get(s.a).push(s); } });
   let cells = "";
@@ -2785,7 +2963,7 @@ function renderPanel(){
         <p class="hint">Cada casilla es una dirección del bus. Verde: un sensor del catálogo la usa por defecto. Ámbar: varios la comparten y chocan si los pones juntos (${dupN} direcciones con choque posible).</p>
         <div class="amap" role="group" aria-label="Direcciones I2C">${cells}</div>
         <div class="amap-sel" aria-live="polite">${selAddr ? (selList.length ? `<b>${esc(selAddr)}</b> · ${selList.map(s => `<button type="button" class="pill" data-open="${s.id}">${esc(s.pn)}</button>`).join("")}` : `<b>${esc(selAddr)}</b> · libre en el catálogo`) : "Toca una casilla para ver qué sensores la usan."}</div></section>
-      <section aria-labelledby="ph-h"><h2 id="ph-h" class="sec-h">Precio y dificultad</h2><p class="hint">Cuántos sensores hay en cada combinación. Los más oscuros son los más comunes.</p>${heatHTML}</section>
+      <section aria-labelledby="ph-h"><h2 id="ph-h" class="sec-h">Precio y dificultad</h2><p class="hint">Toca cualquier casilla para filtrar en el catálogo los sensores de ese rango de precio y nivel.</p>${heatHTML}</section>
     </div>
     <section aria-labelledby="pr-h"><div class="sec-head"><h2 id="pr-h" class="sec-h">Recetas de proyecto</h2><span class="hint">Cada receta carga sus sensores en tu banco para ver pines y choques.</span></div><div class="rec-grid">${recipes}</div></section>`;
 }
@@ -2842,20 +3020,21 @@ function busesOf(w){
   return out;
 }
 function benchDiagram(wires){
+  const B = boardCfg();
   const rowsN = Math.ceil(wires.length / 2), H = Math.max(180, rowsN * 70 + 30);
   const dev = (o, i) => { const left = i % 2 === 0, y = 20 + Math.floor(i / 2) * 70, x = left ? 12 : 488;
     if (o.w.internal) return `<g><rect x="${x}" y="${y}" width="190" height="52" rx="8" fill="var(--surface)" stroke="var(--line)" stroke-dasharray="4 3"/><text x="${x + 10}" y="${y + 21}" font-family="var(--f-display)" font-size="12" font-weight="700" fill="var(--ink)">${esc(o.s.pn.slice(0, 21))}</text><text x="${x + 10}" y="${y + 39}" font-family="var(--f-mono)" font-size="9.5" fill="var(--muted)">sin cableado</text></g>`;
     const bs = busesOf(o.w);
     let lines = ""; bs.forEach((b, j) => { const yy = y + 14 + j * 7 - (bs.length - 1) * 3.5 + 12; lines += `<path d="M${left ? x + 190 : x} ${yy} H${left ? 252 : 438}" stroke="${BUS_COLOR[b]}" stroke-width="3" stroke-linecap="round"/>`; });
     return `<g>${lines}<rect x="${x}" y="${y}" width="190" height="52" rx="8" fill="var(--surface)" stroke="var(--line)"/><text x="${x + 10}" y="${y + 21}" font-family="var(--f-display)" font-size="12" font-weight="700" fill="var(--ink)">${esc(o.s.pn.slice(0, 21))}</text><text x="${x + 10}" y="${y + 39}" font-family="var(--f-mono)" font-size="9.5" fill="var(--muted)">${esc(bs.join(" · ") || "solo alimentación")}</text></g>`; };
-  return `<svg viewBox="0 0 690 ${H}" role="img" aria-label="Diagrama de bloques del nodo: el ESP32 al centro y cada sensor conectado por su bus">
+  return `<svg viewBox="0 0 690 ${H}" role="img" aria-label="Diagrama de bloques del nodo: ${esc(B.short)} al centro y cada sensor conectado por su bus">
     <rect x="252" y="8" width="186" height="${H - 16}" rx="12" fill="var(--mask-soft)" stroke="var(--mask)" stroke-width="2"/>
-    <text x="345" y="${H / 2 - 4}" text-anchor="middle" font-family="var(--f-display)" font-size="16" font-weight="700" fill="var(--ink)">ESP32</text>
-    <text x="345" y="${H / 2 + 14}" text-anchor="middle" font-family="var(--f-mono)" font-size="10" fill="var(--muted)">DevKit</text>
+    <text x="345" y="${H / 2 - 4}" text-anchor="middle" font-family="var(--f-display)" font-size="15" font-weight="700" fill="var(--ink)">${esc(B.short)}</text>
+    <text x="345" y="${H / 2 + 14}" text-anchor="middle" font-family="var(--f-mono)" font-size="9.5" fill="var(--muted)">I2C ${B.i2c[0]}/${B.i2c[1]}</text>
     ${wires.map(dev).join("")}</svg>`;
 }
 function benchPinText(d){
-  const L = ["Asignación de pines del ESP32 DevKit para el banco de proyecto (" + new Date().toLocaleDateString("es") + ")"];
+  const L = [`Asignación de pines de ${boardCfg().name} para el banco de proyecto (` + new Date().toLocaleDateString("es") + ")"];
   for (const [label, arr] of orderedUse(d.ctx)) L.push(`${label}: ${arr.map(x => `${x.pn} (${x.fn})`).join("; ")}`);
   return L.join("\n");
 }
@@ -2863,29 +3042,141 @@ function orderedUse(ctx){
   const ord = k => k === "3V3" ? 0 : k === "5V (VIN)" ? 1 : k === "GND" ? 2 : 3;
   return [...ctx.use.entries()].sort((a, b) => ord(a[0]) - ord(b[0]) || (parseInt(a[0].replace(/\D/g, "")) || 0) - (parseInt(b[0].replace(/\D/g, "")) || 0));
 }
+function parseCurrentMa(s, p){
+  if (has(s, "interno")) return 0;
+  const txt = String(p.pwr || "");
+  const m = /(\d+(?:\.\d+)?)\s*(?:[–-]\s*(\d+(?:\.\d+)?))?\s*(µA|uA|mA|A)\b/i.exec(txt);
+  if (!m) return 2;
+  const v = Number(m[2] || m[1]);
+  const u = m[3].toLowerCase();
+  if (u === "µa" || u === "ua") return Math.max(0.05, +(v / 1000).toFixed(2));
+  if (u === "a") return v * 1000;
+  return v;
+}
+function benchPowerHTML(d){
+  let ma33 = 0, ma5 = 0, maExt = 0;
+  const breakdown = [];
+  const noSleep = [];
+  const sleepBlockers = {
+    mq: "Calefactor de SnO₂: requiere minutos de precalentamiento antes de medir.",
+    ccs811: "Calefactor MOX: necesita estabilización térmica tras encender.",
+    ens160: "Placa caliente MOX: tarda ~1–3 min en estabilizar eCO₂/TVOC.",
+    sgp41: "Microcalefactor MOX: requiere algoritmo continuo de línea base.",
+    bme680: "Calefactor de gas: pide varios ciclos si usas el índice IAQ.",
+    ze03: "Celda electroquímica con polarización continua: no debe apagarse entre muestras.",
+    pms5003: "Ventilador láser: pide ~30 s de flujo estable antes de cada lectura.",
+    sen55: "Ventilador y calefactor interno: pensado para alimentación continua.",
+    sps30: "Ventilador óptico de partículas: requiere ~15–30 s de purga al despertar.",
+    ld2410: "Radar de presencia continua: si el nodo duerme pierde detección salvo que su pin OUT despierte al ESP32.",
+    ld2450: "Radar multitarget continuo: requiere alimentación activa permanente.",
+    mr60bha2: "Radar 60 GHz de signos vitales: requiere ventana continua de observación.",
+    mr60fda2: "Radar 60 GHz de caídas: debe permanecer encendido para vigilar eventos."
+  };
+  for (const {s, w} of d.wires) {
+    const p = physOf(s);
+    const ma = parseCurrentMa(s, p);
+    const v = w.internal ? (has(s, "interno") ? "3V3" : "5V") : (w.volt || "3V3");
+    if (v === "EXT") maExt += ma;
+    else if (v === "5V") ma5 += ma;
+    else ma33 += ma;
+    if (ma >= 5) breakdown.push(`${s.pn} (~${Math.round(ma)} mA en ${v})`);
+    if (sleepBlockers[s.id]) noSleep.push([s.pn, sleepBlockers[s.id]]);
+  }
+  const espActive = curBoard === "xiao" ? 65 : 95;
+  const totalCont = Math.round(espActive + ma33 + ma5);
+  // Deep sleep: 4 s active every 300 s (duty ~1.33%) + 0.15 mA sleep + any continuous 5V/3.3V draw if not switched
+  const avgSleep = Math.max(0.5, +((totalCont * (4 / 300)) + 0.25).toFixed(1));
+  const fmtHrs = h => h >= 48 ? `${Math.round(h / 24)} días` : `${Math.round(h)} h`;
+  const lipo2000Cont = (2000 * 0.8) / Math.max(1, totalCont);
+  const cell3000Cont = (3000 * 0.8) / Math.max(1, totalCont);
+  const lipo2000Sleep = (2000 * 0.8) / avgSleep;
+  return `<h3 class="sec-h" style="margin-top:6px">Consumo eléctrico y autonomía en batería</h3>
+    <div class="pwr-cards">
+      <div class="pwr-card"><small>Riel 3.3 V + ${esc(boardCfg().short)}</small><b>~${Math.round(ma33 + espActive)} mA</b><span>Sensores 3.3 V: ~${Math.round(ma33)} mA + MCU/Wi-Fi ~${espActive} mA</span></div>
+      <div class="pwr-card"><small>Riel 5 V (VIN / USB)</small><b>~${Math.round(ma5)} mA</b><span>${ma5 > 350 ? "⚠️ Cerca del límite de 500 mA del puerto USB" : "Dentro del margen de un puerto USB estándar (500 mA)"}${maExt ? ` · +~${Math.round(maExt)} mA en 12–24 V` : ""}</span></div>
+      <div class="pwr-card"><small>Continuo (Wi-Fi siempre activo)</small><b>${fmtHrs(lipo2000Cont)} · ${fmtHrs(cell3000Cont)}</b><span>Con LiPo 2000 mAh / 18650 3000 mAh (~${totalCont} mA totales)</span></div>
+      <div class="pwr-card"><small>Deep Sleep (4 s cada 5 min)</small><b>~${fmtHrs(lipo2000Sleep)}</b><span>Media teórica ~${avgSleep} mA en LiPo 2000 mAh cortando alimentación a periféricos</span></div>
+    </div>
+    ${breakdown.length ? `<p class="hint" style="margin-top:6px">Mayores consumidores del nodo: <b>${esc(breakdown.join(" · "))}</b>.</p>` : ""}
+    ${noSleep.length ? `<div class="i2c" style="margin-top:8px;border-left-color:var(--pad);background:var(--pad-soft)"><strong>Atención para baterías y Deep Sleep</strong>${noSleep.map(([pn, why]) => `<span><b>${esc(pn)}:</b> ${esc(why)}</span>`).join("")}<span>Si alimentas con batería, conmútalos con un MOSFET canal P (ej. AO3401) o pin EN antes de dormir el ESP32.</span></div>` : ""}`;
+}
+function benchBOMData(d, cf){
+  const aux = [];
+  const hasW1 = d.wires.some(x => !x.w.internal && x.w.rows.some(r => r.kind === "data1w"));
+  if (hasW1) aux.push(["Resistencia 4.7 kΩ (¼ W)", "1 ud.", "Pull-up obligatorio entre DQ (datos 1-Wire) y 3V3."]);
+  const echo5 = d.wires.filter(x => !x.w.internal && x.w.rows.some(r => r.kind === "echo" || (r.warn && /divisor|5 V/.test(r.warn))));
+  if (echo5.length) aux.push(["Resistencias 1 kΩ + 2 kΩ (o level shifter BSS138)", `${echo5.length} juego(s)`, `Divisor de tensión 5 V → 3.3 V para proteger el GPIO en: ${echo5.map(x => x.s.pn).join(", ")}.`]);
+  if (d.items.some(s => s.id === "sct013")) aux.push(["2× Resistencias 10 kΩ + 1× Condensador 10 µF (+ 33 Ω si es salida en mA)", "1 red", "Desplaza la onda AC del SCT-013 a 1.65 V DC (mitad del ADC del ESP32)."]);
+  if (d.items.some(s => s.b.includes("RS485"))) aux.push(["Módulo conversor MAX485 (TTL ↔ RS485) + Fuente 12–24 V DC", "1 ud.", "Adapta el par diferencial A/B de sondas industriales (NPK) a UART del ESP32."]);
+  if (d.items.some(s => s.b.includes("CAN"))) aux.push(["Transceptor CAN 3.3 V (SN65HVD230) + Resistencia 120 Ω", "1 ud.", "Convierte las líneas TWAI TX/RX del ESP32 al bus diferencial CANH/CANL."]);
+  if (d.items.some(s => s.id === "geofono")) aux.push(["Amplificador operacional rail-to-rail (LM358 / MCP6002) o ADS1115 + 2 diodos", "1 etapa", "Acondiciona y limita los milivoltios AC de la bobina sísmica del geófono."]);
+  if (cf.direct.length) aux.push(["Multiplexor I2C TCA9548A (1 a 8 canales)", "1 ud.", `Resuelve el choque de dirección I2C (${cf.direct.map(x => x[0]).join(", ")}) sin cambiar código de los sensores.`]);
+  const highPeak = d.items.filter(s => ["pms5003", "sen55", "sps30", "mhz19", "ld2410", "ld2450", "esp32cam", "sim7080"].includes(s.id));
+  if (highPeak.length) aux.push(["Condensador electrolítico 220 µF – 470 µF (≥10 V) + 100 nF cerámico", "1 par", `Amortigua picos de corriente en el riel de alimentación (${highPeak.map(s => s.pn).join(", ")}) y evita reinicios por brownout.`]);
+  if (d.items.some(s => s.id === "ad8232" || s.id === "emg")) aux.push(["Batería LiPo 3.7 V o aislador USB galvánico (ADuM3160)", "1 ud.", "Seguridad eléctrica obligatoria al conectar electrodos sobre la piel."]);
+  const qwiicN = d.items.filter(s => has(s, "qwiic")).length;
+  if (qwiicN) aux.push(["Cables JST-SH 4 pines (Qwiic / STEMMA QT)", `${qwiicN} ud.`, "Conexión I2C en cadena sin soldadura."]);
+  aux.push(["Protoboard / placa perforada + cables Dupont", "1 lote", "Unificar todas las tierras (GND) del nodo en un riel común."]);
+  const owned = d.items.filter(s => s.own === "si" || s.own === "kit");
+  const toBuy = d.items.filter(s => !s.own);
+  const pRange = {0: [0, 0], 1: [2, 5], 2: [6, 15], 3: [16, 40], 4: [45, 85]};
+  let minEur = 0, maxEur = 0;
+  toBuy.forEach(s => { const r = pRange[s.p] || [8, 20]; minEur += r[0]; maxEur += r[1]; });
+  return {aux, owned, toBuy, minEur, maxEur};
+}
+function benchBOMHTML(d, cf){
+  const b = benchBOMData(d, cf);
+  return `<h3 class="sec-h" style="margin-top:6px">BOM de bancada (electrónica auxiliar) y presupuesto</h3>
+    <div class="bench-grid" style="margin-top:6px">
+      <div>
+        <table class="wtab" style="margin-top:0"><thead><tr><th>Componente auxiliar deducido</th><th>Cant.</th><th>Por qué hace falta en este nodo</th></tr></thead>
+        <tbody>${b.aux.map(([n, q, w]) => `<tr><td><b>${esc(n)}</b></td><td>${esc(q)}</td><td>${esc(w)}</td></tr>`).join("")}</tbody></table>
+      </div>
+      <div class="detail" style="align-content:start">
+        <h3>Estado de compra del nodo</h3>
+        <p><b>En tu inventario o kit (${b.owned.length}):</b> ${b.owned.length ? esc(b.owned.map(s => `${s.pn} (${s.own === "si" ? "lo tienes" : "en kit"})`).join(", ")) : "ninguno de esta selección"} · <b>0 €</b></p>
+        <p><b>Faltan por comprar (${b.toBuy.length}):</b> ${b.toBuy.length ? esc(b.toBuy.map(s => `${s.pn} (${priceLabel(s)})`).join(", ")) : "¡Ya tienes todos los sensores de este proyecto!"}</p>
+        <p><b>Presupuesto orientativo (sensores faltantes):</b> <span style="font:700 1.15rem var(--f-mono);color:var(--mask)">${b.toBuy.length ? `${b.minEur} – ${b.maxEur} €` : "0 €"}</span> <small style="color:var(--muted)">(+ ~2–5 € en pasivos/cables)</small></p>
+      </div>
+    </div>`;
+}
+function benchBOMText(d, cf){
+  const b = benchBOMData(d, cf);
+  const L = [`BOM del proyecto para ${boardCfg().name} (` + new Date().toLocaleDateString("es") + ")"];
+  L.push("\n1. SENSORES EN TU INVENTARIO / KIT (0 €):");
+  if (b.owned.length) b.owned.forEach(s => L.push(`- [x] ${s.pn} (${s.n}) — ${s.own === "si" ? "Lo tienes" : "En tu kit"}`));
+  else L.push("- Ninguno");
+  L.push(`\n2. SENSORES POR COMPRAR (Estimado: ${b.toBuy.length ? b.minEur + "–" + b.maxEur + " €" : "0 €"}):`);
+  if (b.toBuy.length) b.toBuy.forEach(s => L.push(`- [ ] ${s.pn} (${s.n}) — ${priceLabel(s)} (${priceTitle(s)})`));
+  else L.push("- Ninguno (ya tienes todos)");
+  L.push("\n3. ELECTRÓNICA AUXILIAR Y PASIVOS DE BANCADA:");
+  b.aux.forEach(([n, q, w]) => L.push(`- [ ] ${q} × ${n}: ${w}`));
+  return L.join("\n");
+}
 function renderBench(){
   const el = $("#bench-body"); if (!el) return;
+  const B = boardCfg();
   const d = benchData();
-  const head = `<div class="sec-head"><h2 class="sec-h">Banco de proyecto</h2><span class="hint">Arma tu nodo con los sensores de «Mi radar»: la app asigna pines del ESP32, dibuja el diagrama y revisa los choques.</span></div>`;
+  const head = `<div class="sec-head"><h2 class="sec-h">Banco de proyecto</h2><span class="hint">Arma tu nodo con los sensores de «Mi radar»: la app asigna pines de la placa elegida, calcula consumo, deduce pasivos y revisa choques.</span></div>${boardBarHTML()}`;
   if (!d.items.length) { el.innerHTML = `<section>${head}<p class="empty">Tu banco está vacío. Agrega sensores con «+ Agregar a mi radar» o carga una receta completa.</p><div class="rec-grid">${RECIPES.map(r => `<article class="rec-card"><h3>${esc(r.n)}</h3><p>${esc(r.d)}</p><button type="button" class="btn small" data-bench-recipe="${esc(r.id)}">Cargar receta</button></article>`).join("")}</div></section>`; return; }
   const chips = `<p class="combo cmp-chips">${d.items.map(s => `<span class="pill on"><button type="button" class="pn" data-open="${s.id}">${esc(s.pn)}</button> <button type="button" data-radar-rm="${s.id}" aria-label="Quitar ${esc(s.pn)}">×</button></span>`).join("")}</p>`;
   const use = orderedUse(d.ctx);
-  const allPins = [...POOLS.adc, ...POOLS.dig, ...POOLS.cs];
-  const freePins = [...new Set(allPins)].filter(g => !d.ctx.used.has(g) && ![0, 2, 12, 15, 21, 22, 18, 19, 23].includes(g)).sort((a, b) => a - b);
+  const allPins = [...B.adc, ...B.dig, ...B.cs];
+  const reserved = new Set([...B.strap, ...B.i2c, ...B.spi]);
+  const freePins = [...new Set(allPins)].filter(g => !d.ctx.used.has(g) && !reserved.has(g)).sort((a, b) => a - b);
   const noPin = [...d.ctx.use.keys()].filter(k => /^sin /.test(k));
   const i2cDev = d.wires.filter(x => !x.w.internal && x.s.b.includes("I2C") && primBus(x.s) === "I2C");
   const notes = [];
   const cf = conflicts();
   cf.direct.forEach(([a, g]) => notes.push(["Choque", `La dirección I2C ${a} la usan ${g.map(([s]) => s.pn).join(" y ")}. Cambia la dirección de uno, usa un multiplexor (TCA9548A) o un segundo bus.`]));
   cf.inv.forEach(([a, s, clash]) => notes.push(["Aviso", `${s.pn} (${a}) comparte dirección con tu ${clash.map(o => o.pn).join(", ")}.`]));
-  if (noPin.length) notes.push(["Choque", `Se acabaron los pines libres para: ${noPin.join(", ")}. Quita sensores o usa un segundo ESP32 / un expansor I2C.`]);
+  if (noPin.length) notes.push(["Choque", `Se acabaron los pines libres en ${B.short} para: ${noPin.join(", ")}. Quita sensores, cambia a una placa con más GPIO o usa un expansor I2C.`]);
   const uartDev = d.wires.filter(x => !x.w.internal && x.w.rows.some(r => r.kind === "uart-rx" && r.g != null));
-  if (uartDev.length > 1) notes.push(["Nota", `${uartDev.length} módulos usan UART: el ESP32 solo tiene UART2 con pines por defecto, los demás usan pines remapeados (funciona, pero revisa cada hoja de datos).`]);
-  if (d.wires.some(x => x.w.rows && x.w.rows.some(r => r.kind === "adc" && r.g != null && [0, 2, 4, 12, 13, 14, 15, 25, 26, 27].includes(r.g)))) notes.push(["Aviso", "Un sensor analógico quedó en un pin ADC2, que no funciona con el Wi-Fi activo."]);
+  if (uartDev.length > 1) notes.push(["Nota", `${uartDev.length} módulos usan UART en ${B.short}: los puertos adicionales usan pines remapeados por matriz GPIO (confirma cada baudrate).`]);
+  if (d.wires.some(x => x.w.rows && x.w.rows.some(r => r.kind === "adc" && r.g != null && B.adc2.includes(r.g)))) notes.push(["Aviso", "Un sensor analógico quedó en un pin ADC2, que no funciona con el Wi-Fi activo."]);
   if (d.wires.filter(x => x.w.rows && x.w.rows.some(r => r.kind === "pwr5")).length > 2) notes.push(["Nota", "Varios módulos se alimentan de 5 V: suma sus consumos y verifica que el USB (500 mA) o tu fuente alcance."]);
   if (d.wires.some(x => x.w.rows && x.w.rows.some(r => r.kind === "mains"))) notes.push(["Peligro", "Incluiste un módulo con conexión a la red eléctrica. Aíslalo en una caja y no lo manipules con tensión."]);
   d.items.filter(s => s.w).forEach(s => notes.push(["Antes de conectar", `${s.pn}: ${s.w}`]));
-  d.wires.filter(x => x.w.warnings).forEach(() => {});
   const warnRows = [];
   d.wires.forEach(({s, w}) => (w.rows || []).forEach(r => { if (r.warn) warnRows.push(`${s.pn} · ${r.pin}: ${r.warn}`); }));
   [...new Set(warnRows)].slice(0, 6).forEach(t => notes.push(["Nivel", t]));
@@ -2897,13 +3188,15 @@ function renderBench(){
         <p class="legend">${Object.entries(BUS_COLOR).filter(([k]) => !["RS485", "Trigger/Echo"].includes(k)).map(([k, c]) => `<span><i style="background:${c}"></i>${esc(k)}</span>`).join("")}</p></div>
       <div><h3 class="sec-h">Revisión del nodo</h3>${noteHTML}</div>
     </div>
-    <h3 class="sec-h" style="margin-top:6px">Asignación de pines del ESP32</h3>
+    ${benchPowerHTML(d)}
+    ${benchBOMHTML(d, cf)}
+    <h3 class="sec-h" style="margin-top:6px">Asignación de pines (${esc(B.name)})</h3>
     <table class="wtab"><thead><tr><th>Pin</th><th>Quién lo usa</th></tr></thead><tbody>${use.map(([label, arr]) => `<tr><td>${esc(label)}</td><td>${arr.map(x => `${esc(x.pn)} <small>(${esc(x.fn)})</small>`).join(" · ")}</td></tr>`).join("")}</tbody></table>
-    <p class="hint">Pines que aún quedan libres para más sensores: <b>${freePins.map(g => "GPIO" + g).join(", ") || "ninguno"}</b>. No uses GPIO0, 2, 12 ni 15 para sensores que puedan estar activos al arrancar: son pines de arranque del ESP32.</p>
+    <p class="hint">Pines libres en ${esc(B.short)} para más sensores: <b>${freePins.map(g => "GPIO" + g).join(", ") || "ninguno"}</b>. Pines de arranque a cuidar: ${B.strap.map(g => "GPIO" + g).join(", ")}.</p>
     ${i2cTable}
-    <div class="row-btns"><button type="button" class="btn small" data-bench-copy="pins">Copiar tabla de pines</button><button type="button" class="btn small" data-bench-copy="yaml">Copiar ESPHome YAML</button><button type="button" class="btn small" data-bench-copy="list">Copiar lista del proyecto</button><button type="button" class="btn small" data-act="radar-clear">Vaciar banco</button></div>
+    <div class="row-btns"><button type="button" class="btn small" data-bench-copy="pins">Copiar tabla de pines</button><button type="button" class="btn small" data-bench-copy="bom">Copiar BOM completo</button><button type="button" class="btn small" data-bench-copy="yaml">Copiar ESPHome YAML</button><button type="button" class="btn small" data-bench-copy="list">Copiar lista del proyecto</button><button type="button" class="btn small" data-act="radar-clear">Vaciar banco</button></div>
     ${benchOut ? `<textarea id="bench-ta" readonly aria-label="Salida generada">${esc(benchOut)}</textarea>` : ""}
-    <p class="hint">Mapa orientativo con la numeración clásica del ESP32 DevKit. Confirma cada conexión en la hoja de datos de tu módulo.</p></section>`;
+    <p class="hint">Mapa orientativo para ${esc(B.name)}. Confirma cada conexión en la hoja de datos de tu módulo.</p></section>`;
 }
 async function copyV2(text, btn, label){
   benchOut = text;
@@ -2912,7 +3205,7 @@ async function copyV2(text, btn, label){
 }
 
 /* ---------- events ---------- */
-const V2SEL = "[data-view],[data-tab],[data-part],[data-wire],[data-cmp],[data-gosector],[data-gofam],[data-gobus],[data-addr],[data-bench-recipe],[data-bench-copy],[data-labcopy],[data-cmpadd],[data-cmpclear],[data-cmpradar]";
+const V2SEL = "[data-view],[data-tab],[data-part],[data-wire],[data-cmp],[data-board],[data-inv],[data-goheat],[data-gosector],[data-gofam],[data-gobus],[data-addr],[data-bench-recipe],[data-bench-copy],[data-labcopy],[data-cmpadd],[data-cmpclear],[data-cmpradar]";
 document.addEventListener("click", e => {
   const t = e.target.closest(V2SEL); if (!t) return;
   const d = t.dataset;
@@ -2921,12 +3214,15 @@ document.addEventListener("click", e => {
   else if ("part" in d) { labSel = d.part; relabel(); }
   else if ("wire" in d) { labWire = Number(d.wire); relabel(); }
   else if ("cmp" in d) { toggleCmp(d.cmp); }
+  else if ("board" in d) { setBoard(d.board); }
+  else if ("inv" in d) { cycleInventory(d.inv); }
+  else if ("goheat" in d) { const [p, l] = d.goheat.split(":"); goExplore({price: p, level: Number(l)}); }
   else if ("gosector" in d) goExplore({sector: d.gosector});
   else if ("gofam" in d) goExplore({fam: d.gofam});
   else if ("gobus" in d) goExplore({bus: d.gobus});
   else if ("addr" in d) { selAddr = selAddr === d.addr ? "" : d.addr; renderPanel(); }
   else if ("benchRecipe" in d) { loadRecipeToRadar(d.benchRecipe); if (openId) closeFicha(); setView("banco"); }
-  else if ("benchCopy" in d) { const bd = benchData(); const txt = d.benchCopy === "pins" ? benchPinText(bd) : d.benchCopy === "yaml" ? esphomeYAML() : radarText(); copyV2(txt, t, "Copiado"); renderBenchKeep(); }
+  else if ("benchCopy" in d) { const bd = benchData(); const txt = d.benchCopy === "pins" ? benchPinText(bd) : d.benchCopy === "bom" ? benchBOMText(bd, conflicts()) : d.benchCopy === "yaml" ? esphomeYAML() : radarText(); copyV2(txt, t, "Copiado"); renderBenchKeep(); }
   else if ("labcopy" in d) { const s = byId.get(openId); if (!s) return; const w = wiringFor(s, newCtx(), {opt: labOpt}); const txt = d.labcopy === "code" ? snippetFor(s, w) : wiringText(s, w); if (BRIDGE) post({cmd: "copiar", texto: txt}); else try { navigator.clipboard.writeText(txt); } catch (err) {} t.textContent = "Copiado"; }
   else if ("cmpadd" in d) addCmpFromInput();
   else if ("cmpclear" in d) { cmpList = []; saveCmp(); v2Refresh(); }
