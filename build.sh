@@ -7,7 +7,7 @@ swiftc -O -target arm64-apple-macos13.0 main.swift -o RadarSensores -framework C
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 mv RadarSensores "$APP/Contents/MacOS/RadarSensores"
-cp index.html catalogo.json LEEME.md "$APP/Contents/Resources/"
+cp index.html catalogo.json LEEME.md validar.py "$APP/Contents/Resources/"
 ICONSET="$(mktemp -d)/AppIcon.iconset"; mkdir -p "$ICONSET"
 for s in 16 32 128 256 512; do
   sips -z $s $s icon1024.png --out "$ICONSET/icon_${s}x${s}.png" >/dev/null

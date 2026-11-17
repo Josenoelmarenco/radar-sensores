@@ -247,7 +247,7 @@ dialog::backdrop{background:rgba(6,14,11,.6)}
       <p class="eyebrow" id="eyebrow">ESP32</p>
       <h1>Radar de <span>sensores</span></h1>
       <p class="lede">Empieza por lo que quieres medir o detectar. El radar te muestra qué sensor lo hace, qué más podrías construir con él y dónde conseguirlo.</p>
-      <div class="upd"><button class="btn upd-btn" id="upd" type="button" data-act="upd" title="Atajo: ⌘R"><span class="spin" aria-hidden="true"></span><span>Actualizar</span></button><span id="upd-status" class="upd-status" aria-live="polite"></span></div>
+      <div class="upd"><button class="btn upd-btn" id="upd" type="button" data-act="upd" title="Atajo: ⌘R"><span class="spin" aria-hidden="true"></span><span>Actualizar</span></button><button class="btn small" id="theme-btn" type="button" data-act="theme" title="Cambiar tema (Atajo: ⌘T)">Tema: Auto</button><span id="upd-status" class="upd-status" aria-live="polite"></span></div>
     </div>
     <svg class="scope" viewBox="0 0 120 120" aria-hidden="true">
       <circle class="ring" cx="60" cy="60" r="56"/><circle class="ring" cx="60" cy="60" r="38"/><circle class="ring" cx="60" cy="60" r="20"/>
@@ -262,6 +262,7 @@ dialog::backdrop{background:rgba(6,14,11,.6)}
     <button class="btn primary" type="submit">Buscar en el catálogo</button>
   </form>
   <div class="try" id="try"><span>Prueba con</span></div>
+  <div class="try" id="recipes" style="padding-top:0"><span>Recetas para tus proyectos</span></div>
   <section id="answer" class="answer" hidden aria-live="polite"></section>
 </header>
 
@@ -348,12 +349,18 @@ const SECTORS = [
 ];
 const SECLABEL = Object.fromEntries(SECTORS.map(s => [s.id, s.n]));
 const FAM = {bio:"Biomédico",radar:"Presencia y radar",imu:"Movimiento",dist:"Distancia",vision:"Visión y térmico",aire:"Aire y gases",clima:"Clima",luz:"Luz y color",fuerza:"Fuerza y presión",agua:"Agua y suelo",sonido:"Sonido",energia:"Energía y medición",hmi:"Interacción",pos:"Posición",ident:"Identificación"};
-const BUSES = ["I2C","SPI","UART","Analógico","Digital","I2S","1-Wire","Interno"];
+const BUSES = ["I2C","SPI","UART","Analógico","Digital","I2S","1-Wire","Trigger/Echo","RS485","Placa propia","Interno"];
 const PRICES = [["0","Gratis"],["1","€"],["2","€€"],["3","€€€"],["4","€€€€"]];
 const PRICE_T = {0:"No necesita hardware adicional",1:"Menos de 5 €",2:"De 5 a 15 €",3:"De 15 a 40 €",4:"Más de 40 €"};
 const LEVEL_T = {1:"Fácil: conectar y leer",2:"Medio: pide calibrar o procesar la señal",3:"Avanzado: señal o protocolo exigente"};
-const FLAGS = [["nuevo","Novedades"],["joya","Poco conocidos"],["falta","Solo lo que no tengo"],["plug","Sin soldar (Qwiic o Grove)"],["esphome","Con ESPHome"]];
+const FLAGS = [["propios","Lo que ya tengo"],["falta","Solo lo que no tengo"],["nuevo","Novedades"],["joya","Poco conocidos"],["plug","Sin soldar (Qwiic o Grove)"],["esphome","Con ESPHome"]];
 const TRY = ["persona quieta","caídas","CO₂","nivel del tanque","fuerza de agarre","respiración sin contacto","nutrientes hidroponía","consumo eléctrico","gestos","posición en interiores"];
+const RECIPES = [
+  {id:"hidro",n:"🌱 Hidroponía DWC",d:"Monitoreo de solución nutritiva (pH, EC/TDS, temperatura del agua y nivel sin contacto) más clima aéreo.",ids:["ph","tds","ds18b20","sht30","xkc","ads1115"]},
+  {id:"amb",n:"🏠 Estación ambiental",d:"Calidad de aire interior (CO₂ real, partículas/COV, confort térmico, luz y ocupación estática).",ids:["scd41","sen55","sht30","bme280","bh1750","ld2410"]},
+  {id:"bio",n:"🫀 Nodo biomédico",d:"Adquisición de biopotenciales y signos vitales (PPG, ECG aislado, temperatura y movimiento para artefactos).",ids:["max30102","ad8232","mlx90614","mpu6050","ads1115"]},
+  {id:"sueno",n:"🛏️ Sueño y caídas 60 GHz",d:"Vigilancia de signos vitales y caídas en habitación o baño sin cámaras ni sensores en el cuerpo.",ids:["mr60bha2","mr60fda2","ld2410","scd41","bh1750"]}
+];
 
 // Inventory read from the Notion database "Inventario de sensores" on 2026-11-17.
 // "si" = confirmed in hand; "kit" = listed in the SunFounder kit, not verified one by one.
@@ -436,11 +443,18 @@ function indexCatalog(cat){
     s._pn = norm(s.pn + " " + (s.q || ""));
     s._n = norm(s.n);
     s._hay = norm([s.d || "", s.i.join(" "), s.k || "", FAM[s.f], s.s.map(x => SECLABEL[x] || x).join(" "), s.b.join(" "), s.a || "", s.t.join(" ")].join(" "));
+    s._combos = [...s.c];
+  }
+  for (const s of DATA) {
+    for (const cid of s.c) {
+      const target = byId.get(cid);
+      if (target && !target._combos.includes(s.id)) target._combos.push(s.id);
+    }
   }
   buildPnKeys();
 }
 
-const state = {q:"", sector:"", fam:"", bus:new Set(), price:new Set(), flags:new Set(), sort:"sug", radar:[], seed:0};
+const state = {q:"", sector:"", fam:"", bus:new Set(), price:new Set(), flags:new Set(), sort:"sug", radar:[], seed:0, recipe:""};
 const LS = "radar-sensores-v1";
 
 /* ---------- filtering ---------- */
@@ -467,6 +481,7 @@ function visible(){
     if (state.fam && s.f !== state.fam) return;
     if (state.bus.size && !s.b.some(b => state.bus.has(b))) return;
     if (state.price.size && !state.price.has(String(s.p))) return;
+    if (state.flags.has("propios") && !s.own) return;
     if (state.flags.has("nuevo") && !has(s,"nuevo")) return;
     if (state.flags.has("joya") && !has(s,"joya")) return;
     if (state.flags.has("falta") && s.own) return;
@@ -487,6 +502,63 @@ function visible(){
   return out.map(x => x.s);
 }
 const anyFilter = () => state.q || state.sector || state.fam || state.bus.size || state.price.size || state.flags.size;
+
+/* ---------- direct recommendation & project recipes ---------- */
+function pickCardHTML(s){
+  const on = inRadar(s.id);
+  return `<div class="pick">
+    <b><button type="button" class="pn" data-open="${s.id}">${esc(s.pn)}</button></b>
+    <small>${esc(s.n)}</small>
+    <div class="chips">${busHTML(s)}${flagsHTML(s)}<span class="chip">${esc(priceLabel(s))}</span></div>
+    <small>Idea: ${esc(s.i[0])}</small>
+    <div class="row"><button type="button" class="link" data-open="${s.id}">Ver ficha</button><button type="button" class="radar-btn" data-radar="${s.id}" aria-pressed="${on}">${on ? "En tu radar" : "+ Radar"}</button></div>
+  </div>`;
+}
+function showAnswerForQuery(q){
+  const box = $("#answer"), clean = q.trim();
+  state.recipe = "";
+  renderRecipesBar();
+  if (!clean) { box.hidden = true; return; }
+  const list = visible().slice(0, 3);
+  if (!list.length) { box.hidden = true; return; }
+  const ownedCount = list.filter(s => s.own).length;
+  box.innerHTML = `<div class="answer-in">
+    <h3>Recomendación directa para «${esc(clean)}»</h3>
+    <p class="sum">Principales opciones del catálogo${ownedCount ? ` (${ownedCount} ya en tu inventario o kit)` : ""}:</p>
+    <div class="picks">${list.map(pickCardHTML).join("")}</div>
+    <p class="row-btns"><button type="button" class="btn small" data-act="ans-close">Cerrar sugerencia</button></p>
+  </div>`;
+  box.hidden = false;
+}
+function showRecipe(recId){
+  const rec = RECIPES.find(r => r.id === recId);
+  const box = $("#answer");
+  if (!rec) { state.recipe = ""; renderRecipesBar(); box.hidden = true; return; }
+  state.recipe = rec.id;
+  renderRecipesBar();
+  const sensors = rec.ids.map(id => byId.get(id)).filter(Boolean);
+  const ownSi = sensors.filter(s => s.own === "si").length;
+  const ownKit = sensors.filter(s => s.own === "kit").length;
+  const missing = sensors.length - ownSi - ownKit;
+  box.innerHTML = `<div class="answer-in">
+    <h3>Receta de proyecto · ${esc(rec.n)}</h3>
+    <p class="sum">${esc(rec.d)}</p>
+    <p class="note">De los ${sensors.length} módulos de esta arquitectura: <strong>${ownSi} ya los tienes confirmados</strong>, <strong>${ownKit} están en tu kit SunFounder</strong> y <strong>${missing} te faltarían por comprar</strong>.</p>
+    <div class="picks">${sensors.map(pickCardHTML).join("")}</div>
+    <p class="row-btns">
+      <button type="button" class="btn small primary" data-recipe-load="${esc(rec.id)}">Cargar estos ${sensors.length} sensores en Mi radar</button>
+      <button type="button" class="btn small" data-act="ans-close">Cerrar receta</button>
+    </p>
+  </div>`;
+  box.hidden = false;
+}
+function renderRecipesBar(){
+  const box = $("#recipes");
+  if (!box) return;
+  box.innerHTML = `<span>Recetas para tus proyectos</span>` + RECIPES.map(r =>
+    `<button type="button" class="pill" data-recipe="${esc(r.id)}" aria-pressed="${state.recipe === r.id}">${esc(r.n)}</button>`
+  ).join("");
+}
 
 /* ---------- rendering: catalog ---------- */
 function flagsHTML(s){
@@ -529,8 +601,9 @@ function renderSectors(){
   }).join("");
 }
 function renderFilters(){
+  const activeBuses = BUSES.filter(b => DATA.some(s => s.b.includes(b)));
   $("#f-flags").innerHTML = `<span class="lab">Mostrar</span>` + FLAGS.map(([id, n]) => `<button type="button" class="pill" data-flag="${id}" aria-pressed="${state.flags.has(id)}">${esc(n)}</button>`).join("");
-  $("#f-bus").innerHTML = `<span class="lab">Interfaz</span>` + BUSES.map(b => `<button type="button" class="pill" data-bus="${esc(b)}" aria-pressed="${state.bus.has(b)}">${esc(b)}</button>`).join("");
+  $("#f-bus").innerHTML = `<span class="lab">Interfaz</span>` + activeBuses.map(b => `<button type="button" class="pill" data-bus="${esc(b)}" aria-pressed="${state.bus.has(b)}">${esc(b)}</button>`).join("");
   $("#f-price").innerHTML = `<span class="lab">Precio</span>` + PRICES.map(([id, n]) => `<button type="button" class="pill" data-price="${id}" aria-pressed="${state.price.has(id)}" title="${esc(PRICE_T[id])}">${esc(n)}</button>`).join("") +
     `<span class="hint" style="font-size:.8rem">€ menos de 5 · €€ 5 a 15 · €€€ 15 a 40 · €€€€ más de 40</span>`;
 }
@@ -562,7 +635,13 @@ function rng(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math
 function renderDiscover(){
   const rnd = rng(state.seed), pick = arr => arr[Math.floor(rnd() * arr.length)];
   const unlock = [];
-  for (const s of DATA) { if (s.own) continue; for (const cid of s.c) { const o = byId.get(cid); if (o && o.own === "si") unlock.push([s, o]); } }
+  for (const s of DATA) {
+    if (s.own) continue;
+    for (const cid of (s._combos || s.c)) {
+      const o = byId.get(cid);
+      if (o && o.own === "si") unlock.push([s, o]);
+    }
+  }
   if (!unlock.length) { $("#discover").innerHTML = ""; return; }
   const [a, mine] = pick(unlock);
   const news = DATA.filter(s => has(s,"nuevo") && s !== a);
@@ -578,10 +657,23 @@ function renderDiscover(){
 }
 
 /* ---------- ficha ---------- */
+function enclosureHint(s){
+  if (has(s, "interno")) return "Integrado en el propio ESP32; evita encerrar la antena PCB tras metal o fibra de carbono.";
+  if (s.f === "radar" && s.id !== "pir") return "Atraviesa PLA/PETG delgado (1–1.5 mm) sin agujeros; deja 3–5 mm de aire frente a la antena y aléjala de planos metálicos.";
+  if (s.id === "pir") return "El lente Fresnel debe asomar al exterior; el plástico común bloquea el infrarrojo pasivo.";
+  if (s.id === "mlx90614" || s.id === "mlx90640" || s.id === "amg8833") return "Requiere ventana abierta: el vidrio, acrílico y PLA bloquean el infrarrojo térmico.";
+  if (s.f === "aire" || s.f === "clima") return "Diseña rejillas de ventilación convectiva y un tabique interno que lo aísle del calor del ESP32 y su regulador.";
+  if (s.f === "luz" || s.f === "vision" || (s.f === "dist" && !s.id.includes("sr04"))) return "Requiere ventana óptica despejada al ras de la tapa para evitar reflejos cruzados (crosstalk).";
+  if (s.f === "agua") return "Separa la sonda húmeda con prensaestopas PG7 o junta tórica; mantén la placa acondicionadora y conectores BNC/Gravity en caja estanca.";
+  if (s.f === "bio") return "Garantiza contacto ergonómico con la piel y alivio de tracción en cables; nunca uses alimentación de red sin aislamiento galvánico.";
+  if (s.f === "imu") return "Fíjalo rígidamente con tornillos M2/M2.5 cerca del centro de masa para no amplificar vibraciones parásitas de la carcasa.";
+  if (s.f === "sonido") return "Añade un canal acústico corto con junta de espuma entre el puerto del micrófono y la tapa impresa.";
+  return "Usa insertos roscados M2/M2.5 o pilares snap-fit en Fusion 360 y deja holgura para el conector JST/Dupont.";
+}
 function fichaHTML(s){
   const on = inRadar(s.id), internal = has(s,"interno"), q = termOf(s);
   const plug = [has(s,"qwiic") ? "Qwiic / STEMMA QT" : "", has(s,"grove") ? "Grove" : ""].filter(Boolean).join(", ");
-  const combos = s.c.map(id => byId.get(id)).filter(Boolean);
+  const combos = (s._combos || s.c).map(id => byId.get(id)).filter(Boolean);
   const specs = [
     ["Interfaz", s.b.length ? esc(s.b.join(", ")) : "Ver hoja de datos"],
     s.a ? ["Dirección I2C por defecto", `<code>${esc(s.a)}</code>`] : null,
@@ -589,7 +681,8 @@ function fichaHTML(s){
     ["Dificultad", esc(LEVEL_T[s.l])],
     plug ? ["Conexión sin soldar", esc(plug)] : null,
     has(s,"esphome") ? ["ESPHome", "Tiene componente: funciona sin escribir el driver"] : null,
-    ["Sectores", esc(s.s.map(x => SECLABEL[x]).join(", "))]
+    ["Sectores", esc(s.s.map(x => SECLABEL[x]).join(", "))],
+    ["Carcasa (Fusion 360 / 3D)", esc(enclosureHint(s))]
   ].filter(Boolean);
   return `<div class="ficha">
     <div class="ficha-top">
@@ -618,7 +711,6 @@ function openFicha(id){
 }
 function closeFicha(){ const dlg = $("#ficha"); openId = ""; try { dlg.close(); } catch (e) { dlg.removeAttribute("open"); } }
 
-/* ---------- radar (personal list) ---------- */
 /* ---------- radar (personal list, saved in the data folder) ---------- */
 let copyText = "";
 function cleanItems(arr){
@@ -645,10 +737,24 @@ function saveLocal(){
   if (BRIDGE) post({cmd: "guardar", nombre: "radar", datos: state.radar});
   else try { localStorage.setItem(LS, JSON.stringify({items: state.radar})); } catch (e) {}
 }
-function radarChanged(){ saveLocal(); renderRadar(); renderGrid(); if (openId) $("#ficha-body").innerHTML = fichaHTML(byId.get(openId)); }
+function radarChanged(){
+  saveLocal(); renderRadar(); renderGrid();
+  if (openId && byId.has(openId)) $("#ficha-body").innerHTML = fichaHTML(byId.get(openId));
+  if (!$("#answer").hidden && state.recipe) showRecipe(state.recipe);
+  else if (!$("#answer").hidden && state.q.trim()) showAnswerForQuery(state.q);
+}
 function toggleRadar(id){
   if (inRadar(id)) state.radar = state.radar.filter(r => r.id !== id);
   else if (byId.has(id)) state.radar.push({id});
+  radarChanged();
+}
+function loadRecipeToRadar(recId){
+  const rec = RECIPES.find(r => r.id === recId);
+  if (!rec) return;
+  for (const id of rec.ids) {
+    if (byId.has(id) && !inRadar(id)) state.radar.push({id});
+  }
+  copyText = "";
   radarChanged();
 }
 function addCustom(x){
@@ -657,19 +763,91 @@ function addCustom(x){
   radarChanged();
 }
 function conflicts(){
-  const pool = [];
-  for (const r of state.radar) { const s = byId.get(r.id); if (s && s.a && s.b.includes("I2C")) pool.push([s, s.own === "si" ? "lo tienes" : "radar"]); }
-  for (const s of DATA) if (s.own === "si" && s.a && s.b.includes("I2C") && !pool.some(p => p[0] === s)) pool.push([s, "lo tienes"]);
-  const groups = new Map();
-  for (const p of pool) { if (!groups.has(p[0].a)) groups.set(p[0].a, []); groups.get(p[0].a).push(p); }
-  return [...groups].filter(([, g]) => g.length > 1);
+  const inList = [];
+  for (const r of state.radar) {
+    const s = byId.get(r.id);
+    if (s && s.a && s.b.includes("I2C")) inList.push([s, "en tu radar"]);
+  }
+  const directMap = new Map();
+  for (const p of inList) {
+    if (!directMap.has(p[0].a)) directMap.set(p[0].a, []);
+    directMap.get(p[0].a).push(p);
+  }
+  const direct = [...directMap].filter(([, g]) => g.length > 1);
+  const inv = [];
+  for (const [s] of inList) {
+    const clashOwn = DATA.filter(o => o.own === "si" && o.id !== s.id && o.a === s.a && o.b.includes("I2C") && !inList.some(p => p[0].id === o.id));
+    if (clashOwn.length) inv.push([s.a, s, clashOwn]);
+  }
+  return {direct, inv};
+}
+function nodeAudit(){
+  const catSensors = state.radar.map(r => byId.get(r.id)).filter(Boolean);
+  if (!catSensors.length) return "";
+  const uarts = catSensors.filter(s => s.b.includes("UART") && !s.b.includes("I2C"));
+  const analogs = catSensors.filter(s => s.b.includes("Analógico"));
+  const hasAds = catSensors.some(s => s.id === "ads1115");
+  const warns = catSensors.filter(s => s.w);
+  const notes = [];
+  if (uarts.length > 2) notes.push(`Seleccionaste ${uarts.length} módulos solo-UART (${uarts.map(s => esc(s.pn)).join(", ")}). Un ESP32 clásico tiene 2 UART libres; considera usar dos nodos o buses distintos.`);
+  if (analogs.length && !hasAds) notes.push(`Tienes ${analogs.length === 1 ? "1 sensor analógico" : analogs.length + " sensores analógicos"} (${analogs.map(s => esc(s.pn)).join(", ")}). En ESP32 usa pines <b>ADC1 (GPIO32–39)</b> porque ADC2 choca con el Wi-Fi, o agrega un <button type="button" class="link" data-radar="ads1115">+ ADS1115 (16 bits I2C)</button>.`);
+  for (const s of warns) notes.push(`<b>${esc(s.pn)}:</b> ${esc(s.w)}`);
+  if (!notes.length) return "";
+  return `<div class="i2c" style="border-left-color:var(--pad);background:var(--pad-soft)"><strong>Notas eléctricas del nodo ESP32</strong>${notes.map(n => `<span>${n}</span>`).join("")}</div>`;
 }
 function radarText(){
   const lines = state.radar.map(r => {
     const s = byId.get(r.id);
-    return s ? `- ${s.pn}: ${s.n} (${s.b.join("/") || "interfaz n/d"}${s.a ? " " + s.a : ""}, ${priceLabel(s)})` : `- ${r.pn}: ${r.n || "fuera del catálogo"}${r.url ? " " + r.url : ""}`;
+    return s ? `- ${s.pn}: ${s.n} (${s.b.join("/") || "interfaz n/d"}${s.a ? " " + s.a : ""}, ${priceLabel(s)}${s.own === "si" ? ", ya lo tienes" : s.own === "kit" ? ", en tu kit" : ""})` : `- ${r.pn}: ${r.n || "fuera del catálogo"}${r.url ? " " + r.url : ""}`;
   });
   return "Mi radar de sensores (" + new Date().toLocaleDateString("es") + ")\n" + lines.join("\n");
+}
+function esphomeYAML(){
+  const catSensors = state.radar.map(r => byId.get(r.id)).filter(Boolean);
+  const lines = ["# Base ESPHome generada por Radar de sensores", "esphome:", "  name: nodo-sensores", "", "esp32:", "  board: esp32dev", ""];
+  if (catSensors.some(s => s.b.includes("I2C"))) {
+    lines.push("i2c:", "  sda: GPIO21", "  scl: GPIO22", "  scan: true", "");
+  }
+  const uarts = catSensors.filter(s => s.b.includes("UART") && !s.b.includes("I2C"));
+  uarts.slice(0, 2).forEach((s, i) => {
+    const pins = i === 0 ? ["GPIO16", "GPIO17"] : ["GPIO25", "GPIO26"];
+    lines.push(`uart:${i ? " # 2do bus" : ""}`, `  - id: uart_${s.id}`, `    rx_pin: ${pins[0]}`, `    tx_pin: ${pins[1]}`, "    baud_rate: 9600", "");
+  });
+  lines.push("sensor:");
+  for (const s of catSensors) {
+    lines.push(`  # ${s.pn} — ${s.n}${s.esphome || has(s, "esphome") ? " (soportado en ESPHome)" : " (requiere componente externo o ADC/custom)"}`);
+    if (s.b.includes("I2C")) {
+      lines.push(`  - platform: ${s.id} # verifica el nombre exacto en esphome.io`, `    address: ${s.a || "0x00"}`, `    update_interval: 15s`);
+    } else if (s.b.includes("Analógico")) {
+      lines.push(`  - platform: adc`, `    pin: GPIO34 # usar ADC1 (GPIO32-39)`, `    name: "${s.pn}"`, `    attenuation: 12db`);
+    } else if (s.b.includes("1-Wire")) {
+      lines.push(`  - platform: dallas_temp`, `    name: "${s.pn}"`);
+    } else {
+      lines.push(`  # Interfaz: ${s.b.join(", ") || "ver hoja de datos"}`);
+    }
+  }
+  return lines.join("\n");
+}
+function pinoutText(){
+  const catSensors = state.radar.map(r => byId.get(r.id)).filter(Boolean);
+  const adcPins = ["GPIO34 (ADC1_6)", "GPIO35 (ADC1_7)", "GPIO32 (ADC1_4)", "GPIO33 (ADC1_5)"];
+  const digPins = ["GPIO4", "GPIO13", "GPIO14", "GPIO27"];
+  const uarts = [["GPIO16 (RX2)", "GPIO17 (TX2)"], ["GPIO25 (RX1)", "GPIO26 (TX1)"]];
+  let ai = 0, di = 0, ui = 0;
+  const rows = ["Guía de conexión sugerida (ESP32-WROOM-32)", "=========================================="];
+  for (const s of catSensors) {
+    let conn = "Revisar datasheet";
+    if (s.b.includes("I2C")) conn = `SDA -> GPIO21 · SCL -> GPIO22 (I2C ${s.a || "s/d"})`;
+    else if (s.b.includes("UART")) { const p = uarts[ui++ % uarts.length]; conn = `TX sensor -> ${p[0]} · RX sensor -> ${p[1]}`; }
+    else if (s.b.includes("SPI")) conn = `SCK -> GPIO18 · MISO -> GPIO19 · MOSI -> GPIO23 · CS -> ${digPins[di++ % digPins.length]}`;
+    else if (s.b.includes("1-Wire")) conn = `DATA -> GPIO4 (con resistencia pull-up de 4.7 kΩ a 3.3V)`;
+    else if (s.b.includes("I2S")) conn = `SCK -> GPIO14 · WS -> GPIO15 · SD -> GPIO32`;
+    else if (s.b.includes("Analógico")) conn = `OUT -> ${adcPins[ai++ % adcPins.length]}`;
+    else if (s.b.includes("Digital") || s.b.includes("Trigger/Echo")) conn = `IO -> ${digPins[di++ % digPins.length]}`;
+    else if (s.b.includes("Interno")) conn = `Integrado en el ESP32`;
+    rows.push(`• ${s.pn}: ${conn}${s.w ? ` [⚠️ ${s.w}]` : ""}`);
+  }
+  return rows.join("\n");
 }
 function renderRadar(){
   $("#radar-n").textContent = String(state.radar.length);
@@ -678,29 +856,39 @@ function renderRadar(){
     const s = byId.get(r.id);
     const title = s ? `<button type="button" class="pn" data-open="${s.id}">${esc(s.pn)}</button>` : `<span class="pn">${esc(r.pn)}</span>`;
     const extra = r.url ? link({n: "Ver noticia", u: "", h: r.url}) : link(STORES[0], r.q);
-    const sub = s ? `${esc(s.n)} · ${esc(priceLabel(s))}` : `${esc(r.n || "Fuera del catálogo")} · ${extra} · ${link(octo, r.q)}`;
+    const ownTag = s && s.own === "si" ? " · lo tienes" : s && s.own === "kit" ? " · en tu kit" : "";
+    const sub = s ? `${esc(s.n)} · ${esc(priceLabel(s))}${ownTag}` : `${esc(r.n || "Fuera del catálogo")} · ${extra} · ${link(octo, r.q)}`;
     return `<li>${title}<small>${sub}</small><button type="button" class="rm" data-radar-rm="${esc(r.id)}">Quitar</button></li>`;
   }).join("");
-  const conf = conflicts();
-  const confHTML = conf.length
-    ? `<div class="i2c"><strong>Direcciones I2C repetidas</strong>${conf.map(([a, g]) => `<span><b>${esc(a)}</b> ${g.map(([s, src]) => `${esc(s.pn)} (${src})`).join(", ")}</span>`).join("")}<span>Dos sensores con la misma dirección no pueden compartir bus. Cambia la dirección con el pin ADDR si existe, usa el segundo bus I2C del ESP32 o un multiplexor TCA9548A.</span></div>`
-    : `<div class="i2c ok">Sin direcciones I2C repetidas entre tu radar y lo que ya tienes.</div>`;
+  const {direct, inv} = conflicts();
+  let confHTML = "";
+  if (direct.length) {
+    confHTML = `<div class="i2c"><strong>Direcciones I2C repetidas en tu radar</strong>${direct.map(([a, g]) => `<span><b>${esc(a)}</b> ${g.map(([s]) => esc(s.pn)).join(", ")}</span>`).join("")}<span>Dos sensores con la misma dirección no pueden compartir bus. Cambia el pin ADDR, usa el segundo bus I2C del ESP32 o un multiplexor TCA9548A.</span></div>`;
+  } else if (inv.length) {
+    confHTML = `<div class="i2c"><strong>Aviso con tu inventario I2C</strong>${inv.map(([a, s, clash]) => `<span><b>${esc(a)}</b> ${esc(s.pn)} usa la misma dirección que tu ${clash.map(o => esc(o.pn)).join(", ")}</span>`).join("")}<span>Solo importa si los conectas juntos en el mismo nodo ESP32.</span></div>`;
+  } else if (state.radar.length) {
+    confHTML = `<div class="i2c ok">Sin direcciones I2C repetidas en tu selección actual.</div>`;
+  }
+  const hasCat = state.radar.some(r => byId.has(r.id));
   $("#radar-body").innerHTML =
-    (state.radar.length ? `<ul class="rlist">${items}</ul>` : `<p class="hint">Marca con «+ Radar» los sensores y novedades que quieras seguir o comprar. Aquí verás la lista y si sus direcciones I2C chocan con lo que ya tienes.</p>`) +
+    (state.radar.length ? `<ul class="rlist">${items}</ul>` : `<p class="hint">Marca con «+ Radar» los sensores y novedades que quieras seguir o armar en un nodo. Aquí verás colisiones I2C, notas eléctricas y podrás generar el YAML de ESPHome o la guía de pines.</p>`) +
     confHTML +
-    (state.radar.length ? `<p><button type="button" class="btn small" data-act="copy">Copiar lista</button></p>` : "") +
-    (copyText ? `<textarea id="copy-out" readonly aria-label="Lista para copiar">${esc(copyText)}</textarea>` : "") +
+    nodeAudit() +
+    (state.radar.length ? `<div class="row-btns"><button type="button" class="btn small" data-act="copy">Copiar lista</button>${hasCat ? `<button type="button" class="btn small" data-act="gen-yaml">ESPHome YAML</button><button type="button" class="btn small" data-act="gen-pins">Pines ESP32</button>` : ""}<button type="button" class="btn small" data-act="radar-clear">Vaciar</button></div>` : "") +
+    (copyText ? `<textarea id="copy-out" readonly aria-label="Salida generada">${esc(copyText)}</textarea>` : "") +
     `<p class="sync">${BRIDGE ? "Guardado en tu Mac." : "Guardado en este navegador."}</p>`;
 }
-async function copyRadar(btn){
-  const text = radarText();
-  if (BRIDGE) { post({cmd: "copiar", texto: text}); btn.textContent = "Lista copiada"; return; }
-  try { await navigator.clipboard.writeText(text); copyText = ""; btn.textContent = "Lista copiada"; }
+async function copyOutput(text, btn, label, showBox){
+  copyText = showBox ? text : "";
+  if (showBox) renderRadar();
+  if (BRIDGE) { post({cmd: "copiar", texto: text}); if (btn) btn.textContent = label; return; }
+  try { await navigator.clipboard.writeText(text); if (btn) btn.textContent = label; }
   catch (e) { copyText = text; renderRadar(); const ta = $("#copy-out"); if (ta) { ta.focus(); ta.select(); } }
 }
 
 /* ---------- market news (RSS scan on demand) ---------- */
-let NOV = Array.isArray(BOOT.novedades) ? BOOT.novedades.filter(n => n && typeof n.id === "string" && typeof n.t === "string" && /^https?:\/\//.test(n.l || "")) : [];
+let NOV = Array.isArray(BOOT.novedades) ? NOV_INIT(BOOT.novedades) : [];
+function NOV_INIT(arr){ return arr.filter(n => n && typeof n.id === "string" && typeof n.t === "string" && /^https?:\/\//.test(n.l || "")); }
 let META = BOOT.meta && typeof BOOT.meta === "object" && !Array.isArray(BOOT.meta) ? BOOT.meta : {};
 if (!Array.isArray(META.descartados)) META.descartados = [];
 let busy = false, busyTimer = 0, novSolo = false, novMax = 8;
@@ -802,11 +990,25 @@ function processFeeds(fuentes){
 }
 function novVisible(){
   const toks = tokens(state.q), need = toks.length ? Math.max(1, Math.ceil(toks.length * 0.6)) : 0;
+  const catMatches = toks.length ? visible() : [];
+  const matchedIds = new Set(catMatches.map(s => s.id));
+  const topFams = new Set(catMatches.slice(0, 4).map(s => s.f));
   return NOV.filter(n => {
     if (novSolo && !n.nuevo) return false;
     if (state.sector && !(n.sec || []).includes(state.sector)) return false;
     if (state.fam && n.fam !== state.fam) return false;
-    if (toks.length) { const hay = norm(n.t + " " + (n.s || "") + " " + (FAM[n.fam] || "")); if (toks.filter(t => hay.includes(t)).length < need) return false; }
+    if (toks.length) {
+      const relIds = related(n.t);
+      if (relIds.some(id => matchedIds.has(id))) return true;
+      const relHay = relIds.map(id => byId.get(id)).filter(Boolean).map(s => s._pn + " " + s._n + " " + s._hay).join(" ");
+      const secText = (n.sec || []).map(x => SECLABEL[x] || x).join(" ");
+      const hay = norm([n.t, n.s || "", FAM[n.fam] || "", secText, relHay].join(" "));
+      const hits = toks.filter(t => {
+        const st = t.length > 4 ? t.replace(/(es|s)$/, "") : t;
+        return hay.includes(t) || hay.includes(st);
+      }).length;
+      if (hits < need && !(n.fam && topFams.has(n.fam))) return false;
+    }
     return true;
   });
 }
@@ -855,7 +1057,29 @@ function novDiscard(id){
   renderNov();
 }
 
-/* ---------- update button ---------- */
+/* ---------- theme & update button ---------- */
+const THEMES = [["", "Tema: Auto"], ["dark", "Tema: Oscuro"], ["light", "Tema: Claro"]];
+function applyTheme(t){
+  const val = t === "dark" || t === "light" ? t : "";
+  if (val) document.documentElement.setAttribute("data-theme", val);
+  else document.documentElement.removeAttribute("data-theme");
+  const btn = $("#theme-btn");
+  if (btn) {
+    const found = THEMES.find(([k]) => k === val) || THEMES[0];
+    btn.textContent = found[1];
+  }
+}
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute("data-theme") || "";
+  const idx = THEMES.findIndex(([k]) => k === cur);
+  const next = THEMES[(idx + 1) % THEMES.length][0];
+  applyTheme(next);
+  META.tema = next;
+  if (BRIDGE) post({cmd: "guardar", nombre: "meta", datos: META});
+  else try { localStorage.setItem("radar-tema", next); } catch (e) {}
+}
+window.radarTema = toggleTheme;
+
 function fmtDate(v){
   if (!v) return "fecha desconocida";
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
@@ -890,6 +1114,8 @@ function renderMeta(){
 }
 function showInforme(r, catMsg, err){
   const box = $("#answer");
+  state.recipe = "";
+  renderRecipesBar();
   let body;
   if (err) body = `<p class="sum">${esc(err)}</p>`;
   else {
@@ -926,7 +1152,7 @@ window.radarRecibir = function(p){
   showInforme(r, catMsg);
 };
 function renderAll(){
-  renderMeta(); renderSectors(); renderFilters(); renderDiscover(); renderRadar(); renderGrid();
+  renderMeta(); renderRecipesBar(); renderSectors(); renderFilters(); renderDiscover(); renderRadar(); renderGrid();
   if (openId && byId.has(openId)) $("#ficha-body").innerHTML = fichaHTML(byId.get(openId)); else if (openId) closeFicha();
 }
 
@@ -951,9 +1177,16 @@ document.addEventListener("click", e => {
   else if ("sector" in d) { try { location.hash = d.sector || "todos"; } catch (err) {} setSector(d.sector); }
   else if ("bus" in d) { toggleIn(state.bus, d.bus); renderFilters(); renderGrid(); }
   else if ("price" in d) { toggleIn(state.price, d.price); renderFilters(); renderGrid(); }
-  else if ("flag" in d) { toggleIn(state.flags, d.flag); renderFilters(); renderGrid(); }
-  else if ("try" in d) { $("#q").value = d.try; setQuery(d.try); $("#resultados").scrollIntoView({behavior: "smooth", block: "start"}); }
+  else if ("flag" in d) {
+    if (d.flag === "propios" && !state.flags.has("propios")) state.flags.delete("falta");
+    if (d.flag === "falta" && !state.flags.has("falta")) state.flags.delete("propios");
+    toggleIn(state.flags, d.flag); renderFilters(); renderGrid();
+  }
+  else if ("try" in d) { $("#q").value = d.try; setQuery(d.try); showAnswerForQuery(d.try); }
+  else if ("recipe" in d) { showRecipe(state.recipe === d.recipe ? "" : d.recipe); }
+  else if ("recipeLoad" in d) { loadRecipeToRadar(d.recipeLoad); $("#railbox").setAttribute("open", ""); $("#railbox").scrollIntoView({behavior: "smooth", block: "nearest"}); }
   else if (d.act === "upd") { actualizar(); }
+  else if (d.act === "theme") { toggleTheme(); }
   else if (d.act === "shuffle") { state.seed += 7919; renderDiscover(); }
   else if (d.act === "nov-solo") { novSolo = !novSolo; novMax = 8; renderNov(); }
   else if (d.act === "nov-more") { novMax += 8; renderNov(); }
@@ -961,18 +1194,22 @@ document.addEventListener("click", e => {
   else if (d.act === "carpeta") { post({cmd: "carpeta"}); }
   else if (d.act === "clear") {
     state.q = ""; $("#q").value = ""; state.fam = ""; $("#fam").value = ""; state.bus.clear(); state.price.clear(); state.flags.clear();
+    state.recipe = ""; $("#answer").hidden = true; renderRecipesBar();
     try { location.hash = "todos"; } catch (err) {}
     renderFilters(); setSector("");
   }
   else if (d.act === "todir") { $("#tiendas").scrollIntoView({behavior: "smooth", block: "start"}); }
   else if (d.act === "close") { closeFicha(); }
-  else if (d.act === "copy") { copyRadar(t); }
-  else if (d.act === "ans-close") { $("#answer").hidden = true; }
+  else if (d.act === "copy") { copyOutput(radarText(), t, "Lista copiada", false); }
+  else if (d.act === "gen-yaml") { copyOutput(esphomeYAML(), t, "YAML copiado", true); }
+  else if (d.act === "gen-pins") { copyOutput(pinoutText(), t, "Pines copiados", true); }
+  else if (d.act === "radar-clear") { state.radar = []; copyText = ""; radarChanged(); renderNov(); }
+  else if (d.act === "ans-close") { state.recipe = ""; renderRecipesBar(); $("#answer").hidden = true; }
 });
 $("#ficha").addEventListener("click", e => { if (e.target === e.currentTarget) closeFicha(); });
 $("#ficha").addEventListener("close", () => { openId = ""; });
-$("#ask").addEventListener("submit", e => { e.preventDefault(); clearTimeout(qTimer); setQuery($("#q").value); $("#resultados").scrollIntoView({behavior: "smooth", block: "start"}); });
-$("#q").addEventListener("input", e => { clearTimeout(qTimer); const v = e.target.value; qTimer = setTimeout(() => setQuery(v), 140); });
+$("#ask").addEventListener("submit", e => { e.preventDefault(); clearTimeout(qTimer); const v = $("#q").value; setQuery(v); showAnswerForQuery(v); });
+$("#q").addEventListener("input", e => { clearTimeout(qTimer); const v = e.target.value; qTimer = setTimeout(() => { setQuery(v); if (!v.trim()) { $("#answer").hidden = true; state.recipe = ""; renderRecipesBar(); } }, 140); });
 $("#fam").addEventListener("change", e => { state.fam = e.target.value; renderGrid(); });
 $("#sort").addEventListener("change", e => { state.sort = e.target.value; renderGrid(); });
 window.addEventListener("hashchange", () => { const h = readHash(); if (h !== state.sector) setSector(h); });
@@ -980,6 +1217,8 @@ window.addEventListener("hashchange", () => { const h = readHash(); if (h !== st
 /* ---------- boot ---------- */
 (function boot(){
   indexCatalog(CAT);
+  const savedTheme = typeof META.tema === "string" ? META.tema : (function(){ try { return localStorage.getItem("radar-tema") || ""; } catch (e) { return ""; } })();
+  applyTheme(savedTheme);
   const now = new Date();
   state.seed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
   state.sector = readHash();

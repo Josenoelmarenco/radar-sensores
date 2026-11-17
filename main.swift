@@ -42,16 +42,21 @@ func loadCatalog() -> Any {
 }
 
 func seedReadme() {
-    let dest = dataDir.appendingPathComponent("LEEME.md")
-    if let src = Bundle.main.url(forResource: "LEEME", withExtension: "md") {
-        try? fm.removeItem(at: dest)
-        try? fm.copyItem(at: src, to: dest)
+    for (name, ext) in [("LEEME", "md"), ("validar", "py")] {
+        let dest = dataDir.appendingPathComponent("\(name).\(ext)")
+        if let src = Bundle.main.url(forResource: name, withExtension: ext) {
+            try? fm.removeItem(at: dest)
+            try? fm.copyItem(at: src, to: dest)
+        }
     }
 }
 
 func jsonString(_ obj: Any) -> String {
     guard let d = try? JSONSerialization.data(withJSONObject: obj), let s = String(data: d, encoding: .utf8) else { return "null" }
     return s
+        .replacingOccurrences(of: "\u{2028}", with: "\\u2028")
+        .replacingOccurrences(of: "\u{2029}", with: "\\u2029")
+        .replacingOccurrences(of: "</script", with: "<\\/script", options: .caseInsensitive)
 }
 
 // MARK: - Feed reading (RSS 2.0 and Atom)
@@ -72,8 +77,16 @@ final class FeedParser: NSObject, XMLParserDelegate {
 
     func parser(_ parser: XMLParser, didStartElement name: String, namespaceURI: String?, qualifiedName q: String?, attributes: [String: String] = [:]) {
         let el = name.lowercased()
-        if el == "item" || el == "entry" { cur = [:]; return }
-        guard cur != nil else { return }
+        if cur == nil {
+            if el == "item" || el == "entry" {
+                cur = [:]
+                depth = 0
+                text = ""
+            }
+            return
+        }
+        depth += 1
+        guard depth == 1 else { return }
         if el == "link", let href = attributes["href"] {
             let rel = attributes["rel"] ?? "alternate"
             if rel == "alternate" && cur?["l"] == nil { cur?["l"] = href }
@@ -81,30 +94,36 @@ final class FeedParser: NSObject, XMLParserDelegate {
         text = ""
     }
 
-    func parser(_ parser: XMLParser, foundCharacters string: String) { if cur != nil { text += string } }
+    func parser(_ parser: XMLParser, foundCharacters string: String) {
+        if cur != nil && depth >= 1 { text += string }
+    }
 
     func parser(_ parser: XMLParser, foundCDATA CDATABlock: Data) {
-        if cur != nil, let s = String(data: CDATABlock, encoding: .utf8) { text += s }
+        if cur != nil && depth >= 1, let s = String(data: CDATABlock, encoding: .utf8) { text += s }
     }
 
     func parser(_ parser: XMLParser, didEndElement name: String, namespaceURI: String?, qualifiedName q: String?) {
         let el = name.lowercased()
-        if el == "item" || el == "entry" {
+        guard cur != nil else { return }
+        if depth == 0 && (el == "item" || el == "entry") {
             if let c = cur, c["t"] != nil, c["l"] != nil { items.append(c) }
             cur = nil
+            text = ""
             return
         }
-        guard cur != nil else { return }
-        let v = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        switch el {
-        case "title": if cur?["t"] == nil { cur?["t"] = v }
-        case "link": if cur?["l"] == nil, !v.isEmpty { cur?["l"] = v }
-        case "pubdate", "published", "dc:date", "updated": if cur?["d"] == nil { cur?["d"] = v }
-        case "description", "summary", "content", "content:encoded":
-            if cur?["s"] == nil, !v.isEmpty { cur?["s"] = String(v.prefix(2500)) }
-        default: break
+        if depth == 1 {
+            let v = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            switch el {
+            case "title": if cur?["t"] == nil, !v.isEmpty { cur?["t"] = v }
+            case "link": if cur?["l"] == nil, !v.isEmpty { cur?["l"] = v }
+            case "pubdate", "published", "dc:date", "updated": if cur?["d"] == nil, !v.isEmpty { cur?["d"] = v }
+            case "description", "summary", "content", "content:encoded":
+                if cur?["s"] == nil, !v.isEmpty { cur?["s"] = String(v.prefix(2500)) }
+            default: break
+            }
+            text = ""
         }
-        text = ""
+        if depth > 0 { depth -= 1 }
     }
 }
 
@@ -238,6 +257,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
     @objc func runUpdate() { web.evaluateJavaScript("window.radarActualizar && window.radarActualizar()", completionHandler: nil) }
     @objc func openFolder() { NSWorkspace.shared.open(dataDir) }
     @objc func focusSearch() { web.evaluateJavaScript("document.getElementById('q').focus()", completionHandler: nil) }
+    @objc func toggleTheme() { web.evaluateJavaScript("window.radarTema && window.radarTema()", completionHandler: nil) }
 
     func buildMenu() {
         let main = NSMenu()
@@ -263,7 +283,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         add("Radar") { m in
             let u = m.addItem(withTitle: "Actualizar", action: #selector(runUpdate), keyEquivalent: "r"); u.target = self
             let f = m.addItem(withTitle: "Buscar", action: #selector(focusSearch), keyEquivalent: "f"); f.target = self
-            let o = m.addItem(withTitle: "Abrir carpeta de datos", action: #selector(openFolder), keyEquivalent: ""); o.target = self
+            let t = m.addItem(withTitle: "Cambiar tema", action: #selector(toggleTheme), keyEquivalent: "t"); t.target = self
+            m.addItem(.separator())
+            let o = m.addItem(withTitle: "Abrir carpeta de datos", action: #selector(openFolder), keyEquivalent: "d"); o.target = self
         }
         add("Ventana") { m in
             m.addItem(withTitle: "Minimizar", action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
